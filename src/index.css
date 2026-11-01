@@ -1,0 +1,146 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Inter:Regular';
+  src: url('https://static.figma.com/font/Inter_1') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Neue Montreal:Regular';
+  src: url('/font/neuemontreal-regular.otf') format('opentype');
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Neue Montreal:Medium';
+  src: url('/font/neuemontreal-medium.otf') format('opentype');
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* Karla is the UI font inside the nest app/thermostat mockups. */
+@font-face {
+  font-family: 'Karla:Regular';
+  src: url('/font/karla-regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Karla:Medium';
+  src: url('/font/karla-medium.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* Outlined thermostat digits in the nest concept graphics. */
+@font-face {
+  font-family: 'Rethink Sans';
+  src: url('/font/rethinksans-medium.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 500;
+}
+
+html {
+  background: #fff;
+}
+
+body {
+  margin: 0;
+}
+
+.nm {
+  font-family: 'Neue Montreal:Regular', Arial, sans-serif;
+}
+
+.nm-medium {
+  font-family: 'Neue Montreal:Medium', Arial, sans-serif;
+}
+
+/* The site draws its own cursor (see CustomCursor) on mouse/trackpad devices. */
+@media (pointer: fine) {
+  html.custom-cursor,
+  html.custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+/* Pages are laid out at the Figma frame width, centred in the window and
+   clipped at the frame edges like the frames in Figma. In a narrower window
+   the frame scales down to fit (--frame-zoom, set by FrameZoom). */
+.page-clip {
+  position: relative;
+  overflow-x: clip;
+}
+
+.frame-page {
+  position: relative;
+  width: 1506px;
+  margin: 0 auto;
+  zoom: var(--frame-zoom, 1);
+  /* clip (not hidden) so position: sticky still works inside */
+  overflow: clip;
+}
+
+@keyframes arrow-nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+
+.state-label {
+  left: calc(50% + 244px);
+}
+
+.guy {
+  will-change: left, top;
+}
+
+.fall-frame {
+  position: absolute;
+  display: flex;
+  width: 86px;
+  height: 86px;
+  align-items: center;
+  justify-content: center;
+}
+
+.fall-frame--0 {
+  top: -1px;
+  left: 0;
+}
+
+.fall-frame--1 {
+  top: -1.6px;
+  left: -0.6px;
+  width: 87.202px;
+  height: 87.202px;
+  transform: rotate(-90.81deg);
+}
+
+.fall-frame--2 {
+  top: -0.04px;
+  left: -0.04px;
+  transform: rotate(180deg);
+}
+
+.fall-frame--3 {
+  top: 0;
+  left: 0;
+}
+
+.fall-frame--left img {
+  transform: scaleX(-1);
+}
+/* Fade in and up: on load (.fade-up, with an optional --fade-delay and
+   --fade-duration) and as sections scroll into view (see Reveal). */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: none; }
+}
+
+.fade-up {
+  animation: fade-up var(--fade-duration, 1250ms) cubic-bezier(0.22, 1, 0.36, 1) var(--fade-delay, 0ms) both;
+}

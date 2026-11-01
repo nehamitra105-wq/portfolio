@@ -1,0 +1,49 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="83.456" height="83.456" viewBox="0 0 83.456 83.456" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="adobe record">
+<g clip-path="url(#clip0_0_108)">
+<rect id="Rectangle 240648965" x="0.000163269" y="0.000163269" width="83.456" height="83.456" fill="black"/>
+<g id="Ellipse 246" filter="url(#filter0_fng_0_108)">
+<ellipse cx="45.1072" cy="36.108" rx="67.5005" ry="68.571" transform="rotate(16.1229 45.1072 36.108)" fill="url(#paint0_radial_0_108)"/>
+</g>
+<path id="Vector" d="M22.4248 58.5512C23.0292 57.6874 24.2058 54.3687 24.6984 53.2027L32.3662 35.0028C33.3078 32.7106 34.2692 30.4265 35.2501 28.1507C35.54 27.4644 36.4189 25.1731 36.744 24.7293C36.8841 24.538 40.5128 24.5755 40.993 24.5929C42.8457 24.6596 44.9671 24.5024 46.807 24.6265C48.1006 27.6262 49.3446 30.7465 50.597 33.7663L56.9696 49.056L59.7789 55.8611C60.0812 56.58 60.6975 58.172 61.0296 58.7703C58.6119 58.7476 56.1941 58.7439 53.7763 58.759C52.9105 58.7601 51.1839 58.812 50.3857 58.7386C50.0202 58.0305 49.6153 56.9236 49.3065 56.1462L47.2516 50.8917C45.3212 46.0437 43.11 40.7778 41.3676 35.905C40.81 37.9308 39.5743 40.6746 38.7741 42.724C38.0475 44.5961 37.304 46.4617 36.5439 48.3204C36.2647 49.0079 35.7483 50.3857 35.4332 51.0071C36.1667 50.884 37.7835 50.9118 38.5892 50.9179C39.8344 50.9275 41.2956 50.8769 42.526 50.9345C43.4295 53.2466 44.4124 56.6589 45.3835 58.7788C43.329 58.7137 41.1026 58.7526 39.0375 58.7519L28.2767 58.7511L24.2197 58.7599C23.9129 58.7598 22.6474 58.7705 22.4248 58.7227V58.5512Z" fill="white"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_fng_0_108" x="-35.2633" y="-45.1679" width="160.741" height="162.552" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="6.38464" result="effect1_foregroundBlur_0_108"/>
+<feTurbulence type="fractalNoise" baseFrequency="6.9754462242126465 6.9754462242126465" stitchTiles="stitch" numOctaves="3" result="noise" seed="8284" />
+<feComponentTransfer in="noise" result="coloredNoise1">
+<feFuncR type="linear" slope="2" intercept="-0.5" />
+<feFuncG type="linear" slope="2" intercept="-0.5" />
+<feFuncB type="linear" slope="2" intercept="-0.5" />
+<feFuncA type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "/>
+</feComponentTransfer>
+<feComposite operator="in" in2="effect1_foregroundBlur_0_108" in="coloredNoise1" result="noise1Clipped" />
+<feComponentTransfer in="noise1Clipped" result="color1">
+<feFuncA type="table" tableValues="0 0.26" />
+</feComponentTransfer>
+<feMerge result="effect2_noise_0_108">
+<feMergeNode in="effect1_foregroundBlur_0_108" />
+<feMergeNode in="color1" />
+</feMerge>
+<feTurbulence type="fractalNoise" baseFrequency="0.99900001287460327 0.99900001287460327" numOctaves="3" seed="6463" />
+<feDisplacementMap in="effect2_noise_0_108" scale="17.367040634155273" xChannelSelector="R" yChannelSelector="G" result="displacedImage" />
+<feMerge result="effect3_texture_0_108">
+<feMergeNode in="displacedImage"/>
+</feMerge>
+</filter>
+<radialGradient id="paint0_radial_0_108" cx="0" cy="0" r="1" gradientTransform="matrix(-132.828 -25.0809 24.6893 -134.935 106.435 49.0498)" gradientUnits="userSpaceOnUse">
+<stop offset="0.215496" stop-color="#FF2014"/>
+<stop offset="0.451923" stop-color="#F6A249"/>
+<stop offset="0.591346" stop-color="#F8AFAF"/>
+<stop offset="0.644231" stop-color="#FFCA79"/>
+<stop offset="0.798077" stop-color="#F1FF93"/>
+<stop offset="0.913462" stop-color="#C2E58A"/>
+</radialGradient>
+<clipPath id="clip0_0_108">
+<rect width="83.456" height="83.456" rx="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
