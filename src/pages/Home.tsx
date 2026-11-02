@@ -49,8 +49,11 @@ const SPIN_DEGREES_PER_MS = 360 / 12000;
 // stuck halfway. The page scrolls this far (in frame pixels) along with it.
 const HERO_LANDING_SCROLL = 400;
 const HERO_LANDING_MS = 1400;
-// How far the first shelf's other CDs drift in from as the hero CD lands.
-const SHELF_DRIFT = 240;
+// The first shelf's other CDs keep the shelf's gap from the hero CD's case
+// as it lands (or grows back), so they move with it and never overlap it.
+// They fade with that same movement, gone before they'd reach the frame's
+// right edge (the Ribbon case ends at 834 + 467).
+const SHELF_ROOM = 1506 - (834 + 467);
 const SCROLL_KEYS = new Set(["ArrowDown", "ArrowUp", "PageDown", "PageUp", " ", "Home", "End"]);
 
 const SHELF_ROWS = [
@@ -76,7 +79,6 @@ const HOME_FADE_MS = 500;
 const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
-const easeOut = (t: number) => 1 - (1 - t) ** 3;
 
 function ShelfDescription({ study, style }: { study: CaseStudy; style: CSSProperties }) {
   return (
@@ -270,11 +272,10 @@ export default function Home() {
       setHeroDone(progress >= 0.999);
 
       if (firstRowRef.current) {
-        // The other CDs drift in from the right while fading up (and fade
-        // out as they drift away), so they never get cut off at the edge.
-        const shown = easeOut(clamp01((landedRef.current - 0.15) / 0.85));
-        firstRowRef.current.style.transform = `translateX(${(1 - shown) * SHELF_DRIFT}px)`;
-        firstRowRef.current.style.opacity = `${shown * shown}`;
+        const caseRight = mix(heroX(HERO_CASE.left + HERO_CASE.width), SHELF_CASE.left + SHELF_CASE.width, progress);
+        const shift = Math.max(0, caseRight - (SHELF_CASE.left + SHELF_CASE.width));
+        firstRowRef.current.style.transform = `translateX(${shift}px)`;
+        firstRowRef.current.style.opacity = `${clamp01(1 - shift / SHELF_ROOM)}`;
       }
 
       frame = requestAnimationFrame(tick);
