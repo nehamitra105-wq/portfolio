@@ -55,6 +55,12 @@ export default function PageLoader() {
 
   // Runs before the new page is painted, so a half-loaded page never shows.
   useLayoutEffect(() => {
+    // Briefs come in straight from the shelf with the flying CD, so they skip
+    // the loader (home loads their pictures ahead of time instead).
+    if (pathname.startsWith("/brief/")) {
+      setVisible(false);
+      return;
+    }
     let cancelled = false;
     let checkTimer = 0;
     let graphicTimer = 0;

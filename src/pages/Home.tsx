@@ -9,7 +9,7 @@ import ShelfDisc from "../components/home/ShelfDisc";
 import Reveal from "../components/Reveal";
 import { EducationBlock, InvolvementBlock, WorkBlock } from "../components/home/WorkSections";
 import { briefLayout } from "../site/briefLayout";
-import { caseStudyBySlug, type CaseStudy } from "../site/caseStudies";
+import { CASE_STUDIES, caseStudyBySlug, type CaseStudy } from "../site/caseStudies";
 import { useDiscFlight } from "../site/discFlight";
 import { useFrameZoom } from "../site/frameZoom";
 
@@ -134,6 +134,19 @@ export default function Home() {
     const handleResize = () => setWindowHeight(window.innerHeight);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Load the brief pages' pictures once home has loaded, so a brief opens
+  // fully drawn (briefs don't show the loading screen).
+  useEffect(() => {
+    const preload = () => {
+      for (const { brief } of CASE_STUDIES) {
+        for (const src of [brief.disc.src, brief.graphic.src]) new Image().src = src;
+      }
+    };
+    if (document.readyState === "complete") preload();
+    else window.addEventListener("load", preload, { once: true });
+    return () => window.removeEventListener("load", preload);
   }, []);
 
   // Arriving from a nav/footer link on another page.
@@ -415,14 +428,14 @@ export default function Home() {
           />
           </Reveal>
 
-          <Reveal className="absolute" style={{ left: 98, top: y(4099) }}>
+          <Reveal className="absolute z-[1]" style={{ left: 98, top: y(4099) }}>
             <WorkBlock onExtraChange={setWorkExtra} style={{ left: 0, top: 0 }} />
           </Reveal>
           {/* Involvement comes before Education (swapped from the design). */}
-          <Reveal className="absolute" style={{ left: 98, top: y(4607) + workExtra }}>
+          <Reveal className="absolute z-[1]" style={{ left: 98, top: y(4607) + workExtra }}>
             <InvolvementBlock onExtraChange={setInvolvementExtra} style={{ left: 0, top: 0 }} />
           </Reveal>
-          <Reveal className="absolute" style={{ left: 98, top: y(4885) + workExtra + involvementExtra }}>
+          <Reveal className="absolute z-[1]" style={{ left: 98, top: y(4885) + workExtra + involvementExtra }}>
             <EducationBlock style={{ left: 0, top: 0 }} />
           </Reveal>
           <Reveal className="absolute" style={{ left: 100, top: y(6383) + workExtra + involvementExtra }}>
@@ -431,7 +444,8 @@ export default function Home() {
         </div>
 
         {/* About me's objects are clipped to the frame in Figma; here they
-            run on to the window edges when the window is wider than the frame. */}
+            run on to the window edges when the window is wider than the frame.
+            Work, Involvement and Education sit in front of them (z-[1]). */}
         <div className="pointer-events-none absolute inset-x-0 top-0">
           <div className="relative mx-auto w-[1506px]" style={{ zoom }}>
             <AboutMe style={{ left: -214, top: y(5198) + workExtra + involvementExtra }} />

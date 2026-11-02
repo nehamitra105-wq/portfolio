@@ -139,12 +139,15 @@ function ExpandableRow({
         </span>
       </button>
       <div className="grid" style={{ gridTemplateRows: open ? "1fr" : "0fr", transition: `grid-template-rows ${EXPAND_EASE}` }}>
-        <div className="overflow-hidden">
+        {/* Not clipped: the space opens while the text fades in and drifts
+            down into it, on the same timing as the plus turning. */}
+        <div className="min-h-0">
           <p
             className="nm line-clamp-4 w-[568px] pt-[24px] text-[16px] leading-[1.32] tracking-[-0.32px]"
             style={{
               opacity: open ? 1 : 0,
-              transform: open ? "none" : "translateY(-12px)",
+              pointerEvents: open ? undefined : "none",
+              transform: open ? "none" : "translateY(-16px)",
               transition: `opacity ${EXPAND_EASE}, transform ${EXPAND_EASE}`,
             }}
           >
@@ -271,7 +274,7 @@ function FluxBadge() {
         className="nm pointer-events-none absolute left-0 h-[27px] w-[188px] text-[16px] leading-[1.32] tracking-[-0.32px] text-black transition-all duration-300 ease-in-out"
         style={{ top: hovered ? 103.5 : 73.5, opacity: hovered ? 1 : 0 }}
       >
-        check out my podcast!
+        Check out my podcast!
       </p>
       <a
         aria-label="SCAD FLUX podcast on Spotify"
