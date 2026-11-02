@@ -8,6 +8,7 @@ import Referrals from "../components/home/Referrals";
 import ShelfDisc from "../components/home/ShelfDisc";
 import Reveal from "../components/Reveal";
 import { EducationBlock, InvolvementBlock, WorkBlock } from "../components/home/WorkSections";
+import { briefLayout } from "../site/briefLayout";
 import { caseStudyBySlug, type CaseStudy } from "../site/caseStudies";
 import { useDiscFlight } from "../site/discFlight";
 import { useFrameZoom } from "../site/frameZoom";
@@ -25,6 +26,11 @@ const FRAME_HEIGHT = 7269;
 const HERO_CASE = { left: 319, top: 604 + (752 - 867 * (415 / 467)) / 2, width: 867, height: 867 * (415 / 467) };
 const HERO_DISC = { left: 453, top: 668, size: 631 };
 const SHELF_TOP = 1446;
+// Bottom of the tagline as rendered (in unscaled hero pixels), and the space
+// kept between it and a shelf CD popped up on hover (it rises to the top of
+// its row).
+const TAGLINE_BOTTOM = 564;
+const HOVER_GAP = 64;
 const SHELF_CASE = { left: 209, top: SHELF_TOP + 225, width: 467, height: 415 };
 const SHELF_DISC = { left: 209 + 52, top: SHELF_TOP + 240, size: 383.61 };
 // The hero scales about the top of the wrong names, centred on the frame.
@@ -107,7 +113,12 @@ export default function Home() {
   );
   const heroX = (x: number) => HERO_ORIGIN.x + (x - HERO_ORIGIN.x) * heroScale;
   const heroY = (v: number) => HERO_ORIGIN.y + (v - HERO_ORIGIN.y) * heroScale;
-  const shelfShift = viewportHeight - SHELF_BANDS[0].top;
+  // The first shelf starts at the window bottom, or lower when the window is
+  // short so a CD popped up on hover still clears the tagline. The landing
+  // scrolls that much further to match.
+  const shelfDrop = Math.max(0, heroY(TAGLINE_BOTTOM) + HOVER_GAP - (viewportHeight - SHELF_BANDS[0].top + SHELF_TOP));
+  const shelfShift = viewportHeight - SHELF_BANDS[0].top + shelfDrop;
+  const landingScroll = HERO_LANDING_SCROLL + shelfDrop;
   const y = (value: number) => (value >= SHELF_TOP ? value + shelfShift : value);
 
   useEffect(() => {
@@ -128,7 +139,7 @@ export default function Home() {
 
   // Start the hero CD landing (or going back) from a scroll, wheel, key or swipe.
   useEffect(() => {
-    const landingScroll = HERO_LANDING_SCROLL * zoom;
+    const landingPx = landingScroll * zoom;
     const start = (to: number, drive: boolean) => {
       if (landingRef.current || landedRef.current === to) return;
       landingRef.current = {
@@ -137,7 +148,7 @@ export default function Home() {
         startedAt: performance.now(),
         drive,
         fromScroll: window.scrollY,
-        toScroll: to === 1 ? Math.max(window.scrollY, landingScroll) : 0,
+        toScroll: to === 1 ? Math.max(window.scrollY, landingPx) : 0,
       };
     };
     // Down at the very top lands the CD; up near the top sends it back.
@@ -149,7 +160,7 @@ export default function Home() {
       if (down && landedRef.current === 0) {
         event.preventDefault();
         start(1, true);
-      } else if (!down && landedRef.current === 1 && window.scrollY <= landingScroll * 1.25) {
+      } else if (!down && landedRef.current === 1 && window.scrollY <= landingPx * 1.25) {
         event.preventDefault();
         start(0, true);
       }
@@ -177,7 +188,7 @@ export default function Home() {
       const previous = lastScrollRef.current;
       lastScrollRef.current = scroll;
       if (landedRef.current === 0 && scroll > previous && scroll > 1) start(1, false);
-      else if (landedRef.current === 1 && scroll < previous && scroll < landingScroll - 1) start(0, false);
+      else if (landedRef.current === 1 && scroll < previous && scroll < landingPx - 1) start(0, false);
     };
 
     window.addEventListener("wheel", onWheel, { passive: false });
@@ -192,7 +203,7 @@ export default function Home() {
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("scroll", onScroll);
     };
-  }, [zoom]);
+  }, [landingScroll, zoom]);
 
   // Spin the hero disc and, while it lands, shrink it and its case into the
   // nest slot on the first shelf as that shelf's CDs slide in on a slow curve.
@@ -254,7 +265,7 @@ export default function Home() {
     const rect = disc.getBoundingClientRect();
     const size = disc.offsetWidth * zoom;
     const target = study.brief.disc;
-    const frameLeft = frame.getBoundingClientRect().left;
+    const brief = briefLayout();
     startFlight({
       study,
       from: {
@@ -264,9 +275,9 @@ export default function Home() {
         rotate: parseFloat(getComputedStyle(disc).rotate) || 0,
       },
       to: {
-        left: frameLeft + (target.cx - target.size / 2) * zoom,
-        top: (target.cy - target.size / 2) * zoom,
-        size: target.size * zoom,
+        left: (target.cx - target.size / 2) * brief.scale,
+        top: (target.cy - target.size / 2) * brief.scale,
+        size: target.size * brief.scale,
         rotate: target.rotate - 360,
       },
     });
