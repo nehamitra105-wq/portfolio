@@ -1,8 +1,9 @@
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ViewCaseStudyButton } from "../components/CaseStudyButtons";
 import SiteFooter from "../components/SiteFooter";
 import SiteNav from "../components/SiteNav";
+import { useFrameZoom } from "../site/frameZoom";
 import { EMAIL } from "../site/navigation";
 
 type JobSlug = "adobe" | "kohler" | "finra";
@@ -37,6 +38,10 @@ const JOBS: Record<JobSlug, { title: string; paragraphs: string[]; meta: [string
 
 const PIC_TOP = 149;
 const PIC_HEIGHT = 1667;
+// The first screen shows the frame down to just past the top of the two
+// pictures under the main one (they start at 983), so they peek in as in
+// Figma. Short windows scale the page down to fit that much.
+const FIRST_SCREEN = 1060;
 
 // "<brand> brief" frames (1506 x 2219). The job description stays put while
 // the pictures on the right scroll past, until the pictures run out.
@@ -44,6 +49,17 @@ export default function Job() {
   const { brand } = useParams();
   const navigate = useNavigate();
   const job = JOBS[brand as JobSlug];
+  const widthZoom = useFrameZoom();
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+  const zoom = Math.min(widthZoom, windowHeight / FIRST_SCREEN);
+  // Window height in frame pixels: the job description is centred in it.
+  const screenHeight = windowHeight / zoom;
+
+  useEffect(() => {
+    const handleResize = () => setWindowHeight(window.innerHeight);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
@@ -56,45 +72,47 @@ export default function Job() {
 
   return (
     <div className="page-clip">
-      <div className="frame-page h-[1896px] bg-white">
+      <div className="frame-page h-[1896px] bg-white" style={{ zoom }}>
         <SiteNav />
 
         <div className="absolute top-0 left-[139px] w-[495px]" style={{ height: PIC_TOP + PIC_HEIGHT }}>
-          <div className="sticky top-0 flex w-full flex-col items-start gap-[91px] pt-[149px]">
-            <div className="flex w-full flex-col items-start gap-[8px]">
-              <button
-                className="flex items-center gap-[13.5px]"
-                onClick={() => navigate("/", { state: { scrollTo: "work" } })}
-                type="button"
-              >
-                <span className="flex rotate-180 items-center justify-center">
-                  <span className="relative h-0 w-[15.375px]">
-                    <span className="absolute inset-[-8.28px_-7.32%]">
-                      <img alt="" className="block size-full max-w-none" src="/assets/shared/back-arrow.svg" />
+          <div className="sticky top-0 flex w-full flex-col justify-center" style={{ height: screenHeight }}>
+            <div className="flex w-full flex-col items-start gap-[91px]">
+              <div className="flex w-full flex-col items-start gap-[8px]">
+                <button
+                  className="flex items-center gap-[13.5px]"
+                  onClick={() => navigate("/", { state: { scrollTo: "work" } })}
+                  type="button"
+                >
+                  <span className="flex rotate-180 items-center justify-center">
+                    <span className="relative h-0 w-[15.375px]">
+                      <span className="absolute inset-[-8.28px_-7.32%]">
+                        <img alt="" className="block size-full max-w-none" src="/assets/shared/back-arrow.svg" />
+                      </span>
                     </span>
                   </span>
-                </span>
-                <span className="nm h-[31.875px] w-[63.75px] text-left text-[24px] leading-[1.32] tracking-[-0.48px] text-black">Back</span>
-              </button>
-              <p className="nm flex h-[92px] w-full flex-col justify-end text-[48px] leading-[1.32] tracking-[-0.96px] text-black">{job.title}</p>
-              <div className="nm w-full text-[20px] leading-[1.32] tracking-[-0.4px] whitespace-pre-wrap text-black">
-                {job.paragraphs.map((paragraph, index) => (
-                  <p className={index ? "mt-[26.4px]" : ""} key={index}>
-                    {paragraph}
-                  </p>
+                  <span className="nm h-[31.875px] w-[63.75px] text-left text-[20px] leading-[1.32] tracking-[-0.4px] text-black">Back</span>
+                </button>
+                <p className="nm flex h-[92px] w-full flex-col justify-end text-[40px] leading-[1.32] tracking-[-0.8px] text-black">{job.title}</p>
+                <div className="nm w-full text-[20px] leading-[1.32] tracking-[-0.4px] whitespace-pre-wrap text-black">
+                  {job.paragraphs.map((paragraph, index) => (
+                    <p className={index ? "mt-[26.4px]" : ""} key={index}>
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
+              <div className="flex w-[461px] flex-col items-start gap-[16px] text-[15px] leading-normal text-black">
+                {job.meta.map(([label, value]) => (
+                  <div className="flex w-full items-center gap-[15px]" key={label}>
+                    <p className="nm h-[19px] w-[99px] shrink-0 opacity-50">{label}</p>
+                    <p className="nm-medium h-[19px] min-w-px flex-1">{value}</p>
+                  </div>
                 ))}
               </div>
+              {/* No public case study for client work yet. */}
+              <ViewCaseStudyButton locked />
             </div>
-            <div className="flex w-[461px] flex-col items-start gap-[16px] text-[20px] leading-normal text-black">
-              {job.meta.map(([label, value]) => (
-                <div className="flex w-full items-center gap-[15px]" key={label}>
-                  <p className="nm h-[30.4px] w-[98.8px] shrink-0 opacity-50">{label}</p>
-                  <p className="nm-medium h-[30.4px] min-w-px flex-1">{value}</p>
-                </div>
-              ))}
-            </div>
-            {/* No public case study for client work yet. */}
-            <ViewCaseStudyButton locked />
           </div>
         </div>
 

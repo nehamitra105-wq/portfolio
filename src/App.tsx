@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import CustomCursor from "./components/CustomCursor";
+import PageLoader from "./components/PageLoader";
 import Brief from "./pages/Brief";
 import Gallery from "./pages/Gallery";
 import Home from "./pages/Home";
@@ -22,6 +23,7 @@ export default function App() {
           <Route element={<Nest />} path="/nest" />
           <Route element={<Navigate replace to="/" />} path="*" />
         </Routes>
+        <PageLoader />
       </DiscFlightProvider>
     </BrowserRouter>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type Brand = "adobe" | "kohler" | "finra" | "reforma";
@@ -103,30 +103,98 @@ const rowText = "nm-medium shrink-0 whitespace-pre";
 const lines = "flex w-[799px] shrink-0 flex-col items-start text-[20px] leading-[1.32] tracking-[-0.4px] text-black";
 const title = "nm h-[63px] text-[48px] leading-[1.32] tracking-[-0.96px] text-black";
 
-function SimpleRow({ org, role, dates, gap = 9 }: { org: string; role: string; dates: string; gap?: number }) {
+const EXPAND_EASE = "500ms cubic-bezier(0.22, 1, 0.36, 1)";
+
+// A role line with a plus on the right: clicking it opens the description
+// underneath (at most four lines) and the plus turns into a minus.
+function ExpandableRow({
+  org,
+  role,
+  dates,
+  description,
+  gap = 9,
+}: {
+  org: string;
+  role: string;
+  dates: string;
+  description: string;
+  gap?: number;
+}) {
+  const [open, setOpen] = useState(false);
   return (
-    <div className="flex w-full items-center gap-[179px]">
-      <div className="flex w-[389px] shrink-0 items-center" style={{ gap }}>
-        <p className={rowText}>{`${org}   /`}</p>
-        <p className="nm min-w-px flex-1">{role}</p>
+    <div className="relative w-full">
+      <button aria-expanded={open} className="flex w-full items-center gap-[179px] text-left" onClick={() => setOpen((value) => !value)} type="button">
+        <span className="flex w-[389px] shrink-0 items-center" style={{ gap }}>
+          <span className={rowText}>{`${org}   /`}</span>
+          <span className="nm min-w-px flex-1">{role}</span>
+        </span>
+        <span className="nm h-[26px] w-[231px] shrink-0">{dates}</span>
+        <span aria-hidden className="absolute top-[13px] left-[calc(100%+24px)] size-[22px] -translate-y-1/2">
+          <span className="absolute top-1/2 left-0 h-[2px] w-full -translate-y-1/2 bg-black" />
+          <span
+            className="absolute top-0 left-1/2 h-full w-[2px] -translate-x-1/2 bg-black"
+            style={{ rotate: `${open ? 90 : 0}deg`, opacity: open ? 0 : 1, transition: `rotate ${EXPAND_EASE}, opacity ${EXPAND_EASE}` }}
+          />
+        </span>
+      </button>
+      <div className="grid" style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0, transition: `grid-template-rows ${EXPAND_EASE}, opacity ${EXPAND_EASE}` }}>
+        <div className="overflow-hidden">
+          <p className="nm line-clamp-4 w-[568px] pt-[24px] text-[16px] leading-[1.32] tracking-[-0.32px]">{description}</p>
+        </div>
       </div>
-      <p className="nm h-[26px] w-[231px] shrink-0">{dates}</p>
     </div>
   );
 }
 
-export function WorkBlock({ style }: { style: React.CSSProperties }) {
+// Reports how much taller the rows have grown from their closed height, so
+// the sections below can move down to make room.
+function useExtraHeight(onExtraChange?: (extra: number) => void) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !onExtraChange) return;
+    const base = el.offsetHeight;
+    const observer = new ResizeObserver(() => onExtraChange(el.offsetHeight - base));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [onExtraChange]);
+  return ref;
+}
+
+export function WorkBlock({ style, onExtraChange }: { style: React.CSSProperties; onExtraChange?: (extra: number) => void }) {
+  const rowsRef = useExtraHeight(onExtraChange);
   return (
     <div className="absolute flex w-[1311px] items-start gap-[156px]" id="work" style={style}>
       <div className="flex w-[356px] shrink-0 flex-col items-start gap-[40px]">
         <p className={title}>WORK</p>
         <BrandHovers />
       </div>
-      <div className={`${lines} gap-[80px]`}>
-        <SimpleRow dates="June - Sept 2026" org="Adobe" role="Experience Design Intern" />
-        <SimpleRow dates="March - May 2026" org="Kohler x SCAD Pro" role="UX Designer" />
-        <SimpleRow dates="Jan - March 2026" gap={11} org="FINRA x SCAD Pro" role="UX Design Lead" />
-        <SimpleRow dates="June - Dec 2026" org="Reforma AI" role="UX Design Intern" />
+      <div className={`${lines} gap-[80px]`} ref={rowsRef}>
+        <ExpandableRow
+          dates="June - Sept 2026"
+          description="Proposed and designed a layered solution to improve internal workflows with design tools across the global Technical Pre-Sales Organization (details under NDA)."
+          org="Adobe"
+          role="Experience Design Intern"
+        />
+        <ExpandableRow
+          dates="March - May 2026"
+          description="Worked alongside 12 UX designers to build the architecture and functional prototype for a Kohler Konnect wellness product. Designed key UX/UI features aligned with stakeholder goals (details under NDA)."
+          org="Kohler x SCAD Pro"
+          role="UX Designer"
+        />
+        <ExpandableRow
+          dates="Jan - March 2026"
+          description="Co-led efforts with 21 designers to redesign a unified logged-in experience driven by user and competitor research. Presented prototypes to FINRA leadership and iterated designs based on their feedback."
+          gap={11}
+          org="FINRA x SCAD Pro"
+          role="UX Design Lead"
+        />
+        <ExpandableRow
+          dates="June - Dec 2026"
+          description="Collaborated with the founder to create customer journeys and sitemaps to visualize the user flow. Created a new brand style guide and visual identity. Designed wireframes for the mobile app and desktop experience."
+          org="Reforma AI"
+          role="UX Design Intern"
+        />
       </div>
       <Line left={356} top={0} />
     </div>
@@ -161,7 +229,8 @@ export function EducationBlock({ style }: { style: React.CSSProperties }) {
         <div className="flex items-center gap-[22px]">
           <Badge bg="#046648">
             <div className="absolute top-[17px] left-[13px] h-[49px] w-[57px] overflow-hidden">
-              <img alt="SCAD" className="absolute top-[-0.92%] left-[-16.43%] h-[101.83%] w-[133.65%] max-w-none" src="/assets/home/scad-badge.png" />
+              {/* Scaled up a touch so the image's dark border falls outside the crop. */}
+              <img alt="SCAD" className="absolute top-[-3%] left-[-19.15%] h-[106%] w-[139.1%] max-w-none" src="/assets/home/scad-badge.png" />
             </div>
           </Badge>
           <Badge bg="#212129">
@@ -180,23 +249,68 @@ export function EducationBlock({ style }: { style: React.CSSProperties }) {
   );
 }
 
-export function InvolvementBlock({ style }: { style: React.CSSProperties }) {
+const PODCAST_URL = "https://open.spotify.com/show/300FcmRPc5Pe92SdTYFH6A?si=2747da33443d4828";
+
+// The FLUX badge opens the podcast; hovering tilts it like the work records
+// and shows the hint below.
+function FluxBadge() {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <>
+      <p
+        className="nm pointer-events-none absolute left-0 h-[27px] w-[188px] text-[16px] leading-[1.32] tracking-[-0.32px] text-black transition-all duration-300 ease-in-out"
+        style={{ top: hovered ? 103.5 : 73.5, opacity: hovered ? 1 : 0 }}
+      >
+        check out my podcast!
+      </p>
+      <a
+        aria-label="SCAD FLUX podcast on Spotify"
+        className="relative shrink-0 transition-transform duration-300 ease-in-out"
+        href={PODCAST_URL}
+        onBlur={() => setHovered(false)}
+        onFocus={() => setHovered(true)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        rel="noreferrer"
+        style={{ transform: hovered ? "rotate(-15deg)" : undefined }}
+        target="_blank"
+      >
+        <Badge bg="#004aff">
+          <img alt="SCAD FLUX" className="absolute top-[calc(50%-0.23px)] left-[calc(50%-0.23px)] size-[59px] max-w-none -translate-x-1/2 -translate-y-1/2" src="/assets/home/flux-logo.svg" />
+        </Badge>
+      </a>
+    </>
+  );
+}
+
+export function InvolvementBlock({ style, onExtraChange }: { style: React.CSSProperties; onExtraChange?: (extra: number) => void }) {
+  const rowsRef = useExtraHeight(onExtraChange);
   return (
     <div className="absolute flex w-[1311px] items-start gap-[156px]" style={style}>
       <div className="flex w-[356px] shrink-0 flex-col items-start gap-[40px]">
         <p className={title}>INVOLVEMENT</p>
-        <div className="flex items-center gap-[22px]">
-          <Badge bg="#004aff">
-            <img alt="SCAD FLUX" className="absolute top-[calc(50%-0.23px)] left-[calc(50%-0.23px)] size-[59px] max-w-none -translate-x-1/2 -translate-y-1/2" src="/assets/home/flux-logo.svg" />
-          </Badge>
+        <div className="relative flex items-center gap-[22px]">
+          <FluxBadge />
           <Badge bg="#000">
             <img alt="Figma" className="absolute top-[calc(50%-0.23px)] left-[calc(50%-0.23px)] size-[57px] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover" src="/assets/home/figma-badge.png" />
           </Badge>
         </div>
       </div>
-      <div className={`${lines} gap-[80px]`}>
-        <SimpleRow dates="March 2025 - Present" gap={11} org="SCAD FLUX" role="Podcast Officer" />
-        <SimpleRow dates="Aug 2025 - Present" gap={11} org="Figma" role="Campus Leader" />
+      <div className={`${lines} gap-[80px]`} ref={rowsRef}>
+        <ExpandableRow
+          dates="March 2025 - Present"
+          description="Co-host of a student-led podcast to empower student voices at SCAD UX. Have casual discussions about current UX and design trends with guests. Assist with editing and promoting the podcast on social media platforms."
+          gap={11}
+          org="SCAD FLUX"
+          role="Podcast Officer"
+        />
+        <ExpandableRow
+          dates="Aug 2025 - Present"
+          description="Selected as part of the inaugural cohort of student leaders, building a community of student designers and promoting Figma at SCAD. Grow adoption of Figma through design events and engaging community activities."
+          gap={11}
+          org="Figma"
+          role="Campus Leader"
+        />
       </div>
       <Line left={356} top={1} />
     </div>

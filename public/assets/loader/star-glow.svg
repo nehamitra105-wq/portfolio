@@ -1,0 +1,19 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="18.9036" height="18.9036" viewBox="0 0 18.9036 18.9036" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="star thing" filter="url(#filter0_g_0_4)">
+<path d="M6.98612 2.05474H11.9175V6.98612H6.98612V2.05474Z" fill="black"/>
+<path d="M16.8489 6.98612V11.9175H11.9175V6.98612H16.8489Z" fill="black"/>
+<path d="M6.98612 11.9175H11.9175V16.8489H6.98612V11.9175Z" fill="black"/>
+<path d="M6.98612 6.98612V11.9175H2.05474L2.05474 6.98612L6.98612 6.98612Z" fill="black"/>
+</g>
+<defs>
+<filter id="filter0_g_0_4" x="0" y="0" width="18.9036" height="18.9036" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feTurbulence type="fractalNoise" baseFrequency="0.60834866762161255 0.60834866762161255" numOctaves="3" seed="7245" />
+<feDisplacementMap in="shape" scale="4.1094856262207031" xChannelSelector="R" yChannelSelector="G" result="displacedImage" />
+<feMerge result="effect1_texture_0_4">
+<feMergeNode in="displacedImage"/>
+</feMerge>
+</filter>
+</defs>
+</svg>

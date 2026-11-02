@@ -24,7 +24,6 @@ const FRAME_HEIGHT = 7269;
 // takes that image's proportions: same width and centre as the design's
 // 867 x 752 case.
 const HERO_CASE = { left: 319, top: 604 + (752 - 867 * (415 / 467)) / 2, width: 867, height: 867 * (415 / 467) };
-const HERO_DISC = { left: 453, top: 668, size: 631 };
 const SHELF_TOP = 1446;
 // Bottom of the tagline as rendered (in unscaled hero pixels), and the space
 // kept between it and a shelf CD popped up on hover (it rises to the top of
@@ -33,6 +32,13 @@ const TAGLINE_BOTTOM = 564;
 const HOVER_GAP = 64;
 const SHELF_CASE = { left: 209, top: SHELF_TOP + 225, width: 467, height: 415 };
 const SHELF_DISC = { left: 209 + 52, top: SHELF_TOP + 240, size: 383.61 };
+// The hero disc sits in its case exactly as the shelf disc does, scaled up.
+const HERO_RATIO = HERO_CASE.width / SHELF_CASE.width;
+const HERO_DISC = {
+  left: HERO_CASE.left + (SHELF_DISC.left - SHELF_CASE.left) * HERO_RATIO,
+  top: HERO_CASE.top + (SHELF_DISC.top - SHELF_CASE.top) * HERO_RATIO,
+  size: SHELF_DISC.size * HERO_RATIO,
+};
 // The hero scales about the top of the wrong names, centred on the frame.
 const HERO_ORIGIN = { x: 753, y: 181 };
 const HERO_SCALE_RANGE = [0.7, 1.6];
@@ -98,6 +104,9 @@ export default function Home() {
   const [heroDone, setHeroDone] = useState(false);
   const [leaving, setLeaving] = useState<CaseStudy | null>(null);
   const { startFlight } = useDiscFlight();
+  // Opened role descriptions in Work and Involvement push what's below down.
+  const [workExtra, setWorkExtra] = useState(0);
+  const [involvementExtra, setInvolvementExtra] = useState(0);
   // Hero → shelf: 0 is the spinning hero, 1 is landed on the shelf. `landing`
   // is the timed move between them; when `drive` is set it also scrolls the
   // page and holds off other scrolling until it's done.
@@ -336,7 +345,7 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="frame-page" ref={frameRef} style={{ height: FRAME_HEIGHT - FOOTER_HEIGHT + shelfShift }}>
+        <div className="frame-page" ref={frameRef} style={{ height: FRAME_HEIGHT - FOOTER_HEIGHT + shelfShift + workExtra + involvementExtra }}>
           <SiteNav active="home" animateIn />
 
           {/* wrong names + title + tagline, scaled with the hero */}
@@ -404,15 +413,15 @@ export default function Home() {
           </Reveal>
 
           <Reveal className="absolute" style={{ left: 98, top: y(4099) }}>
-            <WorkBlock style={{ left: 0, top: 0 }} />
+            <WorkBlock onExtraChange={setWorkExtra} style={{ left: 0, top: 0 }} />
           </Reveal>
-          <Reveal className="absolute" style={{ left: 98, top: y(4607) }}>
+          <Reveal className="absolute" style={{ left: 98, top: y(4607) + workExtra }}>
             <EducationBlock style={{ left: 0, top: 0 }} />
           </Reveal>
-          <Reveal className="absolute" style={{ left: 98, top: y(4885) }}>
-            <InvolvementBlock style={{ left: 0, top: 0 }} />
+          <Reveal className="absolute" style={{ left: 98, top: y(4885) + workExtra }}>
+            <InvolvementBlock onExtraChange={setInvolvementExtra} style={{ left: 0, top: 0 }} />
           </Reveal>
-          <Reveal className="absolute" style={{ left: 100, top: y(6383) }}>
+          <Reveal className="absolute" style={{ left: 100, top: y(6383) + workExtra + involvementExtra }}>
             <Referrals style={{ left: 0, top: 0 }} />
           </Reveal>
         </div>
@@ -421,7 +430,7 @@ export default function Home() {
             run on to the window edges when the window is wider than the frame. */}
         <div className="pointer-events-none absolute inset-x-0 top-0">
           <div className="relative mx-auto w-[1506px]" style={{ zoom }}>
-            <AboutMe style={{ left: -214, top: y(5198) }} />
+            <AboutMe style={{ left: -214, top: y(5198) + workExtra + involvementExtra }} />
           </div>
         </div>
         <SiteFooter />
