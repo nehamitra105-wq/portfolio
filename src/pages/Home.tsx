@@ -49,6 +49,8 @@ const SPIN_DEGREES_PER_MS = 360 / 12000;
 // stuck halfway. The page scrolls this far (in frame pixels) along with it.
 const HERO_LANDING_SCROLL = 400;
 const HERO_LANDING_MS = 1400;
+// How far the first shelf's other CDs drift in from as the hero CD lands.
+const SHELF_DRIFT = 240;
 const SCROLL_KEYS = new Set(["ArrowDown", "ArrowUp", "PageDown", "PageUp", " ", "Home", "End"]);
 
 const SHELF_ROWS = [
@@ -268,8 +270,11 @@ export default function Home() {
       setHeroDone(progress >= 0.999);
 
       if (firstRowRef.current) {
-        const amount = clamp01((landedRef.current - 0.15) / 0.85);
-        firstRowRef.current.style.transform = `translateX(${(1 - easeOut(amount)) * 1506}px)`;
+        // The other CDs drift in from the right while fading up (and fade
+        // out as they drift away), so they never get cut off at the edge.
+        const shown = easeOut(clamp01((landedRef.current - 0.15) / 0.85));
+        firstRowRef.current.style.transform = `translateX(${(1 - shown) * SHELF_DRIFT}px)`;
+        firstRowRef.current.style.opacity = `${shown * shown}`;
       }
 
       frame = requestAnimationFrame(tick);

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import LazyPiece from "./LazyPiece";
+import GalleryFrame from "./GalleryFrame";
 
 const IMG = "/assets/gallery";
 
@@ -51,11 +51,11 @@ function VideoPiece({ name }: { name: string }) {
 
 function GemCrop({ className, imgClassName }: { className: string; imgClassName: string }) {
   return (
-    <LazyPiece className={`absolute ${className}`}>
+    <GalleryFrame className={`absolute ${className}`}>
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <img alt="" className={`absolute max-w-none ${imgClassName}`} src={`${IMG}/its-a-gem.jpg`} />
       </div>
-    </LazyPiece>
+    </GalleryFrame>
   );
 }
 
@@ -93,7 +93,7 @@ const CAPTIONS = [
   { left: 968, top: 6658, width: 430, title: "Mindbend World Event Poster", medium: "Adobe Photoshop & Illustrator" },
   { left: 845, top: 7121, width: 588, title: "Fluxcore Episode 6 Intro Card", medium: "Adobe After Effects" },
   { left: 100, top: 7639, width: 459, title: "The One Who Got Away", medium: "Oil Paint on Canvas" },
-  { left: 724, top: 7641, width: 520, title: "Maybe this was meant to be.", medium: "Procreate" },
+  { left: 724, top: 7641, width: 613.48, title: "Maybe this was meant to be.", medium: "Procreate" },
   { left: 883, top: 8345, width: 361, title: "The Map to Here", medium: "Procreate" },
   { left: 225, top: 8479, width: 481, title: "A Bad Picture", medium: "Micron Pen" },
 ];
@@ -102,87 +102,87 @@ const CAPTIONS = [
 export default function GalleryPieces() {
   return (
     <>
-      <LazyPiece className="absolute h-[757px] left-[179px] top-[209px] w-[500px]">
+      <GalleryFrame className="absolute h-[757px] left-[179px] top-[209px] w-[500px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/lord-please-save-me.jpg`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[301.831px] left-[878px] top-[447px] w-[536.588px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[301.831px] left-[878px] top-[447px] w-[536.588px]">
         <VideoPiece name="final-anim" />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[344px] left-[79px] top-[1197px] w-[535px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[344px] left-[79px] top-[1197px] w-[535px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/sticker-sheet.png`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[370px] left-[387px] top-[2348px] w-[950px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[370px] left-[387px] top-[2348px] w-[950px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/b0503600.jpg`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[646px] left-[938px] top-[1605px] w-[464px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[646px] left-[938px] top-[1605px] w-[464px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/truth.jpg`} />
-      </LazyPiece>
+      </GalleryFrame>
       <GemCrop className="h-[232px] left-[193px] top-[3109px] w-[137px]" imgClassName="h-[246.86%] left-[-85.2%] top-[-123.92%] w-[557.68%]" />
       <GemCrop className="h-[233px] left-[124px] top-[2858px] w-[138px]" imgClassName="h-[254.76%] left-[-44.43%] top-[-12.64%] w-[575.18%]" />
       <GemCrop className="h-[232px] left-[349px] top-[3109px] w-[137px]" imgClassName="h-[246.86%] left-[-210.68%] top-[-125.21%] w-[557.68%]" />
       <GemCrop className="h-[233px] left-[280px] top-[2858px] w-[137px]" imgClassName="h-[246.86%] left-[-164.5%] top-[-12.05%] w-[557.68%]" />
       <GemCrop className="h-[233px] left-[438px] top-[2858px] w-[137px]" imgClassName="h-[246.87%] left-[-295.84%] top-[-13.64%] w-[557.7%]" />
       <GemCrop className="h-[233px] left-[507px] top-[3109px] w-[137px]" imgClassName="h-[246.86%] left-[-345.01%] top-[-126.35%] w-[557.68%]" />
-      <LazyPiece className="absolute left-[914px] size-[450px] top-[2901px]">
+      <GalleryFrame className="absolute left-[914px] size-[450px] top-[2901px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/john-baldessari.jpg`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[356px] left-[802px] top-[1030px] w-[435px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[356px] left-[802px] top-[1030px] w-[435px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/b8b8a4b6.jpg`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[590.11px] left-[176px] top-[5378px] w-[455.994px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[590.11px] left-[176px] top-[5378px] w-[455.994px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/front-cover.jpg`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[533.589px] left-[339px] top-[5985px] w-[456.021px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[533.589px] left-[339px] top-[5985px] w-[456.021px]">
         <img alt="" className="absolute inset-0 max-w-none object-bottom pointer-events-none size-full" src={`${IMG}/img-4324.png`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[322px] left-[179px] top-[1787px] w-[573px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[322px] left-[179px] top-[1787px] w-[573px]">
         <VideoPiece name="ep-8-ad-anim" />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[390px] left-[797px] top-[3534px] w-[520px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[390px] left-[797px] top-[3534px] w-[520px]">
         <VideoPiece name="fate" />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[331px] left-[845px] top-[6780px] w-[588px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[331px] left-[845px] top-[6780px] w-[588px]">
         <VideoPiece name="ep-6-intro-card" />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[645px] left-[225px] top-[7824px] w-[481px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[645px] left-[225px] top-[7824px] w-[481px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/bad-reflection.jpg`} />
-      </LazyPiece>
-      <LazyPiece className="absolute content-stretch flex flex-col gap-[17px] items-start justify-center left-[1002px] top-[4107px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute content-stretch flex flex-col gap-[17px] items-start justify-center left-[1002px] top-[4107px]">
         <IconTile bg="bg-[#154420]" src={`${IMG}/animated-icons-2.gif`} />
         <IconTile bg="bg-white" src={`${IMG}/animated-icons-3.gif`} />
         <IconTile bg="bg-[#da2b31]" src={`${IMG}/animated-icons-1.gif`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[345.083px] left-[724px] top-[7284px] w-[613.48px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[345.083px] left-[724px] top-[7284px] w-[613.48px]">
         <VideoPiece name="untitled-artwork" />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[499px] left-[870px] top-[7834px] w-[374px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[499px] left-[870px] top-[7834px] w-[374px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/c6c3c523.jpg`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[665px] left-[968px] top-[5983px] w-[430px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[665px] left-[968px] top-[5983px] w-[430px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/mindbend-poster.jpg`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[802px] left-[330px] top-[4381px] w-[527px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[802px] left-[330px] top-[4381px] w-[527px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/balance-on-a-wall.jpg`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[668px] left-[136px] top-[3573px] w-[508px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[668px] left-[136px] top-[3573px] w-[508px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/11066169.png`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[449px] left-[808px] top-[5383px] w-[448px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[449px] left-[808px] top-[5383px] w-[448px]">
         <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={`${IMG}/ce35cb27.jpg`} />
-      </LazyPiece>
-      <LazyPiece className="absolute h-[931px] left-[100px] top-[6698px] w-[459px]">
+      </GalleryFrame>
+      <GalleryFrame className="absolute h-[931px] left-[100px] top-[6698px] w-[459px]">
         <img alt="" className="absolute inset-0 max-w-none object-bottom pointer-events-none size-full" src={`${IMG}/the-one-who-got-away.png`} />
-      </LazyPiece>
+      </GalleryFrame>
 
       {CAPTIONS.map(({ left, top, width, title, medium }) => (
-        <LazyPiece
+        <GalleryFrame
           className="absolute flex h-[19px] items-center justify-between text-[16px] leading-normal text-black whitespace-nowrap"
           key={`${top}-${left}`}
           style={{ left, top, width }}
         >
           <p className="font-['Neue_Montreal:Medium',Arial,sans-serif]">{title}</p>
           <p className="text-right font-['Neue_Montreal:Regular',Arial,sans-serif]">{medium}</p>
-        </LazyPiece>
+        </GalleryFrame>
       ))}
 
     </>

@@ -8,14 +8,12 @@ const FADE_MS = 500;
 // the CD and arc only show if it takes longer than this, so quick (cached)
 // page changes just fade in.
 const GRAPHIC_AFTER_MS = 250;
-// Pictures and videos can appear a moment after the page does (the gallery
-// adds each frame as it comes near the screen), so the page keeps being
-// checked until nothing new has turned up for a little while.
+// Pictures and videos can appear a moment after the page does, so the page
+// keeps being checked until nothing new has turned up for a little while.
+// There's no time limit: the cover stays until every asset has loaded.
 const CHECK_EVERY_MS = 100;
 const MIN_CHECK_MS = 400;
 const QUIET_CHECKS = 3;
-// Never cover the page for longer than this.
-const MAX_WAIT_MS = 15000;
 
 // The arc: a circle round the CD that fills clockwise from the top as the
 // page loads, with the star at its tip.
@@ -26,21 +24,16 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 // the page has already loaded.
 const PROGRESS_MS = 1000;
 
-// Lazy images only load (and only matter) once they're near the screen.
-function nearScreen(el: Element) {
-  const rect = el.getBoundingClientRect();
-  return rect.bottom > -window.innerHeight && rect.top < window.innerHeight * 2;
-}
-
-// The page's pictures and videos (not the loader's own).
+// Every picture and video on the page (not the loader's own), however far
+// down it is.
 function pageMedia() {
   return Array.from(document.querySelectorAll<Media>("img, video")).filter(
-    (el) =>
-      !el.closest("[data-page-loader]") &&
-      !(el instanceof HTMLImageElement && el.loading === "lazy" && !nearScreen(el)) &&
-      Boolean(el.getAttribute("src") || el.querySelector("source")),
+    (el) => !el.closest("[data-page-loader]") && Boolean(el.getAttribute("src") || el.querySelector("source")),
   );
 }
+
+// The fonts count as one more thing to load.
+const fontsLoading = () => document.fonts.status === "loading";
 
 // "loading screen" (2085:26105): a CD turning as slowly as the home CD, with
 // the arc showing how much of the page has loaded. Covers a page until every
@@ -71,6 +64,7 @@ export default function PageLoader() {
     let covering = false;
     let graphicShown = false;
     let quiet = 0;
+    let waitedForFonts = false;
     const seen = new Set<Media>();
     const startedAt = performance.now();
 
@@ -78,11 +72,14 @@ export default function PageLoader() {
       if (cancelled) return;
       const media = pageMedia();
       for (const el of media) if (isMediaPending(el)) seen.add(el);
-      const pending = [...seen].filter((el) => el.isConnected && isMediaPending(el)).length;
+      const fonts = fontsLoading();
+      if (fonts) waitedForFonts = true;
+      const steps = seen.size + (waitedForFonts ? 1 : 0);
+      const pending = [...seen].filter((el) => el.isConnected && isMediaPending(el)).length + (fonts ? 1 : 0);
       // Cover only when something is still downloading (cached pictures just
       // need a moment to decode); once covered, wait for decoding too so
       // nothing paints half drawn.
-      if (!covering && media.some(isMediaDownloading)) {
+      if (!covering && (fonts || media.some(isMediaDownloading))) {
         covering = true;
         setProgress(0);
         setRun((value) => value + 1);
@@ -93,10 +90,10 @@ export default function PageLoader() {
         }, GRAPHIC_AFTER_MS);
       }
       // Never goes backwards, even when more pictures turn up.
-      if (seen.size) setProgress((value) => Math.max(value, (seen.size - pending) / seen.size));
+      if (steps) setProgress((value) => Math.max(value, (steps - pending) / steps));
       quiet = pending ? 0 : quiet + 1;
       const elapsed = performance.now() - startedAt;
-      if ((quiet >= QUIET_CHECKS && elapsed >= MIN_CHECK_MS) || elapsed >= MAX_WAIT_MS) {
+      if (quiet >= QUIET_CHECKS && elapsed >= MIN_CHECK_MS) {
         if (!covering) return;
         window.clearTimeout(graphicTimer);
         setProgress(1);

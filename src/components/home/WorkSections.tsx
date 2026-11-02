@@ -101,7 +101,10 @@ function Line({ left, top }: { left: number; top: number }) {
 
 const rowText = "nm-medium shrink-0 whitespace-pre";
 const lines = "flex w-[799px] shrink-0 flex-col items-start text-[20px] leading-[1.32] tracking-[-0.4px] text-black";
-const title = "nm h-[63px] text-[48px] leading-[1.32] tracking-[-0.96px] text-black";
+// Each section's title sits a little high and its line a little low, so the
+// tops of the title, the line and the first row's text all line up.
+const title = "nm -mt-[12px] h-[63px] text-[48px] leading-[1.32] tracking-[-0.96px] text-black";
+const LINE_TOP = 6;
 
 const EXPAND_EASE = "700ms cubic-bezier(0.65, 0, 0.35, 1)";
 
@@ -209,7 +212,7 @@ export function WorkBlock({ style, onExtraChange }: { style: React.CSSProperties
           role="UX Design Intern"
         />
       </div>
-      <Line left={356} top={0} />
+      <Line left={356} top={LINE_TOP} />
     </div>
   );
 }
@@ -253,7 +256,7 @@ export function EducationBlock({ style }: { style: React.CSSProperties }) {
           </Badge>
         </div>
       </div>
-      <Line left={356} top={0} />
+      <Line left={356} top={LINE_TOP} />
       <div className={`${lines} gap-[61px]`}>
         <SchoolRow dates="Sept 2024 - June 2027" degree="BFA User Experience Design" school="Savannah College of Art and Design" />
         <SchoolRow dates="Aug 2023 - May 2024" degree="BFA Graphic Arts" school="University of South Florida" />
@@ -325,7 +328,7 @@ export function InvolvementBlock({ style, onExtraChange }: { style: React.CSSPro
           role="Campus Leader"
         />
       </div>
-      <Line left={356} top={1} />
+      <Line left={356} top={LINE_TOP} />
     </div>
   );
 }

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { whenMediaReady, type Media } from "../site/media";
 
-// A gallery frame that only loads its image or video once it's about a screen
-// away, then fades in and up (like Reveal) as it scrolls into view, but not
-// before its image or video is ready, so it never shows half loaded.
-export default function LazyPiece({
+// A gallery frame: its image or video loads with the page (the loading screen
+// waits for all of them), and it fades in and up (like Reveal) as it scrolls
+// into view, never before its image or video is ready.
+export default function GalleryFrame({
   children,
   className = "",
   style,
@@ -14,22 +14,16 @@ export default function LazyPiece({
   style?: CSSProperties;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [near, setNear] = useState(false);
   const [visible, setVisible] = useState(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const load = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setNear(true);
-          load.disconnect();
-        }
-      },
-      { rootMargin: "100% 0px 100% 0px" },
-    );
+    let cancelled = false;
+    Promise.all(Array.from(el.querySelectorAll<Media>("img, video")).map(whenMediaReady)).then(() => {
+      if (!cancelled) setReady(true);
+    });
     const reveal = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -39,29 +33,16 @@ export default function LazyPiece({
       },
       { rootMargin: "0px 0px -10% 0px" },
     );
-    load.observe(el);
     reveal.observe(el);
     return () => {
-      load.disconnect();
+      cancelled = true;
       reveal.disconnect();
     };
   }, []);
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!near || !el) return;
-    let cancelled = false;
-    Promise.all(Array.from(el.querySelectorAll<Media>("img, video")).map(whenMediaReady)).then(() => {
-      if (!cancelled) setReady(true);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [near]);
-
   return (
     <div className={`${className} ${visible && ready ? "fade-up" : "opacity-0"}`} ref={ref} style={style}>
-      {near && children}
+      {children}
     </div>
   );
 }

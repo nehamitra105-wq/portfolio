@@ -2,19 +2,20 @@ import { useEffect, useRef, useState } from "react";
 
 const A = "/assets/about";
 
-// Neha's queue. `color` fills the "it's [color]!" line. Artwork (600px album
+// Neha's queue, with titles and artists written exactly as on Apple Music.
+// `color` fills the "it's [color]!" line. Artwork (600px album
 // covers from Apple Music's search) is public/assets/about/queue/<slug>.jpg;
 // the grey disc shows if one is missing.
 const QUEUE = [
   { slug: "devils-advocate", song: "Devil’s Advocate", artist: "The Neighbourhood", color: "blue" },
-  { slug: "starlet", song: "Starlet", artist: "Leven Kali, Destin Conrad & Ambré", color: "green & yellow" },
-  { slug: "lady-brown", song: "Lady Brown (ft. Cise Starr)", artist: "Nujabes", color: "blue" },
-  { slug: "show-you-me", song: "Show You Me", artist: "Steve Lacy", color: "red" },
-  { slug: "talking-bout-you", song: "Talking Bout You", artist: "wave to earth", color: "blue" },
-  { slug: "nouvelle-vague", song: "Nouvelle Vague", artist: "wave to earth", color: "red" },
-  { slug: "is-it-cool", song: "Is It Cool (ft. SZA)", artist: "Steve Lacy", color: "green" },
-  { slug: "holyland", song: "Holyland", artist: "wave to earth", color: "yellow" },
-  { slug: "nice-shoes-in-your-world", song: "Nice Shoes / In Your World", artist: "Steve Lacy", color: "red & blue" },
+  { slug: "starlet", song: "STARLET", artist: "Leven Kali, DESTIN CONRAD & Ambré", color: "green & yellow" },
+  { slug: "lady-brown", song: "Lady Brown (feat. Cise Starr)", artist: "Nujabes", color: "blue" },
+  { slug: "show-you-me", song: "show you me", artist: "Steve Lacy", color: "red" },
+  { slug: "talking-bout-you", song: "talking ’bout u", artist: "wave to earth", color: "blue" },
+  { slug: "nouvelle-vague", song: "nouvelle vague", artist: "wave to earth", color: "red" },
+  { slug: "is-it-cool", song: "is it cool? (feat. SZA)", artist: "Steve Lacy", color: "green" },
+  { slug: "holyland", song: "holyland", artist: "wave to earth", color: "yellow" },
+  { slug: "nice-shoes-in-your-world", song: "nice shoes / in your world", artist: "Steve Lacy", color: "red & blue" },
 ];
 
 // The "cd" placeholder's shape: a 123px disc with a 33px centre hole.
