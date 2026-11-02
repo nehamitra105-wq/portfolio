@@ -197,16 +197,12 @@ export default function Gallery() {
       const sceneBounds = sceneRef.current.getBoundingClientRect();
       // The scene may be scaled down to fit; work in scene pixels.
       const pointerInScene = (event.clientX - sceneBounds.left) / zoomRef.current;
-      const pointerYInScene = (event.clientY - sceneBounds.top) / zoomRef.current;
       const guyCenter = currentLeftRef.current + GUY_SIZE / 2;
       const platform = platformRef.current;
       const top = platformTop(platform);
-      const guyCenterY = top + GUY_SIZE / 2;
 
-      if (
-        Math.abs(pointerInScene - guyCenter) <= 100 ||
-        Math.abs(pointerYInScene - guyCenterY) <= 100
-      ) {
+      // He stops while the cursor is within the column above and below him.
+      if (Math.abs(pointerInScene - guyCenter) <= 100) {
         const renderedLeft = guyRef.current
           ? (guyRef.current.getBoundingClientRect().left - sceneBounds.left) / zoomRef.current
           : currentLeftRef.current;
