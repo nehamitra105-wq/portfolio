@@ -412,10 +412,17 @@ export default function Home() {
           <Reveal className="absolute" style={{ left: 98, top: y(4885) }}>
             <InvolvementBlock style={{ left: 0, top: 0 }} />
           </Reveal>
-          <AboutMe style={{ left: -214, top: y(5198) }} />
           <Reveal className="absolute" style={{ left: 100, top: y(6383) }}>
             <Referrals style={{ left: 0, top: 0 }} />
           </Reveal>
+        </div>
+
+        {/* About me's objects are clipped to the frame in Figma; here they
+            run on to the window edges when the window is wider than the frame. */}
+        <div className="pointer-events-none absolute inset-x-0 top-0">
+          <div className="relative mx-auto w-[1506px]" style={{ zoom }}>
+            <AboutMe style={{ left: -214, top: y(5198) }} />
+          </div>
         </div>
         <SiteFooter />
       </div>

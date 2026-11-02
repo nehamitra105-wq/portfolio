@@ -22,7 +22,8 @@ const DISC_MASK =
   "radial-gradient(closest-side, transparent 26.8%, #000 calc(26.8% + 0.5px), #000 calc(100% - 0.5px), transparent 100%)";
 
 // Text that doesn't fit scrolls slowly sideways on a loop, like a mini
-// player: it waits at the start, scrolls one copy's width, then repeats.
+// player: it waits at the start, scrolls one copy's width, then repeats. Its
+// ends fade out into white like the referrals carousel.
 const MARQUEE_GAP = 32;
 const MARQUEE_SPEED = 30; // px per second
 const MARQUEE_PAUSE_MS = 1500;
@@ -58,7 +59,7 @@ function Marquee({ className, text }: { className: string; text: string }) {
   }, [overflow, text]);
 
   return (
-    <div className={`${className} overflow-hidden`} ref={boxRef}>
+    <div className={`${className} relative overflow-hidden`} ref={boxRef}>
       <div className={`flex w-max ${overflow ? "" : "mx-auto"}`} ref={trackRef} style={{ gap: MARQUEE_GAP }}>
         <span className="whitespace-nowrap">{text}</span>
         {overflow > 0 && (
@@ -67,6 +68,12 @@ function Marquee({ className, text }: { className: string; text: string }) {
           </span>
         )}
       </div>
+      {overflow > 0 && (
+        <>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-[24px] bg-gradient-to-r from-white to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-[24px] bg-gradient-to-l from-white to-transparent" />
+        </>
+      )}
     </div>
   );
 }
@@ -85,7 +92,7 @@ export default function CurrentlyPlaying() {
   };
 
   return (
-    <div className="absolute top-[614px] left-[851px] flex items-center gap-[15px]">
+    <div className="pointer-events-auto absolute top-[614px] left-[851px] flex items-center gap-[15px]">
       <div
         className="relative size-[123px] shrink-0 animate-[spin_12s_linear_infinite]"
         style={{ animationPlayState: playing ? "running" : "paused" }}
