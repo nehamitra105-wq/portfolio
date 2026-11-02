@@ -82,16 +82,23 @@ export default function CustomCursor() {
     let lastSample = 0;
     let point = { x: 0, y: 0 };
     let sampleTimer = 0;
+    // The state comes from whatever is under the cursor: the element that got
+    // the event, or (when the page scrolls under a still mouse) whatever is
+    // there now.
+    const readState = (target: Element | null) => {
+      const owner = target?.closest?.("[data-cursor]");
+      setState((owner?.getAttribute("data-cursor") as CursorState) ?? "normal");
+    };
     const sample = () => {
       lastSample = performance.now();
+      readState(document.elementFromPoint(point.x, point.y));
       setDark(brightnessAt(point.x, point.y, ref.current) < DARK_BELOW);
     };
 
     const handleMove = (event: PointerEvent) => {
       point = { x: event.clientX, y: event.clientY };
       if (ref.current) ref.current.style.transform = `translate(${event.clientX}px, ${event.clientY}px)`;
-      const target = (event.target as Element | null)?.closest?.("[data-cursor]");
-      setState((target?.getAttribute("data-cursor") as CursorState) ?? "normal");
+      readState(event.target as Element | null);
       setVisible(true);
       // Check the colour underneath now and then, and once more after
       // stopping so it settles on the right one.
@@ -101,6 +108,7 @@ export default function CustomCursor() {
     };
     const handleScroll = () => {
       window.clearTimeout(sampleTimer);
+      if (performance.now() - lastSample > SAMPLE_EVERY_MS) sample();
       sampleTimer = window.setTimeout(sample, SAMPLE_EVERY_MS);
     };
     const handleLeave = () => setVisible(false);
