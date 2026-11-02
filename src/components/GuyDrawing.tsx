@@ -67,6 +67,38 @@ export const ALL_GUY_FRAMES = [
   ...JUMPING_FRAMES.left,
 ];
 
+// The frames drawn in place (everything but the fall, which has its own
+// offsets and turns).
+const STILL_FRAMES = [...new Set(ALL_GUY_FRAMES.filter((src) => !(FALLING_FRAMES as readonly string[]).includes(src)))];
+
+function currentFrame({
+  direction,
+  getUpFrame,
+  hasLanded,
+  jumpFrame,
+  state,
+  walkFrame,
+}: {
+  direction: "left" | "right";
+  getUpFrame: number;
+  hasLanded: boolean;
+  jumpFrame: number;
+  state: GuyState;
+  walkFrame: number;
+}) {
+  if (state === "sliding") return direction === "right" ? "/assets/guy/81f88.svg" : "/assets/guy/54912.svg";
+  if (state === "walking") return WALKING_FRAMES[direction][walkFrame];
+  if (state === "about-to-land") return LANDING_FRAMES[direction].aboutToLand;
+  if (state === "splat") return LANDING_FRAMES[direction].splat;
+  if (state === "getting-up") return LANDING_FRAMES[direction].gettingUp[getUpFrame];
+  if (state === "jumping") return JUMPING_FRAMES[direction][jumpFrame];
+  if (state === "falling") return null;
+  return hasLanded ? "/assets/guy/e5d8a.svg" : "/assets/guy/690f9.svg";
+}
+
+// Every frame stays mounted and only the current one is shown, so changing
+// frames never waits on an image swap (which flashed an empty box, or left
+// him missing while the new frame loaded).
 export default function GuyDrawing({
   direction,
   fallFrame,
@@ -84,110 +116,29 @@ export default function GuyDrawing({
   state: GuyState;
   walkFrame: number;
 }) {
-  if (state === "sliding") {
-    return (
-      <img
-        alt=""
-        className="block size-[86px] max-w-none"
-        draggable={false}
-        src={
-          direction === "right"
-            ? "/assets/guy/81f88.svg"
-            : "/assets/guy/54912.svg"
-        }
-      />
-    );
-  }
-
-  if (state === "walking") {
-    const walkingFrame = WALKING_FRAMES[direction][walkFrame];
-
-    return (
-      <img
-        alt=""
-        className="block size-[86px] max-w-none"
-        draggable={false}
-        key={walkingFrame}
-        src={walkingFrame}
-      />
-    );
-  }
-
-  if (state === "falling") {
-    // All four frames stay mounted and only the current one is shown, so the
-    // fall never waits on an image swap (which flashed an empty image box).
-    return (
-      <>
-        {FALLING_FRAMES.map((src, frame) => (
-          <div
-            className={`fall-frame fall-frame--${frame} fall-frame--${direction}`}
-            key={frame}
-            style={{ visibility: frame === fallFrame ? "visible" : "hidden" }}
-          >
-            <img
-              alt=""
-              className="block size-[86px] max-w-none"
-              draggable={false}
-              src={src}
-            />
-          </div>
-        ))}
-      </>
-    );
-  }
-
-  if (state === "about-to-land") {
-    return (
-      <img
-        alt=""
-        className="block size-[86px] max-w-none"
-        draggable={false}
-        src={LANDING_FRAMES[direction].aboutToLand}
-      />
-    );
-  }
-
-  if (state === "splat") {
-    return (
-      <img
-        alt=""
-        className="block size-[86px] max-w-none"
-        draggable={false}
-        src={LANDING_FRAMES[direction].splat}
-      />
-    );
-  }
-
-  if (state === "getting-up") {
-    return (
-      <img
-        alt=""
-        className="block size-[86px] max-w-none"
-        draggable={false}
-        src={LANDING_FRAMES[direction].gettingUp[getUpFrame]}
-      />
-    );
-  }
-
-  if (state === "jumping") {
-    const jumpingFrames = JUMPING_FRAMES[direction];
-
-    return (
-      <img
-        alt=""
-        className="block size-[86px] max-w-none"
-        draggable={false}
-        src={jumpingFrames[jumpFrame]}
-      />
-    );
-  }
+  const current = currentFrame({ direction, getUpFrame, hasLanded, jumpFrame, state, walkFrame });
 
   return (
-    <img
-      alt=""
-      className="block size-[86px] max-w-none"
-      draggable={false}
-      src={hasLanded ? "/assets/guy/e5d8a.svg" : "/assets/guy/690f9.svg"}
-    />
+    <>
+      {STILL_FRAMES.map((src) => (
+        <img
+          alt=""
+          className="absolute top-0 left-0 block size-[86px] max-w-none"
+          draggable={false}
+          key={src}
+          src={src}
+          style={{ visibility: src === current ? "visible" : "hidden" }}
+        />
+      ))}
+      {FALLING_FRAMES.map((src, frame) => (
+        <div
+          className={`fall-frame fall-frame--${frame} fall-frame--${direction}`}
+          key={frame}
+          style={{ visibility: state === "falling" && frame === fallFrame ? "visible" : "hidden" }}
+        >
+          <img alt="" className="block size-[86px] max-w-none" draggable={false} src={src} />
+        </div>
+      ))}
+    </>
   );
 }

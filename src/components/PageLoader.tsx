@@ -22,7 +22,9 @@ const MAX_WAIT_MS = 15000;
 const CENTER = 115;
 const RADIUS = 114;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-const PROGRESS_MS = 400;
+// Each step of the arc eases in and out over at least a second, even when
+// the page has already loaded.
+const PROGRESS_MS = 1000;
 
 // The page's pictures and videos (not the loader's own).
 function pageMedia() {
@@ -50,6 +52,7 @@ export default function PageLoader() {
     let graphicTimer = 0;
     let hideTimer = 0;
     let covering = false;
+    let graphicShown = false;
     let quiet = 0;
     const seen = new Set<Media>();
     const startedAt = performance.now();
@@ -62,7 +65,10 @@ export default function PageLoader() {
         covering = true;
         setProgress(0);
         setVisible(true);
-        graphicTimer = window.setTimeout(() => setShowGraphic(true), GRAPHIC_AFTER_MS);
+        graphicTimer = window.setTimeout(() => {
+          graphicShown = true;
+          setShowGraphic(true);
+        }, GRAPHIC_AFTER_MS);
       }
       if (seen.size) setProgress((seen.size - pending) / seen.size);
       quiet = pending ? 0 : quiet + 1;
@@ -71,8 +77,9 @@ export default function PageLoader() {
         if (!covering) return;
         window.clearTimeout(graphicTimer);
         setProgress(1);
-        // Let the arc close before fading out.
-        hideTimer = window.setTimeout(() => setVisible(false), PROGRESS_MS);
+        // Let the arc close before fading out (straight away if it never
+        // showed).
+        hideTimer = window.setTimeout(() => setVisible(false), graphicShown ? PROGRESS_MS : 0);
         return;
       }
       checkTimer = window.setTimeout(check, CHECK_EVERY_MS);
@@ -87,7 +94,7 @@ export default function PageLoader() {
     };
   }, [pathname]);
 
-  const ease = `${PROGRESS_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+  const ease = `${PROGRESS_MS}ms cubic-bezier(0.65, 0, 0.35, 1)`;
 
   return (
     <div
