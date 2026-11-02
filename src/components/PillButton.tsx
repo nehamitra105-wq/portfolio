@@ -15,7 +15,7 @@ export default function PillButton({
 
   return (
     <a
-      className={`nm flex h-[40px] items-center justify-center rounded-[24px] border-[0.4px] border-solid border-black bg-white px-[16px] py-[8px] text-center text-[20px] leading-normal whitespace-nowrap text-black transition-colors duration-300 ease-in-out hover:border-white hover:bg-black hover:text-white ${className}`}
+      className={`nm flex h-[40px] antialiased items-center justify-center rounded-[24px] border-[0.4px] border-solid border-black bg-white px-[16px] py-[8px] text-center text-[20px] leading-normal whitespace-nowrap text-black transition-colors duration-300 ease-in-out hover:border-white hover:bg-black hover:text-white ${className}`}
       href={href}
       rel={external ? "noreferrer" : undefined}
       target={external ? "_blank" : undefined}

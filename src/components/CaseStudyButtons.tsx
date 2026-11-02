@@ -10,7 +10,7 @@ export function ViewCaseStudyButton({
 }) {
   return (
     <button
-      className={`group flex h-[66px] shrink-0 items-center gap-[13.5px] rounded-[40px] border-[0.375px] border-solid border-black bg-white px-[24px] py-[16px] transition-colors duration-300 ease-in-out ${
+      className={`group flex h-[66px] shrink-0 antialiased items-center gap-[13.5px] rounded-[40px] border-[0.375px] border-solid border-black bg-white px-[24px] py-[16px] transition-colors duration-300 ease-in-out ${
         locked ? "" : "hover:border-white hover:bg-black"
       }`}
       data-cursor={locked ? "locked" : undefined}
@@ -40,7 +40,7 @@ export function ViewNextStudyButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       aria-label="Next case study"
-      className="group relative h-[66px] w-[79.75px] shrink-0 rounded-[40px] border-[0.375px] border-solid border-black bg-white transition-colors duration-300 ease-in-out hover:border-white hover:bg-black"
+      className="group relative h-[66px] w-[79.75px] antialiased shrink-0 rounded-[40px] border-[0.375px] border-solid border-black bg-white transition-colors duration-300 ease-in-out hover:border-white hover:bg-black"
       onClick={onClick}
       type="button"
     >
