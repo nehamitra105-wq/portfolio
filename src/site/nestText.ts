@@ -2,6 +2,11 @@
 // (from the Figma text layers), with Figma's line breaks baked in so the copy
 // wraps the same in every browser and at every zoom. Everything else on the
 // page is either the rendered plate behind it or a live component.
+// The whole page's copy is drawn a step smaller than in Figma (Neha's review),
+// with a floor so the small annotation labels stay legible.
+export const TEXT_SCALE = 0.875;
+export const scaledSize = (size: number) => Math.max(11, Math.round(size * TEXT_SCALE * 10) / 10);
+
 export type NestText = {
   x: number;
   y: number;
@@ -96,6 +101,8 @@ export const NEST_TEXT: NestText[] = [
   { x: 986, y: 15506, w: 397, size: 16, ls: 0.32, text: "Set your usual office space, your general preferences,\nand specific preferences for rooms around the office." },
   { x: 381, y: 16501, w: 277, size: 28, lh: 1.32, ls: -0.56, text: "Rewarded Leaderboard" },
   { x: 946, y: 16503, w: 441, size: 16, ls: 0.32, text: "Users with more eco-friendly preferences are rewarded with\ntemperature preferences that have more weight in the average." },
+  { x: 380, y: 14220, w: 357, size: 28, lh: 1.32, ls: -0.56, text: "Request Temperature Change" },
+  { x: 731, y: 15031, w: 150, size: 28, lh: 1.32, ls: -0.56, text: "Meetings" },
   { x: 379, y: 14729, w: 161, size: 28, lh: 1.32, ls: -0.56, text: "Preferences" },
   { x: 629, y: 14731, w: 407, size: 16, ls: 0.32, text: "Check the average preferences of others directly on the\nthermostat, determining the temperature of the room." },
   { x: 990, y: 14222, w: 397, size: 16, ls: 0.32, text: "If you’re uncomfortable with the temperature, request a\ntemperature change to influence the room average." },

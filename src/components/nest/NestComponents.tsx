@@ -265,9 +265,9 @@ export function Shuffle({ frames: list, style, radius }: { frames: ShuffleFrame[
 }
 
 // ---------------------------------------------------------------------------
-// "use case" (1044 x 597): three office scenarios. Clicking the card goes to
-// the next one (DISSOLVE 1s ease-out); swiping moves either way and the dots
-// pick one directly.
+// "use case" (1044 x 597): three office scenarios. They slide like the design
+// system preview (Neha's review; the prototype dissolved): swipe either way,
+// click the card for the next one, or pick one with the dots.
 
 const USE_CASE_COLORS = ["#2c83db", "#e5544d", "#90c94b"];
 
@@ -334,16 +334,17 @@ function CarouselDot({ index, label, onSelect }: { index: number; label: string;
   );
 }
 
+const USE_CASE_STEP = 1044 + 45;
+
 export function UseCase({ style }: { style: CSSProperties }) {
   const [index, setIndex] = useState(0);
   const [ref, inView] = useInView<HTMLDivElement>();
   const swipe = useSwipe((direction) => setIndex((i) => Math.min(2, Math.max(0, i + direction))));
-  const fade = swipe.dragging ? "none" : "opacity 1s ease-out";
-  // While dragging, cross-fade toward the neighbour on the side being dragged
-  // to, so the swipe can be felt before letting go.
-  const preview = swipe.dragX < 0 ? index + 1 : index - 1;
-  const progress = preview >= 0 && preview <= 2 ? Math.min(1, Math.abs(swipe.dragX) / 300) : 0;
-  const opacityOf = (i: number) => (i === index ? 1 - progress : i === preview ? progress : 0);
+  const slide = `1.25s ${SLOW}`;
+  // Slides like the design system preview: the strip follows the drag (with
+  // resistance past the first and last scenario), then settles.
+  const pastEnd = (index === 0 && swipe.dragX > 0) || (index === 2 && swipe.dragX < 0);
+  const offset = -USE_CASE_STEP * index + (pastEnd ? swipe.dragX * 0.3 : swipe.dragX);
 
   return (
     <div className="absolute h-[597px] w-[1044px]" ref={ref} style={style}>
@@ -354,31 +355,26 @@ export function UseCase({ style }: { style: CSSProperties }) {
         type="button"
         {...swipe.handlers}
       >
-        {[0, 1, 2].map((i) => (
-          <img
-            alt=""
-            className="absolute inset-0 block size-full max-w-none"
-            draggable={false}
-            key={i}
-            src={asset(`use-case-${i + 1}.jpg`)}
-            style={{ opacity: opacityOf(i), transition: fade }}
-          />
-        ))}
-        <div style={{ opacity: opacityOf(0), transition: fade }}>
-          <NumberRoller play={inView && index === 0} />
+        <div
+          className="absolute top-0 left-0 flex h-[569px] gap-[45px]"
+          style={{ translate: `${offset}px 0`, transition: swipe.dragging ? "none" : `translate ${slide}` }}
+        >
+          {[0, 1, 2].map((i) => (
+            <div className="relative h-[569px] w-[1044px] shrink-0 overflow-hidden rounded-[20px]" key={i}>
+              <img alt="" className="absolute inset-0 block size-full max-w-none" draggable={false} src={asset(`use-case-${i + 1}.jpg`)} />
+              {i === 0 && <NumberRoller play={inView && index === 0} />}
+            </div>
+          ))}
         </div>
       </button>
       <div className="absolute top-[589px] left-[440px] h-[8px] w-[164px]">
         {[0, 1, 2].map((i) => (
           <CarouselDot index={i} key={i} label={`Use case ${i + 1}`} onSelect={() => setIndex(i)} />
         ))}
-        {[0, 1, 2].map((i) => (
-          <div
-            className="pointer-events-none absolute top-0 h-[8px] w-[48px] rounded-[22px]"
-            key={i}
-            style={{ left: 58 * i, background: USE_CASE_COLORS[i], opacity: i === index ? 1 : 0, transition: fade }}
-          />
-        ))}
+        <div
+          className="pointer-events-none absolute top-0 h-[8px] w-[48px] rounded-[22px]"
+          style={{ left: 58 * index, background: USE_CASE_COLORS[index], transition: `left ${slide}, background-color ${slide}` }}
+        />
       </div>
     </div>
   );
@@ -517,10 +513,10 @@ export function NextProject({ study, style }: { study: CaseStudy; style: CSSProp
       style={style}
       type="button"
     >
-      <p className="nm absolute top-0 left-0 w-[126px] text-[24px] leading-normal whitespace-nowrap text-black">Next Project</p>
+      <p className="nm absolute top-0 left-0 w-[126px] text-[21px] leading-normal whitespace-nowrap text-black">Next Project</p>
       <span className="absolute top-[7.5px] left-[150px] h-px w-[88px] bg-black" />
-      <p className="nm absolute top-0 left-[262px] h-[30.8px] w-[560px] text-[24px] leading-normal text-black">{study.brief.title}</p>
-      <p className="nm absolute top-[38.8px] left-[262px] w-[560px] text-[40px] leading-[1.32] tracking-[-0.8px] text-black">{study.brief.headline}</p>
+      <p className="nm absolute top-0 left-[262px] h-[30.8px] w-[560px] text-[21px] leading-normal text-black">{study.brief.title}</p>
+      <p className="nm absolute top-[38.8px] left-[262px] w-[560px] text-[35px] leading-[1.32] tracking-[-0.7px] text-black">{study.brief.headline}</p>
       <div className="absolute top-0 left-[982px] h-[287.9px] w-[323.6px]">
         <img alt="" className="absolute inset-0 block size-full max-w-none" draggable={false} src="/assets/home/shelf-case.png" />
         <Disc

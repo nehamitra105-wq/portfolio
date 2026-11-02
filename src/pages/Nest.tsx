@@ -1,7 +1,7 @@
 import { Fragment, useLayoutEffect, useRef, type ReactNode } from "react";
 import ABTest from "../components/nest/ABTest";
 import MicroInteractions from "../components/nest/MicroInteractions";
-import Moodboard, { MOODBOARD_HEIGHT, MOODBOARD_WIDTH } from "../components/nest/Moodboard";
+import Moodboard, { MOODBOARD_HEIGHT } from "../components/nest/Moodboard";
 import NestNav from "../components/nest/NestNav";
 import { PILLS, PillReveal, TextItem, inPill } from "../components/nest/Pills";
 import {
@@ -42,6 +42,13 @@ const BLOCKS = CUTS.slice(0, -1).map((top, i) => ({
 // Figma's "slow" curve over its 1.25s, slower than the home page's 900ms.
 const FADE_MS = 1250;
 
+// The hero (1466 x 942 at 20, 20 in the frame) is drawn outside the frame so it
+// can fill the window: its box is the viewport less the page's 20px padding,
+// and the artwork covers it. The frame then starts where the hero's padding
+// ends in the design, at y 982 (block 0 is the hero).
+const HERO_END = 982;
+const PAD = "calc(20px * var(--frame-zoom, 1))";
+
 // Layers that sit above the final-product videos in Figma, as transparent
 // cut-outs: [file, x, y, w, h].
 const ABOVE_VIDEO = [
@@ -65,8 +72,9 @@ export default function Nest() {
 
   const components: Placed[] = [
     { y: 5135, render: (top) => <KeyScreenScroll style={{ left: 1025, top, width: 200, height: 200, clipPath: "circle(98.5px)" }} /> },
-    // Centred on the Figma cluster (1024 x 289 at 362, 5983), drawn larger.
-    { y: 5983, render: (top) => <Moodboard style={{ left: 874 - MOODBOARD_WIDTH / 2, top: top + 144.5 - MOODBOARD_HEIGHT / 2 }} /> },
+    // In the content column, centred where the Figma cluster (1024 x 289 at
+    // 362, 5983) was.
+    { y: 5983, render: (top) => <Moodboard style={{ left: 362, top: top + 144.5 - MOODBOARD_HEIGHT / 2 }} /> },
     { y: 6514, render: (top) => <VisualTraits style={{ left: 362, top }} /> },
     { y: 7006, render: (top) => <Shuffle frames={SHUFFLES.ps1} radius="11px" style={{ left: 466, top, width: 87, height: 190 }} /> },
     { y: 7066, render: (top) => <Shuffle frames={SHUFFLES.ts1} radius="50%" style={{ left: 566, top, width: 71, height: 71 }} /> },
@@ -90,8 +98,14 @@ export default function Nest() {
 
   return (
     <div className="page-clip">
-      <div className="frame-page bg-white" ref={frameRef} style={{ height: FOOTER_TOP }}>
-        {BLOCKS.map((block, i) => (
+      <Reveal className="h-svh" onLoad duration={FADE_MS} style={{ padding: PAD }}>
+        <div className="relative size-full overflow-hidden bg-[#f7f7f7]" style={{ borderRadius: `calc(40px * var(--frame-zoom, 1))` }}>
+          <img alt="" className="absolute inset-0 block size-full max-w-none object-cover select-none" draggable={false} src="/assets/nest/hero.webp" />
+        </div>
+      </Reveal>
+      {/* Zoom scales the frame's own margin too, so this stays in frame px. */}
+      <div className="frame-page" ref={frameRef} style={{ height: FOOTER_TOP, marginTop: -HERO_END }}>
+        {BLOCKS.slice(1).map((block, i) => (
           <Reveal
             className="absolute left-0 w-[1506px]"
             duration={FADE_MS}
@@ -104,7 +118,7 @@ export default function Nest() {
               className="absolute top-0 left-0 block w-[1506px] max-w-none select-none"
               decoding="async"
               draggable={false}
-              loading={i < 3 ? "eager" : "lazy"}
+              loading={i < 2 ? "eager" : "lazy"}
               src={block.src}
               style={{ height: block.height }}
             />

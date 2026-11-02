@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import type { NestText } from "../../site/nestText";
+import { scaledSize, type NestText } from "../../site/nestText";
 
 // Figma's "slow" curve, as elsewhere on the page.
 const SLOW = "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -13,9 +13,9 @@ export function TextItem({ item, top, style }: { item: NestText; top: number; st
         left: item.x,
         top,
         width: item.w,
-        fontSize: item.size,
+        fontSize: scaledSize(item.size),
         lineHeight: item.lh ?? "normal",
-        letterSpacing: item.ls,
+        letterSpacing: item.ls && (item.ls * scaledSize(item.size)) / item.size,
         opacity: item.opacity,
         textAlign: item.center ? "center" : undefined,
         ...style,

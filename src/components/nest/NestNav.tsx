@@ -65,7 +65,7 @@ export default function NestNav({ frameRef, height }: { frameRef: RefObject<HTML
               </span>
             </span>
           </span>
-          <span className="nm h-[28px] w-[64px] text-left text-[20px] leading-[1.32] tracking-[-0.4px] text-black">Home</span>
+          <span className="nm h-[28px] w-[64px] text-left text-[17.5px] leading-[1.32] tracking-[-0.35px] text-black">Home</span>
         </button>
 
         <div className="absolute top-[83px] left-0 h-[294px] w-[162px] rounded-[20px] bg-[#ececec]">
@@ -90,7 +90,7 @@ export default function NestNav({ frameRef, height }: { frameRef: RefObject<HTML
                 />
                 {/* Idle items are 50% black and go full black on hover. */}
                 <span
-                  className={`nm absolute w-[155px] text-[16px] leading-normal whitespace-nowrap text-black ${
+                  className={`nm absolute w-[155px] text-[14px] leading-normal whitespace-nowrap text-black ${
                     selected ? "opacity-100" : "opacity-50 group-hover:opacity-100"
                   }`}
                   style={{

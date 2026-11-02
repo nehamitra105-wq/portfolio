@@ -1,10 +1,7 @@
 import { useState, type CSSProperties } from "react";
-import { MOODBOARD_TILES } from "../../site/nestMoodboard";
+import { MOODBOARD_HEIGHT, MOODBOARD_TILES, MOODBOARD_WIDTH } from "../../site/nestMoodboard";
 
-// The moodboard cluster, drawn a little bigger than in Figma.
-export const MOODBOARD_SCALE = 1.15;
-export const MOODBOARD_WIDTH = 1024 * MOODBOARD_SCALE;
-export const MOODBOARD_HEIGHT = 289 * MOODBOARD_SCALE;
+export { MOODBOARD_HEIGHT, MOODBOARD_WIDTH };
 
 // From the "Image Hover Interaction" Make: the hovered image doubles in size
 // (kept inside the cluster) and the images near it are pushed out of its way.
@@ -15,10 +12,10 @@ const MAX_RADIAL_PUSH = 28;
 
 const TILES = MOODBOARD_TILES.map(([x, y, w, h], i) => ({
   src: `/assets/nest/moodboard/${String(i).padStart(3, "0")}.webp`,
-  x: x * MOODBOARD_SCALE,
-  y: y * MOODBOARD_SCALE,
-  w: w * MOODBOARD_SCALE,
-  h: h * MOODBOARD_SCALE,
+  x,
+  y,
+  w,
+  h,
 }));
 
 type Offset = { x: number; y: number };
