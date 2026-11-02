@@ -1,10 +1,39 @@
+import { useEffect, useRef } from "react";
 import LazyPiece from "./LazyPiece";
 
 const IMG = "/assets/gallery";
 
 // Video pieces show their poster frame while the video in
-// public/assets/gallery/videos/ loads.
-function VideoPiece({ name, extension = "mp4" }: { name: string; extension?: string }) {
+// public/assets/gallery/videos/ loads (720p H.264, re-encoded from the
+// originals so every browser can play them). Each one plays while it's on
+// screen and pauses off screen, and is started by hand as well as autoplay
+// since browsers don't always honour autoplay.
+function VideoPiece({ name }: { name: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = ref.current;
+    if (!video) return;
+    video.muted = true;
+    let onScreen = false;
+    const play = () => {
+      if (onScreen) video.play().catch(() => {});
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      if (onScreen) play();
+      else video.pause();
+    });
+    observer.observe(video);
+    video.addEventListener("loadeddata", play);
+    video.addEventListener("canplay", play);
+    return () => {
+      observer.disconnect();
+      video.removeEventListener("loadeddata", play);
+      video.removeEventListener("canplay", play);
+    };
+  }, []);
+
   return (
     <video
       autoPlay
@@ -13,7 +42,9 @@ function VideoPiece({ name, extension = "mp4" }: { name: string; extension?: str
       muted
       playsInline
       poster={`${IMG}/${name}-poster.png`}
-      src={`${IMG}/videos/${name}.${extension}`}
+      preload="auto"
+      ref={ref}
+      src={`${IMG}/videos/${name}.mp4`}
     />
   );
 }
@@ -108,7 +139,7 @@ export default function GalleryPieces() {
         <VideoPiece name="ep-8-ad-anim" />
       </LazyPiece>
       <LazyPiece className="absolute h-[390px] left-[797px] top-[3534px] w-[520px]">
-        <VideoPiece extension="mov" name="fate" />
+        <VideoPiece name="fate" />
       </LazyPiece>
       <LazyPiece className="absolute h-[331px] left-[845px] top-[6780px] w-[588px]">
         <VideoPiece name="ep-6-intro-card" />
