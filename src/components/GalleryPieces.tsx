@@ -8,7 +8,7 @@ const IMG = "/assets/gallery";
 // originals so every browser can play them). Each one plays while it's on
 // screen and pauses off screen, and is started by hand as well as autoplay
 // since browsers don't always honour autoplay.
-function VideoPiece({ name }: { name: string }) {
+function VideoPiece({ name, className = "inset-0 size-full" }: { name: string; className?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ function VideoPiece({ name }: { name: string }) {
   return (
     <video
       autoPlay
-      className="absolute inset-0 size-full max-w-none object-cover pointer-events-none"
+      className={`absolute ${className} max-w-none object-cover pointer-events-none`}
       loop
       muted
       playsInline
@@ -79,7 +79,7 @@ const CAPTIONS = [
   { left: 878, top: 759, width: 537, title: "Figma Shaders Ad", medium: "Figma Motion" },
   { left: 802, top: 1396, width: 435, title: "Painting for a failing situationship", medium: "Oil Paint" },
   { left: 79, top: 1551, width: 535, title: "Radio Station Sticker Sheet", medium: "Adobe Illustrator" },
-  { left: 179, top: 2119, width: 573, title: "Figma Motion Ad", medium: "Figma Motion" },
+  { left: 179, top: 2109, width: 563, title: "Figma Motion Ad", medium: "Figma Motion" },
   { left: 938, top: 2261, width: 464, title: "Truth", medium: "Charcoal" },
   { left: 387, top: 2728, width: 950, title: "Break Free", medium: "Procreate" },
   { left: 193, top: 3352, width: 451, title: "Value", medium: "Micron Pen" },
@@ -135,8 +135,9 @@ export default function GalleryPieces() {
       <GalleryFrame className="absolute h-[533.589px] left-[339px] top-[5985px] w-[456.021px]">
         <img alt="" className="absolute inset-0 max-w-none object-bottom pointer-events-none size-full" src={`${IMG}/img-4324.png`} />
       </GalleryFrame>
-      <GalleryFrame className="absolute h-[322px] left-[179px] top-[1787px] w-[573px]">
-        <VideoPiece name="ep-8-ad-anim" />
+      {/* Trimmed on the right and bottom, past the dark edge in the video. */}
+      <GalleryFrame className="absolute h-[312px] left-[179px] top-[1787px] w-[563px] overflow-hidden">
+        <VideoPiece className="top-0 left-0 h-[322px] w-[573px]" name="ep-8-ad-anim" />
       </GalleryFrame>
       <GalleryFrame className="absolute h-[390px] left-[797px] top-[3534px] w-[520px]">
         <VideoPiece name="fate" />
