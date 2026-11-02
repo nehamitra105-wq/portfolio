@@ -26,12 +26,18 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 // the page has already loaded.
 const PROGRESS_MS = 1000;
 
+// Lazy images only load (and only matter) once they're near the screen.
+function nearScreen(el: Element) {
+  const rect = el.getBoundingClientRect();
+  return rect.bottom > -window.innerHeight && rect.top < window.innerHeight * 2;
+}
+
 // The page's pictures and videos (not the loader's own).
 function pageMedia() {
   return Array.from(document.querySelectorAll<Media>("img, video")).filter(
     (el) =>
       !el.closest("[data-page-loader]") &&
-      !(el instanceof HTMLImageElement && el.loading === "lazy") &&
+      !(el instanceof HTMLImageElement && el.loading === "lazy" && !nearScreen(el)) &&
       Boolean(el.getAttribute("src") || el.querySelector("source")),
   );
 }
@@ -44,6 +50,8 @@ export default function PageLoader() {
   const [visible, setVisible] = useState(false);
   const [showGraphic, setShowGraphic] = useState(false);
   const [progress, setProgress] = useState(0);
+  // A fresh arc for each page, so it starts empty rather than winding back.
+  const [run, setRun] = useState(0);
 
   // Runs before the new page is painted, so a half-loaded page never shows.
   useLayoutEffect(() => {
@@ -64,13 +72,15 @@ export default function PageLoader() {
       if (pending && !covering) {
         covering = true;
         setProgress(0);
+        setRun((value) => value + 1);
         setVisible(true);
         graphicTimer = window.setTimeout(() => {
           graphicShown = true;
           setShowGraphic(true);
         }, GRAPHIC_AFTER_MS);
       }
-      if (seen.size) setProgress((seen.size - pending) / seen.size);
+      // Never goes backwards, even when more pictures turn up.
+      if (seen.size) setProgress((value) => Math.max(value, (seen.size - pending) / seen.size));
       quiet = pending ? 0 : quiet + 1;
       const elapsed = performance.now() - startedAt;
       if ((quiet >= QUIET_CHECKS && elapsed >= MIN_CHECK_MS) || elapsed >= MAX_WAIT_MS) {
@@ -121,7 +131,7 @@ export default function PageLoader() {
           className="absolute top-[10px] left-[9px] h-[209px] w-[212px] max-w-none animate-[spin_12s_linear_infinite] object-cover"
           src={`${L}/cd-glare.png`}
         />
-        <svg className="absolute inset-0 -rotate-90 overflow-visible" fill="none" viewBox="0 0 230 230">
+        <svg className="absolute inset-0 -rotate-90 overflow-visible" fill="none" key={`arc-${run}`} viewBox="0 0 230 230">
           <circle
             cx={CENTER}
             cy={CENTER}
@@ -135,8 +145,10 @@ export default function PageLoader() {
           />
         </svg>
         {/* The star rides the tip of the arc. */}
-        <div className="absolute inset-0" style={{ rotate: `${progress * 360}deg`, transition: `rotate ${ease}` }}>
+        <div className="absolute inset-0" key={`star-${run}`} style={{ rotate: `${progress * 360}deg`, transition: `rotate ${ease}` }}>
           <div className="absolute size-[14.8px]" style={{ left: CENTER - 7.4, top: CENTER - RADIUS - 7.4 }}>
+            {/* White behind the star so the arc doesn't show through it. */}
+            <div className="absolute inset-[-2px] rounded-full bg-white" />
             <div className="absolute inset-[-13.89%]">
               <img alt="" className="block size-full max-w-none" src={`${L}/star-glow.svg`} />
             </div>

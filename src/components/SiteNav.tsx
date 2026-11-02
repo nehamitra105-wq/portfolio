@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { goToSection } from "../site/navigation";
 import { FRAME_WIDTH } from "../site/frameZoom";
 
-type NavItem = "home" | "gallery" | "about" | "contact";
+type NavItem = "work" | "gallery" | "about" | "contact";
 
 const ITEMS: { id: NavItem; label: string }[] = [
-  { id: "home", label: "Home" },
+  { id: "work", label: "Work" },
   { id: "gallery", label: "Gallery" },
   { id: "about", label: "About" },
   { id: "contact", label: "Contact" },
@@ -77,7 +77,7 @@ export default function SiteNav({ active, animateIn = false }: { active?: NavIte
       navigate("/gallery");
       return;
     }
-    goToSection(navigate, item === "home" ? "top" : item === "about" ? "about" : "contact");
+    goToSection(navigate, item === "work" ? "shelves" : item === "about" ? "about" : "contact");
   };
 
   return createPortal(
@@ -104,16 +104,24 @@ export default function SiteNav({ active, animateIn = false }: { active?: NavIte
             </div>
           </button>
           <nav className="nm flex items-center gap-[114px] text-center text-[16px] leading-[1.32] tracking-[-0.32px] text-black">
-            {ITEMS.map(({ id, label }) => (
-              <button
-                className={`w-[77px] shrink-0 whitespace-pre ${id === active ? "" : "opacity-50"}`}
-                key={id}
-                onClick={() => handleClick(id)}
-                type="button"
-              >
-                {id === active ? `(   ${label}   )` : label}
-              </button>
-            ))}
+            {/* The current page is shown in brackets; hovering another item
+                brings its brackets in too. */}
+            {ITEMS.map(({ id, label }) => {
+              const current = id === active;
+              const brackets = `transition-opacity duration-300 ease-out ${current ? "" : "opacity-0 group-hover:opacity-100"}`;
+              return (
+                <button
+                  className={`group w-[77px] shrink-0 whitespace-pre transition-opacity duration-300 ease-out ${current ? "" : "opacity-50 hover:opacity-100"}`}
+                  key={id}
+                  onClick={() => handleClick(id)}
+                  type="button"
+                >
+                  <span className={brackets}>{"(   "}</span>
+                  {label}
+                  <span className={brackets}>{"   )"}</span>
+                </button>
+              );
+            })}
           </nav>
         </div>
       </div>

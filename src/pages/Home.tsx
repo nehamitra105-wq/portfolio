@@ -346,7 +346,10 @@ export default function Home() {
         </div>
 
         <div className="frame-page" ref={frameRef} style={{ height: FRAME_HEIGHT - FOOTER_HEIGHT + shelfShift + workExtra + involvementExtra }}>
-          <SiteNav active="home" animateIn />
+          <SiteNav active="work" animateIn />
+          {/* "Work" in the nav scrolls here: where the hero CD has landed and
+              the shelves are in view. */}
+          <div aria-hidden className="pointer-events-none absolute left-0 h-px w-px" id="shelves" style={{ top: landingScroll }} />
 
           {/* wrong names + title + tagline, scaled with the hero */}
           <Reveal className="pointer-events-none absolute inset-0" delay={100} onLoad>

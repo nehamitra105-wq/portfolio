@@ -32,8 +32,8 @@ export default function SiteFooter({
       <div className="absolute top-0 left-0" style={{ width: FRAME_WIDTH, height: FOOTER_HEIGHT, zoom }}>
         <div className="absolute inset-x-0 top-0 flex items-start justify-between px-[30px]">
           <div className="mt-[3px] flex items-center gap-[60px]">
-            <button className={linkText} onClick={() => goToSection(navigate, "top")} type="button">
-              Home
+            <button className={linkText} onClick={() => goToSection(navigate, "shelves")} type="button">
+              Work
             </button>
             <button
               className={linkText}
