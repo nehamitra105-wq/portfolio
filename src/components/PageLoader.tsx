@@ -1,6 +1,6 @@
 import { useLayoutEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { isMediaPending, type Media } from "../site/media";
+import { isMediaDownloading, isMediaPending, type Media } from "../site/media";
 
 const L = "/assets/loader";
 const FADE_MS = 500;
@@ -52,6 +52,9 @@ export default function PageLoader() {
   const [progress, setProgress] = useState(0);
   // A fresh arc for each page, so it starts empty rather than winding back.
   const [run, setRun] = useState(0);
+  // The loader's own CD (preloaded from index.html): the graphic waits for it
+  // so it never shows half drawn either.
+  const [cdReady, setCdReady] = useState(false);
 
   // Runs before the new page is painted, so a half-loaded page never shows.
   useLayoutEffect(() => {
@@ -73,9 +76,13 @@ export default function PageLoader() {
 
     const check = () => {
       if (cancelled) return;
-      for (const el of pageMedia()) if (isMediaPending(el)) seen.add(el);
+      const media = pageMedia();
+      for (const el of media) if (isMediaPending(el)) seen.add(el);
       const pending = [...seen].filter((el) => el.isConnected && isMediaPending(el)).length;
-      if (pending && !covering) {
+      // Cover only when something is still downloading (cached pictures just
+      // need a moment to decode); once covered, wait for decoding too so
+      // nothing paints half drawn.
+      if (!covering && media.some(isMediaDownloading)) {
         covering = true;
         setProgress(0);
         setRun((value) => value + 1);
@@ -130,11 +137,15 @@ export default function PageLoader() {
     >
       <div
         className="relative size-[230px] transition-opacity duration-300"
-        style={{ zoom: "var(--frame-zoom, 1)", opacity: showGraphic ? 1 : 0 }}
+        style={{ zoom: "var(--frame-zoom, 1)", opacity: showGraphic && cdReady ? 1 : 0 }}
       >
         <img
           alt=""
           className="absolute top-[10px] left-[9px] h-[209px] w-[212px] max-w-none animate-[spin_12s_linear_infinite] object-cover"
+          onLoad={(event) => event.currentTarget.decode().then(() => setCdReady(true), () => setCdReady(true))}
+          ref={(img) => {
+            if (img?.complete && img.naturalWidth) setCdReady(true);
+          }}
           src={`${L}/cd-glare.png`}
         />
         <svg className="absolute inset-0 -rotate-90 overflow-visible" fill="none" key={`arc-${run}`} viewBox="0 0 230 230">

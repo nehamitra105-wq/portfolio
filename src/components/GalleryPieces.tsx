@@ -41,7 +41,7 @@ function VideoPiece({ name }: { name: string }) {
       loop
       muted
       playsInline
-      poster={`${IMG}/${name}-poster.png`}
+      poster={`${IMG}/${name}-poster.jpg`}
       preload="auto"
       ref={ref}
       src={`${IMG}/videos/${name}.mp4`}
