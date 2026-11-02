@@ -14,6 +14,8 @@ const GRAPHIC_AFTER_MS = 250;
 const CHECK_EVERY_MS = 100;
 const MIN_CHECK_MS = 400;
 const QUIET_CHECKS = 3;
+// After this long a note fades in under the CD.
+const SLOW_AFTER_MS = 10000;
 
 // The arc: a circle round the CD that fills clockwise from the top as the
 // page loads, with the star at its tip.
@@ -48,6 +50,7 @@ export default function PageLoader() {
   // The loader's own CD (preloaded from index.html): the graphic waits for it
   // so it never shows half drawn either.
   const [cdReady, setCdReady] = useState(false);
+  const [slow, setSlow] = useState(false);
 
   // Runs before the new page is painted, so a half-loaded page never shows.
   useLayoutEffect(() => {
@@ -60,6 +63,7 @@ export default function PageLoader() {
     let cancelled = false;
     let checkTimer = 0;
     let graphicTimer = 0;
+    let slowTimer = 0;
     let hideTimer = 0;
     let covering = false;
     let graphicShown = false;
@@ -84,6 +88,8 @@ export default function PageLoader() {
         setProgress(0);
         setRun((value) => value + 1);
         setVisible(true);
+        setSlow(false);
+        slowTimer = window.setTimeout(() => setSlow(true), SLOW_AFTER_MS);
         graphicTimer = window.setTimeout(() => {
           graphicShown = true;
           setShowGraphic(true);
@@ -96,6 +102,7 @@ export default function PageLoader() {
       if (quiet >= QUIET_CHECKS && elapsed >= MIN_CHECK_MS) {
         if (!covering) return;
         window.clearTimeout(graphicTimer);
+        window.clearTimeout(slowTimer);
         setProgress(1);
         // Let the arc close before fading out (straight away if it never
         // showed).
@@ -110,6 +117,7 @@ export default function PageLoader() {
       cancelled = true;
       window.clearTimeout(checkTimer);
       window.clearTimeout(graphicTimer);
+      window.clearTimeout(slowTimer);
       window.clearTimeout(hideTimer);
     };
   }, [pathname]);
@@ -171,6 +179,14 @@ export default function PageLoader() {
             </div>
           </div>
         </div>
+        {/* Shown when loading runs long, in the style of the home page's
+            "Click to see case studies!" hint. */}
+        <p
+          className="nm absolute left-1/2 w-max -translate-x-1/2 text-[16px] leading-[1.32] tracking-[-0.32px] text-black transition-all duration-300 ease-in-out"
+          style={{ top: slow ? 250 : 220, opacity: slow ? 1 : 0 }}
+        >
+          i promise it’s worth it
+        </p>
       </div>
     </div>
   );

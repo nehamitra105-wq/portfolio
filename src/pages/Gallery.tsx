@@ -97,6 +97,7 @@ export default function Gallery() {
   const pendingJumpRef = useRef<Direction | null>(null);
   const jumpTriggerRef = useRef<(direction: Direction) => void>(() => {});
   const restartRef = useRef<() => void>(() => {});
+  const dropToFooterRef = useRef<() => void>(() => {});
   const [guyState, setGuyState] = useState<GuyState>("idle");
   const [direction, setDirection] = useState<Direction>("right");
   const [fallFrame, setFallFrame] = useState(0);
@@ -268,6 +269,8 @@ export default function Gallery() {
     let resumeScroll = 0;
     let slidePauseTimeout = 0;
     let returningToTop = false;
+    let droppingToFooter = false;
+    let dropTimeout = 0;
     // Scroll position in scene pixels (the scene may be scaled down to fit).
     const pageScroll = () => window.scrollY / zoomRef.current;
     let interactionScroll = pageScroll();
@@ -603,9 +606,54 @@ export default function Gallery() {
     // guy doesn't start sliding on the way up.
     restartRef.current = () => {
       cancelAnimationFrame(animationFrame);
+      droppingToFooter = false;
+      window.clearTimeout(dropTimeout);
       returningToTop = pageScroll() > 1;
       resetSequence();
       window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    // Top nav "Contact": scroll down to the footer, then the guy takes the
+    // final fall onto it, the same as at the end of the sequence. Scrolling
+    // is ignored on the way down so he doesn't slide on the pieces he passes.
+    dropToFooterRef.current = () => {
+      const footer = document.getElementById("contact");
+      const last = LEGS.length - 1;
+      const onFooter = legRef.current > last;
+      footer?.scrollIntoView({ behavior: "smooth" });
+      if (onFooter) return;
+
+      cancelAnimationFrame(animationFrame);
+      window.clearTimeout(slidePauseTimeout);
+      window.clearTimeout(dropTimeout);
+      returningToTop = false;
+      droppingToFooter = true;
+      resumeScroll = 0;
+      autoAdvanceRef.current = false;
+      pendingJumpRef.current = null;
+      walkStartedAtRef.current = 0;
+      legRef.current = last;
+      platformRef.current = LEGS[last].from;
+      phaseRef.current = "on-platform";
+      currentLeftRef.current = LEGS[last].slideEndLeft;
+      targetLeftRef.current = LEGS[last].slideEndLeft;
+      setHasLanded(true);
+      setDirection(LEGS[last].direction);
+      setGuyState("idle");
+      setGuyPosition({ left: LEGS[last].slideEndLeft, top: platformTop(LEGS[last].from) });
+
+      const fallOntoFooter = () => {
+        if (!droppingToFooter) return;
+        droppingToFooter = false;
+        window.clearTimeout(dropTimeout);
+        interactionScroll = pageScroll();
+        scrollTopRef.current = interactionScroll;
+        startFall();
+      };
+      window.addEventListener("scrollend", fallOntoFooter, { once: true });
+      // In case the page doesn't scroll (already at the footer) or scrollend
+      // never fires.
+      dropTimeout = window.setTimeout(fallOntoFooter, 1500);
     };
 
     const finishReturnToTop = () => {
@@ -616,6 +664,7 @@ export default function Gallery() {
     };
 
     const handleScroll = (event: Event) => {
+      if (droppingToFooter) return;
       if (returningToTop) {
         if (pageScroll() <= 1) finishReturnToTop();
         return;
@@ -629,6 +678,7 @@ export default function Gallery() {
     };
 
     const handleWheelInput = (deltaY: number, deltaMode: number) => {
+      if (droppingToFooter) return;
       // Scrolling with the wheel stops the smooth scroll back to the top.
       if (returningToTop) {
         finishReturnToTop();
@@ -668,6 +718,8 @@ export default function Gallery() {
       window.clearTimeout(slidePauseTimeout);
       jumpTriggerRef.current = () => {};
       restartRef.current = () => {};
+      dropToFooterRef.current = () => {};
+      window.clearTimeout(dropTimeout);
       document.removeEventListener("scroll", handleScroll, true);
       document.removeEventListener("wheel", handleWheel, true);
       window.removeEventListener("scrollend", finishReturnToTop);
@@ -681,7 +733,7 @@ export default function Gallery() {
       className="stage relative overflow-clip bg-white text-black"
       style={{ paddingTop: FOOTER_TOP * zoom }}
     >
-      <SiteNav active="gallery" />
+      <SiteNav active="gallery" onContact={() => dropToFooterRef.current()} />
       {/* The scene scales down to fit narrower windows, like the other pages. */}
       <div className="absolute inset-x-0 top-0 flex justify-center">
       <section

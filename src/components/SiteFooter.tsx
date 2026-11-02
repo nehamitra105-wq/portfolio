@@ -6,7 +6,7 @@ import { FRAME_WIDTH, useFooterZoom } from "../site/frameZoom";
 export const FOOTER_HEIGHT = 323;
 
 const linkText =
-  "nm h-[32px] w-[97px] shrink-0 text-center text-[20px] leading-[1.32] tracking-[-0.4px] text-black";
+  "nm h-[32px] w-[97px] shrink-0 text-center text-[16px] leading-[1.32] tracking-[-0.32px] text-black";
 
 // The home page footer. It always spans the browser: the 1506 x 323 design
 // scales with the window (so the cropped "neha mitra" stays cropped the same

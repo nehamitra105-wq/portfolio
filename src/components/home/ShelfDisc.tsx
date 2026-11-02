@@ -19,7 +19,7 @@ const ShelfDisc = forwardRef<
     <button
       aria-label={`Open the ${study.brief.title} brief`}
       className="group absolute h-[640px] w-[467px]"
-      data-cursor="play"
+      data-cursor={study.caseStudyPath ? "play" : "locked"}
       onClick={() => onSelect(study)}
       style={{ ...style, visibility: hidden ? "hidden" : undefined }}
       type="button"

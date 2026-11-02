@@ -128,12 +128,22 @@ export default function Job() {
             <p className="nm absolute top-[110px] left-[49px] h-[52px] w-[508px] text-[20px] leading-[1.32] tracking-[-0.4px] text-white">
               That’s all I can show you for now, but feel free to reach out to me if you want to know more!
             </p>
+            {/* Hover fills it white with black text and icon. */}
             <a
-              className="absolute top-[202px] left-[49px] flex h-[66px] items-center gap-[13.5px] rounded-[40px] border-[0.375px] border-solid border-white px-[24px] py-[16px]"
+              className="absolute top-[202px] left-[49px] flex h-[66px] items-center gap-[13.5px] rounded-[40px] border-[0.375px] border-solid border-white px-[24px] py-[16px] text-white antialiased transition-colors duration-300 ease-in-out hover:bg-white hover:text-black"
+              data-cursor="email"
               href={`mailto:${EMAIL}`}
             >
-              <span className="nm text-[24px] leading-[1.32] tracking-[-0.48px] whitespace-nowrap text-white">Email me!</span>
-              <img alt="" className="block size-[18px] max-w-none" src="/assets/work/send.svg" />
+              <span className="nm text-[24px] leading-[1.32] tracking-[-0.48px] whitespace-nowrap">Email me!</span>
+              <svg className="block size-[18px] shrink-0" fill="none" viewBox="0 0 18 18">
+                <path
+                  d="M8.18503 9.81393C8.04169 9.67085 7.87087 9.55828 7.68285 9.48301L1.73535 7.09801C1.66434 7.06951 1.60375 7.01998 1.5617 6.95605C1.51965 6.89212 1.49816 6.81687 1.50012 6.74037C1.50208 6.66388 1.52739 6.58982 1.57266 6.52813C1.61792 6.46644 1.68098 6.42008 1.75335 6.39526L16.0034 1.52026C16.0698 1.49625 16.1417 1.49167 16.2107 1.50705C16.2797 1.52243 16.3428 1.55713 16.3928 1.60709C16.4427 1.65705 16.4774 1.72021 16.4928 1.78917C16.5082 1.85813 16.5036 1.93005 16.4796 1.99651L11.6046 16.2465C11.5798 16.3189 11.5334 16.3819 11.4717 16.4272C11.41 16.4725 11.336 16.4978 11.2595 16.4997C11.183 16.5017 11.1077 16.4802 11.0438 16.4382C10.9799 16.3961 10.9303 16.3355 10.9019 16.2645L8.51685 10.3155C8.44124 10.1276 8.32836 9.95701 8.18503 9.81393ZM8.18503 9.81393L16.3904 1.61026"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                />
+              </svg>
             </a>
           </div>
         </div>

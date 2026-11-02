@@ -46,7 +46,17 @@ type BarState = "top" | "hidden" | "shown";
 // scrolling back up brings it back in on a white bar. It's drawn outside the
 // page frame (portal) with the frame's width and scale, so it lines up with
 // the page in any window.
-export default function SiteNav({ active, animateIn = false }: { active?: NavItem; animateIn?: boolean }) {
+export default function SiteNav({
+  active,
+  animateIn = false,
+  onContact,
+}: {
+  active?: NavItem;
+  animateIn?: boolean;
+  // Replaces Contact's usual scroll to the footer (the gallery drops the guy
+  // onto it too).
+  onContact?: () => void;
+}) {
   const navigate = useNavigate();
   const [state, setState] = useState<BarState>("top");
   const [playIntro] = useState(() => animateIn && introPending);
@@ -75,6 +85,10 @@ export default function SiteNav({ active, animateIn = false }: { active?: NavIte
   const handleClick = (item: NavItem) => {
     if (item === "gallery") {
       navigate("/gallery");
+      return;
+    }
+    if (item === "contact" && onContact) {
+      onContact();
       return;
     }
     goToSection(navigate, item === "work" ? "shelves" : item === "about" ? "about" : "contact");
