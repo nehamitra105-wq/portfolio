@@ -78,7 +78,7 @@ export default function NestNav({ frameRef, height }: { frameRef: RefObject<HTML
             return (
               <button
                 aria-current={selected ? "true" : undefined}
-                className="absolute left-[24px] h-[25px] w-[115px] text-left"
+                className="group absolute left-[24px] h-[25px] w-[115px] text-left"
                 key={section.label}
                 onClick={() => scrollTo(section.top)}
                 style={{ top: 22 + 45 * i }}
@@ -88,13 +88,15 @@ export default function NestNav({ frameRef, height }: { frameRef: RefObject<HTML
                   className="absolute top-[9.5px] left-0 size-[6px] rounded-full bg-black"
                   style={{ opacity: selected ? 1 : 0, transition: `opacity ${ease}` }}
                 />
+                {/* Idle items are 50% black and go full black on hover. */}
                 <span
-                  className="nm absolute w-[155px] text-[16px] leading-normal whitespace-nowrap text-black"
+                  className={`nm absolute w-[155px] text-[16px] leading-normal whitespace-nowrap text-black ${
+                    selected ? "opacity-100" : "opacity-50 group-hover:opacity-100"
+                  }`}
                   style={{
                     left: selected ? 19 : 0,
                     top: textTop,
-                    opacity: selected ? 1 : 0.5,
-                    transition: `left ${ease}, top ${ease}, opacity ${ease}`,
+                    transition: `left ${ease}, top ${ease}, opacity 300ms ease-out`,
                   }}
                 >
                   {section.label}
