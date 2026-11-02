@@ -3,6 +3,7 @@ import ABTest from "../components/nest/ABTest";
 import MicroInteractions from "../components/nest/MicroInteractions";
 import Moodboard, { MOODBOARD_HEIGHT, MOODBOARD_WIDTH } from "../components/nest/Moodboard";
 import NestNav from "../components/nest/NestNav";
+import { PILLS, PillReveal, TextItem, inPill } from "../components/nest/Pills";
 import {
   CroppedVideo,
   DesignSystemPreview,
@@ -108,23 +109,21 @@ export default function Nest() {
               style={{ height: block.height }}
             />
 
-            {NEST_TEXT.filter((item) => inBlock(item.y, block)).map((item) => (
-              <p
-                className={`nm absolute whitespace-pre text-black ${item.upper ? "uppercase" : ""}`}
-                key={`${item.x},${item.y}`}
-                style={{
-                  left: item.x,
-                  top: item.y - block.top,
-                  width: item.w,
-                  fontSize: item.size,
-                  lineHeight: item.lh ?? "normal",
-                  letterSpacing: item.ls,
-                  opacity: item.opacity,
-                  textAlign: item.center ? "center" : undefined,
-                }}
-              >
-                {item.text}
-              </p>
+            {PILLS.map(
+              (pill, index) =>
+                inBlock(pill.y, block) && (
+                  <PillReveal
+                    index={index}
+                    key={index}
+                    pill={pill}
+                    texts={NEST_TEXT.filter((item) => inPill(item, pill))}
+                    top={pill.y - block.top}
+                  />
+                ),
+            )}
+
+            {NEST_TEXT.filter((item) => inBlock(item.y, block) && !PILLS.some((pill) => inPill(item, pill))).map((item) => (
+              <TextItem item={item} key={`${item.x},${item.y}`} top={item.y - block.top} />
             ))}
 
             {components.map(
