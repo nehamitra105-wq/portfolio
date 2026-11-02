@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const A = "/assets/about";
 
@@ -20,6 +20,56 @@ const QUEUE = [
 // The "cd" placeholder's shape: a 123px disc with a 33px centre hole.
 const DISC_MASK =
   "radial-gradient(closest-side, transparent 26.8%, #000 calc(26.8% + 0.5px), #000 calc(100% - 0.5px), transparent 100%)";
+
+// Text that doesn't fit scrolls slowly sideways on a loop, like a mini
+// player: it waits at the start, scrolls one copy's width, then repeats.
+const MARQUEE_GAP = 32;
+const MARQUEE_SPEED = 30; // px per second
+const MARQUEE_PAUSE_MS = 1500;
+
+function Marquee({ className, text }: { className: string; text: string }) {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [overflow, setOverflow] = useState(0);
+
+  useEffect(() => {
+    const box = boxRef.current;
+    const track = trackRef.current;
+    if (!box || !track) return;
+    const first = track.firstElementChild as HTMLElement;
+    setOverflow(first.offsetWidth > box.clientWidth ? first.offsetWidth : 0);
+  }, [text]);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track || !overflow) return;
+    const distance = overflow + MARQUEE_GAP;
+    const scrollMs = (distance / MARQUEE_SPEED) * 1000;
+    const total = scrollMs + MARQUEE_PAUSE_MS;
+    const animation = track.animate(
+      [
+        { transform: "translateX(0)", offset: 0 },
+        { transform: "translateX(0)", offset: MARQUEE_PAUSE_MS / total },
+        { transform: `translateX(${-distance}px)`, offset: 1 },
+      ],
+      { duration: total, iterations: Infinity, easing: "linear" },
+    );
+    return () => animation.cancel();
+  }, [overflow, text]);
+
+  return (
+    <div className={`${className} overflow-hidden`} ref={boxRef}>
+      <div className={`flex w-max ${overflow ? "" : "mx-auto"}`} ref={trackRef} style={{ gap: MARQUEE_GAP }}>
+        <span className="whitespace-nowrap">{text}</span>
+        {overflow > 0 && (
+          <span aria-hidden className="whitespace-nowrap">
+            {text}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // "currently playing" block in About me: skip and back step through the
 // queue (it starts on a random song), and pause stops the disc turning.
@@ -57,16 +107,16 @@ export default function CurrentlyPlaying() {
       </div>
       <div className="flex w-[217px] shrink-0 flex-col items-center gap-[15px]">
         <div aria-live="polite" className="flex w-full flex-col items-start gap-[4px] text-center text-[16px] leading-[1.32] tracking-[-0.32px] text-black">
-          <p className="nm-medium h-[21px] w-full truncate">{track.song}</p>
-          <p className="nm h-[21px] w-full truncate">{track.artist}</p>
+          <Marquee className="nm-medium h-[21px] w-full" text={track.song} />
+          <Marquee className="nm h-[21px] w-full" text={track.artist} />
         </div>
-        <div className="flex items-center gap-[31.852px]">
-          <button aria-label="Previous song" onClick={() => step(-1)} type="button">
-            <img alt="" className="block size-[26.796px] max-w-none" src={`${A}/go-back.svg`} />
+        <div className="flex items-center gap-[31.852px] select-none">
+          <button aria-label="Previous song" className="outline-none" onClick={() => step(-1)} type="button">
+            <img alt="" className="block size-[26.796px] max-w-none" draggable={false} src={`${A}/go-back.svg`} />
           </button>
           <button
             aria-label={playing ? "Pause" : "Play"}
-            className="relative size-[25.279px] shrink-0"
+            className="relative size-[25.279px] shrink-0 outline-none"
             onClick={() => setPlaying((value) => !value)}
             type="button"
           >
@@ -82,8 +132,8 @@ export default function CurrentlyPlaying() {
               />
             )}
           </button>
-          <button aria-label="Next song" onClick={() => step(1)} type="button">
-            <img alt="" className="block size-[26.796px] max-w-none" src={`${A}/skip.svg`} />
+          <button aria-label="Next song" className="outline-none" onClick={() => step(1)} type="button">
+            <img alt="" className="block size-[26.796px] max-w-none" draggable={false} src={`${A}/skip.svg`} />
           </button>
         </div>
         <p className="nm h-[21px] w-[217px] text-center text-[12px] leading-[1.32] tracking-[-0.24px] text-black">{`it’s ${track.color}!`}</p>
