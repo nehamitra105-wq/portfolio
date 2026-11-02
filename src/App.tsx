@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import CustomCursor from "./components/CustomCursor";
 import Brief from "./pages/Brief";
 import Gallery from "./pages/Gallery";
@@ -22,6 +23,7 @@ export default function App() {
           <Route element={<Nest />} path="/nest" />
           <Route element={<Navigate replace to="/" />} path="*" />
         </Routes>
+        <Analytics />
       </DiscFlightProvider>
     </BrowserRouter>
   );
