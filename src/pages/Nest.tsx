@@ -100,7 +100,9 @@ export default function Nest() {
     <div className="page-clip">
       <Reveal className="h-svh" onLoad duration={FADE_MS} style={{ padding: PAD }}>
         <div className="relative size-full overflow-hidden bg-[#f7f7f7]" style={{ borderRadius: `calc(40px * var(--frame-zoom, 1))` }}>
-          <img alt="" className="absolute inset-0 block size-full max-w-none object-cover select-none" draggable={false} src="/assets/nest/hero.webp" />
+          {/* Cropped from the bottom-left, so the nest logo keeps the cover's
+              space below and beside it at any window shape. */}
+          <img alt="" className="absolute inset-0 block size-full max-w-none object-cover object-left-bottom select-none" draggable={false} src="/assets/nest/hero.webp" />
         </div>
       </Reveal>
       {/* Zoom scales the frame's own margin too, so this stays in frame px. */}
