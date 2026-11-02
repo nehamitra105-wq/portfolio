@@ -32,8 +32,12 @@ const HERO_ORIGIN = { x: 753, y: 181 };
 const HERO_SCALE_RANGE = [0.7, 1.6];
 // 12s per turn: four 3s quarter-turns in the "nest disc spin" component.
 const SPIN_DEGREES_PER_MS = 360 / 12000;
-// Scroll (in frame pixels) it takes the hero CD to land in its shelf slot.
+// One scroll down sends the hero CD into its shelf slot in a single timed
+// motion (and one scroll back up at the top returns it), so it's never left
+// stuck halfway. The page scrolls this far (in frame pixels) along with it.
 const HERO_LANDING_SCROLL = 400;
+const HERO_LANDING_MS = 1400;
+const SCROLL_KEYS = new Set(["ArrowDown", "ArrowUp", "PageDown", "PageUp", " ", "Home", "End"]);
 
 const SHELF_ROWS = [
   { top: 1446, studies: [{ slug: "nest", left: 209 }, { slug: "ribbon", left: 834 }], descTop: 1983, descLefts: [209, 843] },
@@ -88,6 +92,12 @@ export default function Home() {
   const [heroDone, setHeroDone] = useState(false);
   const [leaving, setLeaving] = useState<CaseStudy | null>(null);
   const { startFlight } = useDiscFlight();
+  // Hero → shelf: 0 is the spinning hero, 1 is landed on the shelf. `landing`
+  // is the timed move between them; when `drive` is set it also scrolls the
+  // page and holds off other scrolling until it's done.
+  const landedRef = useRef(0);
+  const landingRef = useRef<{ from: number; to: number; startedAt: number; drive: boolean; fromScroll: number; toScroll: number } | null>(null);
+  const lastScrollRef = useRef(0);
 
   // Window height in frame pixels (the frame may be scaled down to fit).
   const viewportHeight = windowHeight / zoom;
@@ -111,17 +121,97 @@ export default function Home() {
     const target = (location.state as { scrollTo?: string } | null)?.scrollTo;
     if (target) document.getElementById(target)?.scrollIntoView();
     else window.scrollTo(0, 0);
+    landingRef.current = null;
+    landedRef.current = window.scrollY > 1 ? 1 : 0;
+    lastScrollRef.current = window.scrollY;
   }, [location.state]);
 
-  // Spin the hero disc and, as the page scrolls, shrink it and its case into
-  // the nest slot on the first shelf while that shelf's CDs slide in.
+  // Start the hero CD landing (or going back) from a scroll, wheel, key or swipe.
+  useEffect(() => {
+    const landingScroll = HERO_LANDING_SCROLL * zoom;
+    const start = (to: number, drive: boolean) => {
+      if (landingRef.current || landedRef.current === to) return;
+      landingRef.current = {
+        from: landedRef.current,
+        to,
+        startedAt: performance.now(),
+        drive,
+        fromScroll: window.scrollY,
+        toScroll: to === 1 ? Math.max(window.scrollY, landingScroll) : 0,
+      };
+    };
+    // Down at the very top lands the CD; up near the top sends it back.
+    const request = (down: boolean, event: Event) => {
+      if (landingRef.current?.drive) {
+        event.preventDefault();
+        return;
+      }
+      if (down && landedRef.current === 0) {
+        event.preventDefault();
+        start(1, true);
+      } else if (!down && landedRef.current === 1 && window.scrollY <= landingScroll * 1.25) {
+        event.preventDefault();
+        start(0, true);
+      }
+    };
+    const onWheel = (event: WheelEvent) => {
+      if (event.deltaY !== 0) request(event.deltaY > 0, event);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (!SCROLL_KEYS.has(event.key) || (event.target as HTMLElement).closest("input, textarea")) return;
+      request(!["ArrowUp", "PageUp", "Home"].includes(event.key) && !(event.key === " " && event.shiftKey), event);
+    };
+    let touchY = 0;
+    const onTouchStart = (event: TouchEvent) => {
+      touchY = event.touches[0].clientY;
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      const dy = touchY - event.touches[0].clientY;
+      if (Math.abs(dy) > 4) request(dy > 0, event);
+    };
+    // Anything else that moves the page (scrollbar, nav links): the CD makes
+    // the same timed move without taking over the scroll.
+    const onScroll = () => {
+      if (landingRef.current) return;
+      const scroll = window.scrollY;
+      const previous = lastScrollRef.current;
+      lastScrollRef.current = scroll;
+      if (landedRef.current === 0 && scroll > previous && scroll > 1) start(1, false);
+      else if (landedRef.current === 1 && scroll < previous && scroll < landingScroll - 1) start(0, false);
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [zoom]);
+
+  // Spin the hero disc and, while it lands, shrink it and its case into the
+  // nest slot on the first shelf as that shelf's CDs slide in on a slow curve.
   useEffect(() => {
     let frame = 0;
     const startedAt = performance.now();
 
     const tick = (time: number) => {
-      const scroll = window.scrollY / zoom;
-      const progress = easeInOut(clamp01(scroll / HERO_LANDING_SCROLL));
+      const landing = landingRef.current;
+      if (landing) {
+        const t = clamp01((time - landing.startedAt) / HERO_LANDING_MS);
+        landedRef.current = mix(landing.from, landing.to, t);
+        if (landing.drive) window.scrollTo({ top: mix(landing.fromScroll, landing.toScroll, easeInOut(t)), behavior: "instant" });
+        if (t >= 1) {
+          landingRef.current = null;
+          lastScrollRef.current = window.scrollY;
+        }
+      }
+      const progress = easeInOut(landedRef.current);
 
       let spin = ((time - startedAt) * SPIN_DEGREES_PER_MS) % 360;
       if (spin > 180) spin -= 360;
@@ -145,7 +235,7 @@ export default function Home() {
       setHeroDone(progress >= 0.999);
 
       if (firstRowRef.current) {
-        const amount = clamp01((progress - 0.2) / 0.8);
+        const amount = clamp01((landedRef.current - 0.15) / 0.85);
         firstRowRef.current.style.transform = `translateX(${(1 - easeOut(amount)) * 1506}px)`;
       }
 
