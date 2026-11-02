@@ -103,10 +103,11 @@ const rowText = "nm-medium shrink-0 whitespace-pre";
 const lines = "flex w-[799px] shrink-0 flex-col items-start text-[20px] leading-[1.32] tracking-[-0.4px] text-black";
 const title = "nm h-[63px] text-[48px] leading-[1.32] tracking-[-0.96px] text-black";
 
-const EXPAND_EASE = "500ms cubic-bezier(0.22, 1, 0.36, 1)";
+const EXPAND_EASE = "700ms cubic-bezier(0.65, 0, 0.35, 1)";
 
 // A role line with a plus on the right: clicking it opens the description
-// underneath (at most four lines) and the plus turns into a minus.
+// underneath (at most four lines), fading it in and down, while the plus's
+// vertical bar folds flat into a minus.
 function ExpandableRow({
   org,
   role,
@@ -133,13 +134,22 @@ function ExpandableRow({
           <span className="absolute top-1/2 left-0 h-[2px] w-full -translate-y-1/2 bg-black" />
           <span
             className="absolute top-0 left-1/2 h-full w-[2px] -translate-x-1/2 bg-black"
-            style={{ rotate: `${open ? 90 : 0}deg`, opacity: open ? 0 : 1, transition: `rotate ${EXPAND_EASE}, opacity ${EXPAND_EASE}` }}
+            style={{ rotate: `${open ? 90 : 0}deg`, transition: `rotate ${EXPAND_EASE}` }}
           />
         </span>
       </button>
-      <div className="grid" style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0, transition: `grid-template-rows ${EXPAND_EASE}, opacity ${EXPAND_EASE}` }}>
+      <div className="grid" style={{ gridTemplateRows: open ? "1fr" : "0fr", transition: `grid-template-rows ${EXPAND_EASE}` }}>
         <div className="overflow-hidden">
-          <p className="nm line-clamp-4 w-[568px] pt-[24px] text-[16px] leading-[1.32] tracking-[-0.32px]">{description}</p>
+          <p
+            className="nm line-clamp-4 w-[568px] pt-[24px] text-[16px] leading-[1.32] tracking-[-0.32px]"
+            style={{
+              opacity: open ? 1 : 0,
+              transform: open ? "none" : "translateY(-12px)",
+              transition: `opacity ${EXPAND_EASE}, transform ${EXPAND_EASE}`,
+            }}
+          >
+            {description}
+          </p>
         </div>
       </div>
     </div>

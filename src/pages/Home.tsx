@@ -415,11 +415,12 @@ export default function Home() {
           <Reveal className="absolute" style={{ left: 98, top: y(4099) }}>
             <WorkBlock onExtraChange={setWorkExtra} style={{ left: 0, top: 0 }} />
           </Reveal>
+          {/* Involvement comes before Education (swapped from the design). */}
           <Reveal className="absolute" style={{ left: 98, top: y(4607) + workExtra }}>
-            <EducationBlock style={{ left: 0, top: 0 }} />
-          </Reveal>
-          <Reveal className="absolute" style={{ left: 98, top: y(4885) + workExtra }}>
             <InvolvementBlock onExtraChange={setInvolvementExtra} style={{ left: 0, top: 0 }} />
+          </Reveal>
+          <Reveal className="absolute" style={{ left: 98, top: y(4885) + workExtra + involvementExtra }}>
+            <EducationBlock style={{ left: 0, top: 0 }} />
           </Reveal>
           <Reveal className="absolute" style={{ left: 100, top: y(6383) + workExtra + involvementExtra }}>
             <Referrals style={{ left: 0, top: 0 }} />
