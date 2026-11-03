@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import CustomCursor from "./components/CustomCursor";
 import PageLoader from "./components/PageLoader";
 import Brief from "./pages/Brief";
@@ -25,6 +26,7 @@ export default function App() {
         </Routes>
         <PageLoader />
       </DiscFlightProvider>
+      <Analytics />
     </BrowserRouter>
   );
 }
