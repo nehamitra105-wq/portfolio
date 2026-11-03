@@ -18,10 +18,14 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://www.nehamitra.com/og-image.png">
     
-    <!-- Tab icon: the black logo on light browser tabs, the white one on dark. -->
+    <!-- Tab icon: the black logo on light browser tabs, the white one on dark,
+         always on a clear background. The SVG switches by itself (Safari
+         ignores media on icon links and puts a white tile behind
+         apple-touch-icons, so there's none); the PNGs are for browsers
+         without SVG icons. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" href="/logo-black.png" media="(prefers-color-scheme: light)" />
     <link rel="icon" type="image/png" href="/logo.png" media="(prefers-color-scheme: dark)" />
-    <link rel="apple-touch-icon" href="/logo-black.png" />
     
     <!-- The loading screen's own pictures come first, so it's ready to show. -->
     <link rel="preload" as="image" href="/assets/loader/cd-glare.png" fetchpriority="high" />
