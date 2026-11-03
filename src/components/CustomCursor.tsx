@@ -4,75 +4,15 @@ type CursorState = "normal" | "play" | "locked" | "email";
 
 // Normal is a 32px dot; the special states are 40px circles with an icon.
 const SIZE: Record<CursorState, number> = { normal: 32, play: 40, locked: 40, email: 40 };
-// Over anything darker than this the cursor turns white with a black icon.
-const DARK_BELOW = 0.45;
 const SAMPLE_EVERY_MS = 80;
 
-// Small copies of the page's pictures, drawn once, for reading the colour
-// under the cursor.
-const thumbnails = new WeakMap<HTMLImageElement, CanvasRenderingContext2D>();
-const THUMB = 64;
-
-const luminance = (r: number, g: number, b: number) => (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-
-// Brightness (0 to 1) of what's under the point, or null if it's see-through.
-function brightnessOf(el: Element, x: number, y: number): number | null {
-  if (el instanceof HTMLImageElement || el instanceof HTMLVideoElement) {
-    const rect = el.getBoundingClientRect();
-    if (!rect.width || !rect.height) return null;
-    let ctx: CanvasRenderingContext2D | null | undefined;
-    if (el instanceof HTMLImageElement) {
-      if (!el.complete || !el.naturalWidth) return null;
-      ctx = thumbnails.get(el);
-      if (!ctx) {
-        const canvas = document.createElement("canvas");
-        canvas.width = canvas.height = THUMB;
-        ctx = canvas.getContext("2d", { willReadFrequently: true });
-        if (!ctx) return null;
-        ctx.drawImage(el, 0, 0, THUMB, THUMB);
-        thumbnails.set(el, ctx);
-      }
-    } else {
-      if (el.readyState < 2) return null;
-      const canvas = document.createElement("canvas");
-      canvas.width = canvas.height = THUMB;
-      ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (!ctx) return null;
-      ctx.drawImage(el, 0, 0, THUMB, THUMB);
-    }
-    const px = Math.min(THUMB - 1, Math.max(0, Math.floor(((x - rect.left) / rect.width) * THUMB)));
-    const py = Math.min(THUMB - 1, Math.max(0, Math.floor(((y - rect.top) / rect.height) * THUMB)));
-    try {
-      const [r, g, b, a] = ctx.getImageData(px, py, 1, 1).data;
-      return a < 128 ? null : luminance(r, g, b);
-    } catch {
-      return null;
-    }
-  }
-  const match = getComputedStyle(el).backgroundColor.match(/[\d.]+/g);
-  if (!match) return null;
-  const [r, g, b, a = 1] = match.map(Number);
-  return a < 0.5 ? null : luminance(r, g, b);
-}
-
-// What's showing under the point: the first non-see-through thing, top down.
-function brightnessAt(x: number, y: number, cursor: Element | null) {
-  for (const el of document.elementsFromPoint(x, y)) {
-    if (cursor?.contains(el)) continue;
-    const value = brightnessOf(el, x, y);
-    if (value !== null) return value;
-  }
-  return 1;
-}
-
 // The site's own cursor (the "cursor states" component). Any element can ask
-// for a different state with data-cursor="play", "locked" or "email". Over
-// dark pictures or fills it inverts to white with a black icon so it stays
-// visible.
+// for a different state with data-cursor="play", "locked" or "email". It's a
+// white circle blended by difference, so it inverts whatever is under it like
+// a mask; the icons are cut out of it in black, showing the colours as they are.
 export default function CustomCursor() {
   const ref = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<CursorState>("normal");
-  const [dark, setDark] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -92,7 +32,6 @@ export default function CustomCursor() {
     const sample = () => {
       lastSample = performance.now();
       readState(document.elementFromPoint(point.x, point.y));
-      setDark(brightnessAt(point.x, point.y, ref.current) < DARK_BELOW);
     };
 
     const handleMove = (event: PointerEvent) => {
@@ -100,8 +39,8 @@ export default function CustomCursor() {
       if (ref.current) ref.current.style.transform = `translate(${event.clientX}px, ${event.clientY}px)`;
       readState(event.target as Element | null);
       setVisible(true);
-      // Check the colour underneath now and then, and once more after
-      // stopping so it settles on the right one.
+      // Check what's underneath now and then, and once more after stopping
+      // so it settles on the right state.
       window.clearTimeout(sampleTimer);
       if (performance.now() - lastSample > SAMPLE_EVERY_MS) sample();
       sampleTimer = window.setTimeout(sample, SAMPLE_EVERY_MS);
@@ -126,14 +65,12 @@ export default function CustomCursor() {
   }, []);
 
   const size = SIZE[state];
-  const fill = dark ? "#fff" : "#000";
-  const ink = dark ? "#000" : "#fff";
 
   return (
-    <div aria-hidden className="pointer-events-none fixed top-0 left-0 z-[1000]" ref={ref}>
+    <div aria-hidden className="pointer-events-none fixed top-0 left-0 z-[1000] mix-blend-difference" ref={ref}>
       <div
-        className="flex items-center justify-center rounded-full transition-[width,height,margin,opacity,background-color] duration-200 ease-out"
-        style={{ width: size, height: size, margin: -size / 2, backgroundColor: fill, color: ink, opacity: visible ? 1 : 0 }}
+        className="flex items-center justify-center rounded-full transition-[width,height,margin,opacity] duration-200 ease-out"
+        style={{ width: size, height: size, margin: -size / 2, backgroundColor: "#fff", color: "#000", opacity: visible ? 1 : 0 }}
       >
         {state === "play" && (
           <svg fill="none" height={40} viewBox="0 0 32 32" width={40}>
