@@ -67,6 +67,7 @@ export default function Referrals({ style }: { style: React.CSSProperties }) {
     <section className="absolute flex w-[1306px] flex-col items-start gap-[40px]" style={style}>
       <div className="nm flex items-end gap-[20px] text-black">
         <p className="text-[32px] leading-[1.32] tracking-[-0.64px] whitespace-nowrap">Don’t take my word for it!</p>
+        <p className="flex h-[31px] items-center text-[16px] leading-[1.32] tracking-[-0.32px] whitespace-nowrap">( See what others have to say )</p>
       </div>
       <div className="relative h-[368px] w-full overflow-clip">
         <div
