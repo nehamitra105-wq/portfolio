@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
 import Disc from "../Disc";
 import type { CaseStudy } from "../../site/caseStudies";
+import { scaledSize } from "../../site/nestText";
 
 const asset = (name: string) => `/assets/nest/${name}`;
 // Figma's "slow" easing, as on the home shelf.
@@ -115,6 +116,37 @@ export function KeyScreenScroll({ style }: { style: CSSProperties }) {
           <img alt="" className="block size-[200px] max-w-none" key={i} src={asset(`key-screen-${n}.png`)} />
         ))}
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// "specs bullets" under PHYSICAL SPECS: icon + text rows, left-aligned with
+// each other, the group centred under the dial (x 628.3) so it stays centred
+// at the page's smaller text size.
+
+const SPEC_BULLETS = [
+  { icon: "aspect-ratio", w: 17, h: 17, iconTop: 1, text: "1:1 aspect ratio" },
+  { icon: "screen-diameter", w: 17, h: 16, iconTop: 1.5, text: "2.08 in (5.3 cm) screen diameter" },
+  { icon: "resolution", w: 16, h: 16, iconTop: 3, iconLeft: 0.5, text: "480 x 480 px resolution (229 PPI)" },
+];
+
+export function SpecBullets({ style }: { style: CSSProperties }) {
+  return (
+    <div className="absolute flex flex-col gap-[29px]" style={{ translate: "-50% 0", ...style }}>
+      {SPEC_BULLETS.map((bullet) => (
+        <div className="relative h-[19px] pl-[30.5px]" key={bullet.icon}>
+          <img
+            alt=""
+            className="absolute block max-w-none"
+            src={asset(`specs/${bullet.icon}.svg`)}
+            style={{ left: bullet.iconLeft ?? 0, top: bullet.iconTop, width: bullet.w, height: bullet.h }}
+          />
+          <p className="nm leading-normal whitespace-nowrap text-black" style={{ fontSize: scaledSize(16), letterSpacing: (0.32 * scaledSize(16)) / 16 }}>
+            {bullet.text}
+          </p>
+        </div>
+      ))}
     </div>
   );
 }

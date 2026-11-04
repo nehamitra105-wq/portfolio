@@ -13,6 +13,7 @@ import {
   NextProject,
   SHUFFLES,
   Shuffle,
+  SpecBullets,
   UseCase,
   VisualTraits,
 } from "../components/nest/NestComponents";
@@ -71,7 +72,9 @@ export default function Nest() {
   }, []);
 
   const components: Placed[] = [
-    { y: 5135, render: (top) => <KeyScreenScroll style={{ left: 1025, top, width: 200, height: 200, clipPath: "circle(98.5px)" }} /> },
+    // Centred under the PHYSICAL SPECS dial (circle centre x 628.3).
+    { y: 5508, render: (top) => <SpecBullets style={{ left: 628.3, top }} /> },
+    { y: 5135, render: (top) => <KeyScreenScroll style={{ left: 1024, top, width: 200, height: 200, clipPath: "circle(98.9px)" }} /> },
     // In the content column, centred where the Figma cluster (1024 x 289 at
     // 362, 5983) was.
     { y: 5983, render: (top) => <Moodboard style={{ left: 362, top: top + 144.5 - MOODBOARD_HEIGHT / 2 }} /> },
