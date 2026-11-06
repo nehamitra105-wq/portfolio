@@ -40,21 +40,25 @@ export type Pill = {
   // top-left, top-right, bottom-right, bottom-left
   radii: [number, number, number, number];
   from: "left" | "right";
-  layer?: true;
+  layer?: [x: number, y: number, w: number, h: number];
 };
 
+// Sizes as in the Figma; `layer` is the box (frame coordinates) the graphic's
+// cut-out layer was made for, the pill's earlier, larger size.
 export const PILLS: Pill[] = [
-  { x: 495, y: 1817, w: 893, h: 239, color: "#c4e665", radii: [119.5, 119.5, 119.5, 119.5], from: "left", layer: true },
-  { x: 362, y: 2324, w: 739, h: 239, color: "#ffc653", radii: [119.5, 20, 20, 119.5], from: "right", layer: true },
-  { x: 600, y: 2861, w: 806, h: 239, color: "#ffadca", radii: [20, 119.5, 119.5, 20], from: "left", layer: true },
-  { x: 362, y: 3413, w: 749, h: 239, color: "#edb5fd", radii: [119.5, 20, 20, 119.5], from: "right", layer: true },
-  { x: 658, y: 3966, w: 748, h: 239, color: "#7ad7ff", radii: [20, 119.5, 119.5, 20], from: "left", layer: true },
-  { x: 831, y: 14174, w: 575, h: 134, color: "#ffc653", radii: [67, 67, 67, 67], from: "left", layer: true },
-  { x: 579, y: 14684, w: 484, h: 134, color: "#ffadca", radii: [67, 67, 67, 67], from: "right" },
-  { x: 870, y: 14985, w: 536, h: 134, color: "#edafff", radii: [67, 67, 67, 67], from: "left" },
-  { x: 817, y: 15458, w: 589, h: 134, color: "#b3c9ff", radii: [67, 67, 67, 67], from: "left", layer: true },
-  { x: 542, y: 15956, w: 533, h: 134, color: "#c4e665", radii: [67, 67, 67, 67], from: "right" },
-  { x: 738, y: 16455, w: 668, h: 134, color: "#7ad7ff", radii: [67, 67, 67, 67], from: "left", layer: true },
+  { x: 495, y: 1851, w: 893, h: 171, color: "#c4e665", radii: [119.5, 119.5, 119.5, 119.5], from: "left", layer: [495, 1817, 893, 239] },
+  { x: 362, y: 2357, w: 739, h: 172, color: "#ffc653", radii: [119.5, 20, 20, 119.5], from: "right", layer: [362, 2324, 739, 239] },
+  // Figma has it from x 590, but its first 10px sit behind the phone, past the
+  // edge of the phone's cut-out; starting at 600 looks the same.
+  { x: 600, y: 2894, w: 806, h: 172, color: "#ffadca", radii: [20, 119.5, 119.5, 20], from: "left", layer: [600, 2861, 806, 239] },
+  { x: 362, y: 3447, w: 749, h: 172, color: "#edb5fd", radii: [119.5, 20, 20, 119.5], from: "right", layer: [362, 3413, 749, 239] },
+  { x: 658, y: 3991, w: 748, h: 172, color: "#7ad7ff", radii: [20, 119.5, 119.5, 20], from: "left", layer: [658, 3966, 748, 239] },
+  { x: 831, y: 14192, w: 575, h: 98, color: "#ffc653", radii: [67, 119.5, 119.5, 67], from: "left", layer: [831, 14174, 575, 134] },
+  { x: 579, y: 14701, w: 484, h: 98, color: "#ffadca", radii: [67, 119.5, 119.5, 67], from: "right" },
+  { x: 870, y: 15003, w: 536, h: 98, color: "#edafff", radii: [67, 119.5, 119.5, 67], from: "left" },
+  { x: 817, y: 15477, w: 589, h: 96, color: "#b3c9ff", radii: [67, 119.5, 119.5, 67], from: "left", layer: [817, 15458, 589, 134] },
+  { x: 542, y: 15977, w: 533, h: 98, color: "#c4e665", radii: [67, 119.5, 119.5, 67], from: "right" },
+  { x: 738, y: 16474, w: 668, h: 96, color: "#7ad7ff", radii: [67, 119.5, 119.5, 67], from: "left", layer: [738, 16455, 668, 134] },
 ];
 
 export const inPill = (item: NestText, pill: Pill) =>
@@ -112,7 +116,9 @@ export function PillReveal({
           width: shown ? pill.w : pill.h,
           height: pill.h,
           background: pill.color,
-          borderRadius: pill.radii.map((r) => `${r}px`).join(" "),
+          // Figma caps each corner at half the short side; CSS would instead
+          // shrink every corner in proportion.
+          borderRadius: pill.radii.map((r) => `${Math.min(r, pill.h / 2)}px`).join(" "),
           opacity: shown ? 1 : 0,
           transition: `width ${GROW_MS}ms ${SLOW} ${GROW_DELAY_MS}ms, left ${GROW_MS}ms ${SLOW} ${GROW_DELAY_MS}ms, opacity 300ms ease-out ${GROW_DELAY_MS}ms`,
         }}
@@ -122,7 +128,7 @@ export function PillReveal({
           alt=""
           className="pointer-events-none absolute block max-w-none"
           src={`/assets/nest/pills/pill-${String(index).padStart(2, "0")}.webp`}
-          style={{ left: pill.x - 2, top: top - 2, width: pill.w + 4, height: pill.h + 4 }}
+          style={{ left: pill.layer[0] - 2, top: top + pill.layer[1] - pill.y - 2, width: pill.layer[2] + 4, height: pill.layer[3] + 4 }}
         />
       )}
       {texts.map((item) => (

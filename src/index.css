@@ -21,6 +21,13 @@
   font-weight: 500;
 }
 
+@font-face {
+  font-family: 'Neue Montreal:Italic';
+  src: url('/font/neuemontreal-italic.otf') format('opentype');
+  font-style: normal;
+  font-weight: 400;
+}
+
 /* Karla is the UI font inside the nest app/thermostat mockups. */
 @font-face {
   font-family: 'Karla:Regular';
@@ -54,6 +61,10 @@ body {
 
 .nm {
   font-family: 'Neue Montreal:Regular', Arial, sans-serif;
+}
+
+.nm-italic {
+  font-family: 'Neue Montreal:Italic', Arial, sans-serif;
 }
 
 .nm-medium {

@@ -97,7 +97,7 @@ export const NEST_TEXT: NestText[] = [
   { x: 379, y: 15504, w: 357, size: 28, lh: 1.32, ls: -0.56, text: "Adjust Personal Preferences" },
   { x: 986, y: 15506, w: 397, size: 16, ls: 0.32, text: "Set your usual office space, your general preferences,\nand specific preferences for rooms around the office." },
   { x: 381, y: 16501, w: 277, size: 28, lh: 1.32, ls: -0.56, text: "Rewarded Leaderboard" },
-  { x: 946, y: 16503, w: 441, size: 16, ls: 0.32, text: "Users with more eco-friendly preferences are rewarded with\ntemperature preferences that have more weight in the average." },
+  { x: 941, y: 16503, w: 441, size: 16, ls: 0.32, text: "Users with more eco-friendly preferences are rewarded with\ntemperature preferences that have more weight in the average." },
   { x: 380, y: 14220, w: 357, size: 28, lh: 1.32, ls: -0.56, text: "Request Temperature Change" },
   { x: 731, y: 15031, w: 150, size: 28, lh: 1.32, ls: -0.56, text: "Meetings" },
   { x: 379, y: 14729, w: 161, size: 28, lh: 1.32, ls: -0.56, text: "Preferences" },

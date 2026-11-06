@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import Disc from "../Disc";
 import type { CaseStudy } from "../../site/caseStudies";
@@ -533,6 +533,33 @@ export function DesignSystemPreview({ style }: { style: CSSProperties }) {
 // "next proj" (1305.6 x 288): the next brief, with its CD. On hover the disc
 // slides out of the case to the left and turns (SMART_ANIMATE 1.25s slow).
 
+// Text that turns italic while its group is hovered. Neue Montreal's italic is
+// its regular slanted 11deg, so the regular leans over to that angle on the
+// slow curve; once it is nearly there the real italic takes its place with a
+// quick dissolve (the shapes match, so the swap barely shows). Leaving, the
+// swap back happens first and the text straightens.
+const SLANT = "-11deg";
+function HoverItalic({ children, ease }: { children: ReactNode; ease: string }) {
+  const swap = "opacity 200ms linear var(--swap-delay, 0ms)";
+  return (
+    <span className="relative inline-block group-hover:[--swap-delay:850ms]">
+      <span
+        className="inline-block origin-bottom-left group-hover:opacity-0 group-hover:[transform:skewX(var(--slant))]"
+        style={{ transition: `transform ${ease}, ${swap}`, ["--slant" as string]: SLANT }}
+      >
+        {children}
+      </span>
+      <span
+        aria-hidden
+        className="nm-italic absolute top-0 left-0 whitespace-nowrap opacity-0 group-hover:opacity-100"
+        style={{ transition: swap }}
+      >
+        {children}
+      </span>
+    </span>
+  );
+}
+
 export function NextProject({ study, style }: { study: CaseStudy; style: CSSProperties }) {
   const navigate = useNavigate();
   const ease = `1.25s ${SLOW}`;
@@ -545,9 +572,13 @@ export function NextProject({ study, style }: { study: CaseStudy; style: CSSProp
       style={style}
       type="button"
     >
-      <p className="nm absolute top-0 left-0 w-[126px] text-[21px] leading-normal whitespace-nowrap text-black">Next Project</p>
+      <p className="nm absolute top-0 left-0 w-[126px] text-[21px] leading-normal whitespace-nowrap text-black">
+        <HoverItalic ease={ease}>Next Project</HoverItalic>
+      </p>
       <span className="absolute top-[7.5px] left-[150px] h-px w-[88px] bg-black" />
-      <p className="nm absolute top-0 left-[262px] h-[30.8px] w-[560px] text-[21px] leading-normal text-black">{study.brief.title}</p>
+      <p className="nm absolute top-0 left-[262px] h-[30.8px] w-[560px] text-[21px] leading-normal text-black">
+        <HoverItalic ease={ease}>{study.brief.title}</HoverItalic>
+      </p>
       <p className="nm absolute top-[38.8px] left-[262px] w-[560px] text-[35px] leading-[1.32] tracking-[-0.7px] text-black">{study.brief.headline}</p>
       <div className="absolute top-0 left-[982px] h-[287.9px] w-[323.6px]">
         <img alt="" className="absolute inset-0 block size-full max-w-none" draggable={false} src="/assets/home/shelf-case.png" />
