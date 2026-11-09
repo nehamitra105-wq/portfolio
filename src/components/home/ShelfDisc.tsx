@@ -4,6 +4,9 @@ import type { CaseStudy } from "../../site/caseStudies";
 
 // "<name> shelf disc" component (467 x 640). On hover the disc slides up out
 // of its case and the case rises with it (SMART_ANIMATE 1.25s, "slow").
+// Only the button's own box takes the hover: the turned disc's picture pokes
+// out past it, and letting that count made the CD bob up and down as it
+// moved in and out from under the cursor.
 const ShelfDisc = forwardRef<
   HTMLDivElement,
   {
@@ -26,14 +29,14 @@ const ShelfDisc = forwardRef<
     >
       <img
         alt=""
-        className="absolute left-0 top-[225px] h-[415px] w-[467px] max-w-none group-hover:top-[101px]"
+        className="pointer-events-none absolute left-0 top-[225px] h-[415px] w-[467px] max-w-none group-hover:top-[101px]"
         draggable={false}
         src="/assets/home/shelf-case.png"
         style={{ transition: `top ${ease}` }}
       />
       {/* The hover variant also turns the disc a little (the bars go vertical). */}
       <Disc
-        className="absolute left-[52px] top-[240px] size-[383.61px] group-hover:top-0 group-hover:-rotate-45"
+        className="pointer-events-none absolute left-[52px] top-[240px] size-[383.61px] group-hover:top-0 group-hover:-rotate-45"
         disc={study.shelfDisc}
         ref={discRef}
         style={{ transition: `top ${ease}, rotate ${ease}` }}
