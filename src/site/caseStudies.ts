@@ -2,7 +2,7 @@ export type CaseStudySlug = "nest" | "ribbon" | "milune" | "reforma";
 
 // An exported disc image (Neha's 4x exports in public/assets/home, resized to
 // 2x) and where the disc's circle sits inside it, in image pixels. The export
-// includes the drop shadow, so it's a little bigger than the disc.
+// usually includes the drop shadow, so it can be a little bigger than the disc.
 export type DiscImage = {
   src: string;
   // Offset of the image from the circle's box, and the image size, in the
@@ -41,7 +41,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     shelfTags: ["Interface Design", "Design Systems"],
     brief: {
       title: "Nest Thermostat Redesign",
-      headline: "REDESIGNING INTERFACES TO BE MORE FRIENDLY AND CHEERFUL",
+      headline: "Redesigning interfaces to be more friendly and cheerful",
       tags: ["Interface Design", "Design Systems"],
       meta: [["Company", "SCAD Project"], ["Date", "Fall 2025"], ["Time", "10 Weeks"]],
       disc: { cx: -25.33, cy: -25.33, size: 1152.11, rotate: -45, src: "/assets/briefs/disc-nest.png" },
@@ -56,7 +56,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     shelfTags: ["Design Strategy", "Design Sprint"],
     brief: {
       title: "Ribbon",
-      headline: "A MEMENTO-MAKER FOR THOSE WHO STRUGGLE WITH GIFT GIVING",
+      headline: "A memento-maker for those who struggle with gift-giving",
       tags: ["Design Strategy", "Design Sprint"],
       meta: [["Sprint", "SVSD Design Sprint"], ["Date", "Fall 2026"], ["Time", "6 days"]],
       disc: { cx: 90.66, cy: 49.66, size: 1152.11, rotate: -45, src: "/assets/briefs/disc-ribbon.png" },
@@ -70,7 +70,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     shelfTags: ["Futuristic Design", "Hackathon"],
     brief: {
       title: "Milune",
-      headline: "AN AUDIO OLFACTORY DEVICE THAT BRINGS HOME TO YOU",
+      headline: "An audio olfactory device powered by AI that brings home to you",
       tags: ["Futuristic Design", "Hackathon"],
       meta: [["Sprint", "SCAD Startup"], ["Date", "Winter 2026"], ["Time", "5 days"]],
       disc: { cx: 51.59, cy: 14.59, size: 1152, rotate: -45, src: "/assets/briefs/disc-milune.png" },
@@ -79,12 +79,12 @@ export const CASE_STUDIES: CaseStudy[] = [
   },
   {
     slug: "reforma",
-    shelfDisc: { src: "/assets/home/cd-reforma.png", dx: -57, dy: -57, width: 1340, height: 1286, size: 1226 },
+    shelfDisc: { src: "/assets/home/cd-reforma.png", dx: 0, dy: 0, width: 1226, height: 1226, size: 1226 },
     description: "Designing a mobile app for AI form tracking technology",
     shelfTags: ["End-to-Design", "Product Design"],
     brief: {
       title: "Reforma AI",
-      headline: "DESIGNING A MOBILE APP FOR AI FORM TRACKING TECHNOLOGY",
+      headline: "Designing a mobile app for AI form tracking technology",
       tags: ["End-to-design", "Product Design"],
       meta: [["Company", "Reforma AI"], ["Date", "Summer 2025"], ["Time", "10 Weeks"]],
       disc: { cx: -21.6, cy: -21.53, size: 1152, rotate: -39.91, src: "/assets/briefs/disc-reforma.png" },

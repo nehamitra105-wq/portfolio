@@ -24,7 +24,7 @@ export type NestText = {
 
 export const NEST_TEXT: NestText[] = [
   { x: 362, y: 1042, w: 1044, size: 24, text: "Nest Thermostat Redesign" },
-  { x: 362, y: 1078, w: 1044, size: 48, lh: 1.32, ls: -0.96, text: "REDESIGNING INTERFACES TO BE MORE\nFRIENDLY AND CHEERFUL" },
+  { x: 362, y: 1078, w: 1044, size: 48, lh: 1.32, ls: -0.96, text: "Redesigning smart home interfaces to be more\nfriendly and cheerful for office spaces" },
   { x: 362, y: 1239, w: 196, size: 20, opacity: 0.5, text: "Role" },
   { x: 362, y: 1280, w: 196, size: 20, text: "UX Prototoyping Lead" },
   { x: 698.33, y: 1239, w: 111, size: 20, opacity: 0.5, text: "Date" },

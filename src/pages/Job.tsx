@@ -19,7 +19,7 @@ const JOBS: Record<JobSlug, { title: string; paragraphs: string[]; meta: [string
     pairTop: 834,
   },
   kohler: {
-    title: "Kohler Co. X SCAD Pro",
+    title: "Kohler Co. x SCAD Pro",
     paragraphs: [
       "I worked alongside 12 UX designers to build the\ninformation architecture and functional prototype for a Kohler Konnect wellness product centered around key personas. I also designed key UX/UI features that aligned with stakeholder goals after extensive feedback rounds.",
     ],
