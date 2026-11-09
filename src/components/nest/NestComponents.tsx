@@ -490,33 +490,42 @@ export function LoFis({ style }: { style: CSSProperties }) {
 // the second dot slides to the type/colour sheet (SMART_ANIMATE 1.25s slow).
 // The sheets can also be swiped, following the finger while dragged.
 
+// The Figma preview is 896 wide, inset from the 1044 content column. Here
+// each sheet is a column-wide card in the sheets' own background, with the
+// sheet centred in it. The sheet's outer 20px (plain background, and the
+// export's dark corners) are clipped away.
+const SYSTEM_WIDTH = 1044;
+const SHEET_INSET = (SYSTEM_WIDTH - 896) / 2;
+
 export function DesignSystemPreview({ style }: { style: CSSProperties }) {
   const [page, setPage] = useState(0);
   const swipe = useSwipe((direction) => setPage((p) => Math.min(1, Math.max(0, p + direction))));
   const slide = `1.25s ${SLOW}`;
   // Resist dragging past the first or last sheet.
   const pastEnd = (page === 0 && swipe.dragX > 0) || (page === 1 && swipe.dragX < 0);
-  const offset = -941 * page + (pastEnd ? swipe.dragX * 0.3 : swipe.dragX);
+  const offset = -(SYSTEM_WIDTH + 45) * page + (pastEnd ? swipe.dragX * 0.3 : swipe.dragX);
 
   return (
-    <div className="absolute h-[633px] w-[896px]" style={style}>
-      <div className="absolute top-0 left-0 h-[605px] w-[896px] touch-pan-y overflow-hidden select-none" {...swipe.handlers}>
+    <div className="absolute h-[633px]" style={{ ...style, width: SYSTEM_WIDTH }}>
+      <div className="absolute top-0 left-0 h-[605px] touch-pan-y overflow-hidden select-none" style={{ width: SYSTEM_WIDTH }} {...swipe.handlers}>
         <div
           className="absolute top-0 left-0 flex h-[605px] gap-[45px]"
           style={{ translate: `${offset}px 0`, transition: swipe.dragging ? "none" : `translate ${slide}` }}
         >
           {[1, 2].map((n) => (
-            <img
-              alt=""
-              className="block h-[605px] w-[896px] max-w-none rounded-[20px]"
-              draggable={false}
-              key={n}
-              src={asset(`system-${n}.jpg`)}
-            />
+            <div className="relative h-[605px] shrink-0 rounded-[20px] bg-[#fafafa]" key={n} style={{ width: SYSTEM_WIDTH }}>
+              <img
+                alt=""
+                className="absolute top-0 block h-[605px] w-[896px] max-w-none"
+                draggable={false}
+                src={asset(`system-${n}.jpg`)}
+                style={{ left: SHEET_INSET, clipPath: "inset(0 20px)" }}
+              />
+            </div>
           ))}
         </div>
       </div>
-      <div className="absolute top-[625px] left-[395px] h-[8px] w-[106px]">
+      <div className="absolute top-[625px] h-[8px] w-[106px]" style={{ left: SYSTEM_WIDTH / 2 - 53 }}>
         {[0, 1].map((i) => (
           <CarouselDot index={i} key={i} label={i ? "Type and colour" : "Components"} onSelect={() => setPage(i)} />
         ))}

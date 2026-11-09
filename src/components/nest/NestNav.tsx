@@ -1,6 +1,7 @@
 import { useEffect, useState, type RefObject } from "react";
 import { useNavigate } from "react-router-dom";
 import { FRAME_WIDTH } from "../../site/frameZoom";
+import { shiftY } from "../../site/nestLayout";
 
 // Section anchors (frame y) the "nest nav" items scroll to. Concept jumps to
 // the visual direction block, as in the prototype.
@@ -9,8 +10,8 @@ export const NEST_SECTIONS = [
   { label: "Challenge", top: 4838 },
   { label: "Concept", top: 5761 },
   { label: "Design", top: 8237 },
-  { label: "System", top: 12881 },
-  { label: "Final Product", top: 13795 },
+  { label: "System", top: shiftY(12881) },
+  { label: "Final Product", top: shiftY(13795) },
 ];
 
 const SCROLL_OFFSET = 42; // section lands level with the "Home" link

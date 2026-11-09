@@ -20,6 +20,7 @@ import {
 import Reveal from "../components/Reveal";
 import SiteFooter, { FOOTER_HEIGHT } from "../components/SiteFooter";
 import { caseStudyBySlug } from "../site/caseStudies";
+import { MICRO_GROW, shiftY } from "../site/nestLayout";
 import { NEST_TEXT } from "../site/nestText";
 
 // The frame is 18849 tall; its last 323px is the shared footer, which sits
@@ -34,10 +35,15 @@ const CUTS = [
   0, 1002, 1454, 4798, 5711, 7319, 8197, 8894, 9078, 9624, 9825, 10545, 11265, 12002, 12841, 13755, 13937, 14515,
   15280, 16814, 17412, 18065, FOOTER_TOP,
 ];
+// `top`/`height` are the block's slice of the Figma frame (what its contents
+// are placed against); `at`/`span` are where it sits on the page, after the
+// enlarged micro-interaction grid pushes later blocks down.
 const BLOCKS = CUTS.slice(0, -1).map((top, i) => ({
   src: `/assets/nest/plate/block-${String(i).padStart(2, "0")}.webp`,
   top,
   height: CUTS[i + 1] - top,
+  at: shiftY(top),
+  span: shiftY(CUTS[i + 1]) - shiftY(top),
 }));
 
 // Figma's "slow" curve over its 1.25s, slower than the home page's 900ms.
@@ -86,8 +92,8 @@ export default function Nest() {
     { y: 7560, render: (top) => <UseCase style={{ left: 362, top }} /> },
     { y: 8458, render: (top) => <LoFis style={{ left: 362, top }} /> },
     { y: 9101, render: (top) => <ABTest style={{ left: 362, top }} /> },
-    { y: 12182, render: (top) => <MicroInteractions style={{ left: 436, top }} /> },
-    { y: 13082, render: (top) => <DesignSystemPreview style={{ left: 436, top }} /> },
+    { y: 12182, render: (top) => <MicroInteractions style={{ left: 362, top }} /> },
+    { y: 13082, render: (top) => <DesignSystemPreview style={{ left: 362, top }} /> },
     { y: 18105, render: (top) => <NextProject study={next} style={{ left: 100, top }} /> },
     ...FINAL_VIDEOS.map((video) => ({ y: video.box[1], render: (top: number) => <CroppedVideo top={top} video={video} /> })),
     ...ABOVE_VIDEO.map(([name, x, y, w, h]) => ({
@@ -109,14 +115,14 @@ export default function Nest() {
         </div>
       </Reveal>
       {/* Zoom scales the frame's own margin too, so this stays in frame px. */}
-      <div className="frame-page" ref={frameRef} style={{ height: FOOTER_TOP, marginTop: -HERO_END }}>
+      <div className="frame-page" ref={frameRef} style={{ height: FOOTER_TOP + MICRO_GROW, marginTop: -HERO_END }}>
         {BLOCKS.slice(1).map((block, i) => (
           <Reveal
             className="absolute left-0 w-[1506px]"
             duration={FADE_MS}
             key={block.src}
             onLoad={i === 0}
-            style={{ top: block.top, height: block.height }}
+            style={{ top: block.at, height: block.span }}
           >
             <img
               alt=""
@@ -153,7 +159,7 @@ export default function Nest() {
         ))}
 
         {/* Sticks from the metadata down to the end of the reflections. */}
-        <NestNav frameRef={frameRef} height={18025 - 1007} />
+        <NestNav frameRef={frameRef} height={shiftY(18025) - 1007} />
       </div>
       <SiteFooter />
     </div>
