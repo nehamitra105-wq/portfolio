@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 
 type Brand = "adobe" | "kohler" | "finra" | "reforma";
 
-// Where each brand icon goes. Reforma's case study is on the shelf, so it
-// opens that brief.
-const BRAND_LINKS: Record<Brand, string> = {
+// Where each brand icon goes. Reforma's case study isn't ready yet, so it
+// shows the "Case study in progress!" cursor instead.
+const BRAND_LINKS: Record<Brand, string | null> = {
   adobe: "/work/adobe",
   kohler: "/work/kohler",
   finra: "/work/finra",
-  reforma: "/brief/reforma",
+  reforma: null,
 };
 
 const RECORD_POSITIONS: Record<Brand, { left: number; top: number }> = {
@@ -75,7 +75,11 @@ function BrandHovers() {
           className="absolute size-[83.456px] transition-transform duration-300 ease-in-out"
           key={brand}
           onBlur={() => setHovered(null)}
-          onClick={() => navigate(BRAND_LINKS[brand])}
+          data-cursor={BRAND_LINKS[brand] ? undefined : "progress"}
+          onClick={() => {
+            const link = BRAND_LINKS[brand];
+            if (link) navigate(link);
+          }}
           onFocus={() => setHovered(brand)}
           onMouseEnter={() => setHovered(brand)}
           onMouseLeave={() => setHovered(null)}
@@ -110,26 +114,32 @@ const EXPAND_EASE = "700ms cubic-bezier(0.65, 0, 0.35, 1)";
 
 // A role line with a plus on the right: clicking it opens the description
 // underneath (at most four lines), fading it in and down, while the plus's
-// vertical bar folds flat into a minus.
+// vertical bar folds flat into a minus. The slash after the company is in
+// the role's lighter weight.
 function ExpandableRow({
   org,
   role,
   dates,
   description,
   gap = 9,
+  beforeSlash = "   ",
 }: {
   org: string;
   role: string;
   dates: string;
   description: string;
   gap?: number;
+  beforeSlash?: string;
 }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative w-full">
       <button aria-expanded={open} className="flex w-full items-center gap-[179px] text-left" onClick={() => setOpen((value) => !value)} type="button">
         <span className="flex w-[389px] shrink-0 items-center" style={{ gap }}>
-          <span className={rowText}>{`${org}   /`}</span>
+          <span className={rowText}>
+            {org}
+            <span className="nm">{`${beforeSlash}/`}</span>
+          </span>
           <span className="nm min-w-px flex-1">{role}</span>
         </span>
         <span className="nm h-[26px] w-[231px] shrink-0">{dates}</span>
@@ -208,6 +218,7 @@ export function WorkBlock({ style, onExtraChange }: { style: React.CSSProperties
         <ExpandableRow
           dates="June - Dec 2026"
           description="Collaborated with the founder to create customer journeys and sitemaps to visualize the user flow. Created a new brand style guide and visual identity. Designed wireframes for the mobile app and desktop experience."
+          beforeSlash=" "
           org="Reforma AI"
           role="UX Design Intern"
         />
@@ -229,8 +240,8 @@ function SchoolRow({ school, degree, dates }: { school: string; degree: string; 
   return (
     <div className="flex w-full items-start justify-between">
       <div className="flex w-[338px] shrink-0 flex-col items-start gap-[10px]">
-        <p className="nm-medium h-[26px] w-full whitespace-pre">{`${school}  /`}</p>
-        <p className="nm h-[26px] w-full">{degree}</p>
+        <p className="nm-medium h-[26px] w-full whitespace-pre">{school}</p>
+        <p className="nm h-[26px] w-full whitespace-pre">{`/   ${degree}`}</p>
       </div>
       <p className="nm h-[42px] w-[231px] shrink-0">{dates}</p>
     </div>
