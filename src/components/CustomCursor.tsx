@@ -1,13 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 
-type CursorState = "normal" | "play" | "locked" | "email";
+type CursorState = "normal" | "play" | "progress" | "email";
 
-// Normal is a 32px dot; the special states are 40px circles with an icon.
-const SIZE: Record<CursorState, number> = { normal: 32, play: 40, locked: 40, email: 40 };
+// Normal is a 32px dot; play and email are 40px circles with an icon, and
+// "in progress" (2171:6173) is a fully rounded 216 x 40 pill with a lock and a note.
+const BOX: Record<CursorState, { width: number; height: number; radius: number }> = {
+  normal: { width: 32, height: 32, radius: 16 },
+  play: { width: 40, height: 40, radius: 20 },
+  progress: { width: 216.4, height: 40, radius: 20 },
+  email: { width: 40, height: 40, radius: 20 },
+};
 const SAMPLE_EVERY_MS = 80;
 
 // The site's own cursor (the "cursor states" component). Any element can ask
-// for a different state with data-cursor="play", "locked" or "email". It's a
+// for a different state with data-cursor="play", "progress" or "email". It's a
 // white circle blended by difference, so it inverts whatever is under it like
 // a mask; the icons are cut out of it in black, showing the colours as they are.
 export default function CustomCursor() {
@@ -64,13 +70,21 @@ export default function CustomCursor() {
     };
   }, []);
 
-  const size = SIZE[state];
+  const { width, height, radius } = BOX[state];
 
   return (
     <div aria-hidden className="pointer-events-none fixed top-0 left-0 z-[1000] mix-blend-difference" ref={ref}>
       <div
-        className="flex items-center justify-center rounded-full transition-[width,height,margin,opacity] duration-200 ease-out"
-        style={{ width: size, height: size, margin: -size / 2, backgroundColor: "#fff", color: "#000", opacity: visible ? 1 : 0 }}
+        className="flex items-center justify-center overflow-hidden transition-[width,height,margin,border-radius,opacity] duration-200 ease-out"
+        style={{
+          width,
+          height,
+          margin: `${-height / 2}px ${-width / 2}px`,
+          borderRadius: radius,
+          backgroundColor: "#fff",
+          color: "#000",
+          opacity: visible ? 1 : 0,
+        }}
       >
         {state === "play" && (
           <svg fill="none" height={40} viewBox="0 0 32 32" width={40}>
@@ -83,23 +97,26 @@ export default function CustomCursor() {
             />
           </svg>
         )}
-        {state === "locked" && (
-          <svg fill="none" height={12.6} viewBox="0 0 10.25 11.25" width={11.5}>
-            <path
-              d="M1.625 5.125H8.625C9.17729 5.125 9.625 5.57272 9.625 6.125V9.625C9.625 10.1773 9.17729 10.625 8.625 10.625H1.625C1.07272 10.625 0.625 10.1773 0.625 9.625V6.125C0.625 5.57272 1.07272 5.125 1.625 5.125Z"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.25}
-            />
-            <path
-              d="M2.625 5.125V3.125C2.625 2.46196 2.88839 1.82607 3.35723 1.35723C3.82607 0.888392 4.46196 0.625 5.125 0.625C5.78804 0.625 6.42393 0.888392 6.89277 1.35723C7.36161 1.82607 7.625 2.46196 7.625 3.125V5.125"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.25}
-            />
-          </svg>
+        {state === "progress" && (
+          <span className="flex shrink-0 items-center gap-[10px] px-[16px] whitespace-nowrap">
+            <svg className="shrink-0" fill="none" height={14.4} viewBox="-1 -0.5 12.25 12.25" width={14.4}>
+              <path
+                d="M1.625 5.125H8.625C9.17729 5.125 9.625 5.57272 9.625 6.125V9.625C9.625 10.1773 9.17729 10.625 8.625 10.625H1.625C1.07272 10.625 0.625 10.1773 0.625 9.625V6.125C0.625 5.57272 1.07272 5.125 1.625 5.125Z"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.25}
+              />
+              <path
+                d="M2.625 5.125V3.125C2.625 2.46196 2.88839 1.82607 3.35723 1.35723C3.82607 0.888392 4.46196 0.625 5.125 0.625C5.78804 0.625 6.42393 0.888392 6.89277 1.35723C7.36161 1.82607 7.625 2.46196 7.625 3.125V5.125"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.25}
+              />
+            </svg>
+            <span className="nm text-[16px] leading-[1.32] tracking-[-0.32px]">Case study in progress!</span>
+          </span>
         )}
         {state === "email" && (
           <svg fill="none" height={14.4} viewBox="0 0 14.4 14.4" width={14.4}>

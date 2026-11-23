@@ -19,17 +19,13 @@ export type CaseStudy = {
   shelfDisc: DiscImage;
   description: string;
   shelfTags: string[];
+  // The title and headline shown under "Next Project" on a case study.
   brief: {
     title: string;
     headline: string;
-    tags: string[];
-    meta: [string, string][];
-    // Disc centre / diameter / CSS rotation on the brief page (frame coords),
-    // and the whole disc, already rotated and cut to its circle, shown there.
-    disc: { cx: number; cy: number; size: number; rotate: number; src: string };
-    graphic: { src: string; left: number; top: number; width: number; height: number };
   };
-  // Only nest has a case study page so far; the others show the lock cursor.
+  // Only nest has a case study page so far; the others show the "Case study
+  // in progress!" cursor.
   caseStudyPath?: string;
 };
 
@@ -42,10 +38,6 @@ export const CASE_STUDIES: CaseStudy[] = [
     brief: {
       title: "Nest Thermostat Redesign",
       headline: "Redesigning interfaces to be more friendly and cheerful",
-      tags: ["Interface Design", "Design Systems"],
-      meta: [["Company", "SCAD Project"], ["Date", "Fall 2025"], ["Time", "10 Weeks"]],
-      disc: { cx: -25.33, cy: -25.33, size: 1152.11, rotate: -45, src: "/assets/briefs/disc-nest.png" },
-      graphic: { src: "/assets/briefs/graphic-nest.png", left: 17, top: 221, width: 789, height: 761 },
     },
     caseStudyPath: "/nest",
   },
@@ -57,10 +49,6 @@ export const CASE_STUDIES: CaseStudy[] = [
     brief: {
       title: "Ribbon",
       headline: "A memento-maker for those who struggle with gift-giving",
-      tags: ["Design Strategy", "Design Sprint"],
-      meta: [["Sprint", "SVSD Design Sprint"], ["Date", "Fall 2026"], ["Time", "6 days"]],
-      disc: { cx: 90.66, cy: 49.66, size: 1152.11, rotate: -45, src: "/assets/briefs/disc-ribbon.png" },
-      graphic: { src: "/assets/briefs/graphic-ribbon.png", left: 148, top: 405, width: 561.55, height: 577 },
     },
   },
   {
@@ -71,10 +59,6 @@ export const CASE_STUDIES: CaseStudy[] = [
     brief: {
       title: "Milune",
       headline: "An audio olfactory device powered by AI that brings home to you",
-      tags: ["Futuristic Design", "Hackathon"],
-      meta: [["Sprint", "SCAD Startup"], ["Date", "Winter 2026"], ["Time", "5 days"]],
-      disc: { cx: 51.59, cy: 14.59, size: 1152, rotate: -45, src: "/assets/briefs/disc-milune.png" },
-      graphic: { src: "/assets/briefs/graphic-milune.png", left: 81.01, top: 439.72, width: 606.75, height: 542.28 },
     },
   },
   {
@@ -85,10 +69,6 @@ export const CASE_STUDIES: CaseStudy[] = [
     brief: {
       title: "Reforma AI",
       headline: "Designing a mobile app for AI form tracking technology",
-      tags: ["End-to-design", "Product Design"],
-      meta: [["Company", "Reforma AI"], ["Date", "Summer 2025"], ["Time", "10 Weeks"]],
-      disc: { cx: -21.6, cy: -21.53, size: 1152, rotate: -39.91, src: "/assets/briefs/disc-reforma.png" },
-      graphic: { src: "/assets/briefs/graphic-reforma.png", left: 108.86, top: 297.54, width: 624.27, height: 684.46 },
     },
   },
 ];

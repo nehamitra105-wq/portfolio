@@ -54,26 +54,3 @@ export function ViewCaseStudyButton({
     </button>
   );
 }
-
-// "view next study button" (fast-forward icon), same hover treatment.
-export function ViewNextStudyButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button
-      aria-label="Next case study"
-      className="group relative h-[66px] w-[79.75px] antialiased shrink-0 rounded-[40px] border-[0.375px] border-solid border-black bg-white transition-colors duration-300 ease-in-out hover:border-white hover:bg-black"
-      onClick={onClick}
-      type="button"
-    >
-      <img
-        alt=""
-        className="absolute top-[22.5px] left-[22.5px] block h-[20.26px] w-[33.25px] max-w-none transition-opacity duration-300 group-hover:opacity-0"
-        src="/assets/shared/next-study-icon.svg"
-      />
-      <img
-        alt=""
-        className="absolute top-[22.5px] left-[22.5px] block h-[20.26px] w-[33.25px] max-w-none opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        src="/assets/shared/next-study-icon-white.svg"
-      />
-    </button>
-  );
-}

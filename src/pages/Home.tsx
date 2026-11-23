@@ -8,9 +8,7 @@ import Referrals from "../components/home/Referrals";
 import ShelfDisc from "../components/home/ShelfDisc";
 import Reveal from "../components/Reveal";
 import { EducationBlock, InvolvementBlock, WorkBlock } from "../components/home/WorkSections";
-import { briefLayout } from "../site/briefLayout";
 import { CASE_STUDIES, caseStudyBySlug, type CaseStudy } from "../site/caseStudies";
-import { useDiscFlight } from "../site/discFlight";
 import { useFrameZoom } from "../site/frameZoom";
 
 // All positions are from the "portfolio tame" frame (1506 x 7269).
@@ -73,7 +71,7 @@ const BOTTOM_SHADOW_HEIGHT = 223;
 // stays crisp at any size.
 const SHELF_SHADOW = "linear-gradient(to bottom, #fff, rgb(236, 236, 236))";
 
-// Home fades out this long after a CD is clicked, then the brief page opens.
+// Home fades out this long after a CD is clicked, then its case study opens.
 const HOME_FADE_MS = 500;
 
 const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
@@ -99,15 +97,12 @@ export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
   const zoom = useFrameZoom();
-  const frameRef = useRef<HTMLDivElement>(null);
   const heroCaseRef = useRef<HTMLDivElement>(null);
   const heroDiscRef = useRef<HTMLDivElement>(null);
   const firstRowRef = useRef<HTMLDivElement>(null);
-  const discRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [heroDone, setHeroDone] = useState(false);
   const [leaving, setLeaving] = useState<CaseStudy | null>(null);
-  const { startFlight } = useDiscFlight();
   // Opened role descriptions in Work and Involvement push what's below down.
   const [workExtra, setWorkExtra] = useState(0);
   const [involvementExtra, setInvolvementExtra] = useState(0);
@@ -138,19 +133,6 @@ export default function Home() {
     const handleResize = () => setWindowHeight(window.innerHeight);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Load the brief pages' pictures once home has loaded, so a brief opens
-  // fully drawn (briefs don't show the loading screen).
-  useEffect(() => {
-    const preload = () => {
-      for (const { brief } of CASE_STUDIES) {
-        for (const src of [brief.disc.src, brief.graphic.src]) new Image().src = src;
-      }
-    };
-    if (document.readyState === "complete") preload();
-    else window.addEventListener("load", preload, { once: true });
-    return () => window.removeEventListener("load", preload);
   }, []);
 
   // Arriving from a nav/footer link on another page.
@@ -285,34 +267,13 @@ export default function Home() {
     return () => cancelAnimationFrame(frame);
   }, [heroScale, shelfShift, viewportHeight, zoom]);
 
+  // Straight to the case study; a CD whose case study is still in progress
+  // does nothing (its cursor says so).
   const selectStudy = (study: CaseStudy) => {
-    const disc = discRefs.current[study.slug];
-    const frame = frameRef.current;
-    if (!disc || !frame || leaving) return;
-    // Measure by centre: a hovered disc is turned, which grows its bounding box.
-    const rect = disc.getBoundingClientRect();
-    const size = disc.offsetWidth * zoom;
-    const target = study.brief.disc;
-    const brief = briefLayout();
-    startFlight({
-      study,
-      from: {
-        left: rect.left + rect.width / 2 - size / 2,
-        top: rect.top + rect.height / 2 - size / 2,
-        size,
-        rotate: parseFloat(getComputedStyle(disc).rotate) || 0,
-      },
-      to: {
-        left: (target.cx - target.size / 2) * brief.scale,
-        top: (target.cy - target.size / 2) * brief.scale,
-        size: target.size * brief.scale,
-        rotate: target.rotate - 360,
-      },
-    });
+    const path = study.caseStudyPath;
+    if (!path || leaving) return;
     setLeaving(study);
-    // Switch pages once home has faded out; the CD keeps flying over the top
-    // and the brief comes in as it lands.
-    window.setTimeout(() => navigate(`/brief/${study.slug}`, { state: { fromHome: true } }), HOME_FADE_MS);
+    window.setTimeout(() => navigate(path), HOME_FADE_MS);
   };
 
   const renderRow = (row: (typeof SHELF_ROWS)[number]) => (
@@ -333,12 +294,9 @@ export default function Home() {
         const study = caseStudyBySlug(slug)!;
         return (
           <ShelfDisc
-            hidden={(slug === "nest" && !heroDone) || leaving?.slug === slug}
+            hidden={slug === "nest" && !heroDone}
             key={slug}
             onSelect={selectStudy}
-            ref={(el) => {
-              discRefs.current[slug] = el;
-            }}
             study={study}
             style={{ left, top: y(row.top) }}
           />
@@ -364,7 +322,7 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="frame-page" ref={frameRef} style={{ height: FRAME_HEIGHT - FOOTER_HEIGHT + shelfShift + workExtra + involvementExtra }}>
+        <div className="frame-page" style={{ height: FRAME_HEIGHT - FOOTER_HEIGHT + shelfShift + workExtra + involvementExtra }}>
           <SiteNav active="work" animateIn />
           {/* "Work" in the nav scrolls here: where the hero CD has landed and
               the shelves are in view. */}

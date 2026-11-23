@@ -539,7 +539,7 @@ export function DesignSystemPreview({ style }: { style: CSSProperties }) {
 }
 
 // ---------------------------------------------------------------------------
-// "next proj" (1305.6 x 288): the next brief, with its CD. On hover the disc
+// "next proj" (1305.6 x 288): the next case study, with its CD. On hover the disc
 // slides out of the case to the left and turns (SMART_ANIMATE 1.25s slow).
 
 // Text that turns italic while its group is hovered. Neue Montreal's italic is
@@ -577,7 +577,8 @@ export function NextProject({ study, style }: { study: CaseStudy; style: CSSProp
     <button
       aria-label={`Next project: ${study.brief.title}`}
       className="group absolute h-[288px] w-[1305.6px] text-left"
-      onClick={() => navigate(`/brief/${study.slug}`)}
+      data-cursor={study.caseStudyPath ? undefined : "progress"}
+      onClick={() => study.caseStudyPath && navigate(study.caseStudyPath)}
       style={style}
       type="button"
     >

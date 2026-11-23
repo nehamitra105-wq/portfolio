@@ -1,4 +1,3 @@
-import { forwardRef } from "react";
 import Disc from "../Disc";
 import type { CaseStudy } from "../../site/caseStudies";
 
@@ -7,22 +6,24 @@ import type { CaseStudy } from "../../site/caseStudies";
 // Only the button's own box takes the hover: the turned disc's picture pokes
 // out past it, and letting that count made the CD bob up and down as it
 // moved in and out from under the cursor.
-const ShelfDisc = forwardRef<
-  HTMLDivElement,
-  {
-    study: CaseStudy;
-    hidden?: boolean;
-    onSelect: (study: CaseStudy) => void;
-    style?: React.CSSProperties;
-  }
->(function ShelfDisc({ study, hidden = false, onSelect, style }, discRef) {
+export default function ShelfDisc({
+  study,
+  hidden = false,
+  onSelect,
+  style,
+}: {
+  study: CaseStudy;
+  hidden?: boolean;
+  onSelect: (study: CaseStudy) => void;
+  style?: React.CSSProperties;
+}) {
   const ease = "1.25s cubic-bezier(0.22, 1, 0.36, 1)";
 
   return (
     <button
-      aria-label={`Open the ${study.brief.title} brief`}
+      aria-label={study.caseStudyPath ? `Open the ${study.brief.title} case study` : `${study.brief.title}: case study in progress`}
       className="group absolute h-[640px] w-[467px]"
-      data-cursor={study.caseStudyPath ? "play" : "locked"}
+      data-cursor={study.caseStudyPath ? "play" : "progress"}
       onClick={() => onSelect(study)}
       style={{ ...style, visibility: hidden ? "hidden" : undefined }}
       type="button"
@@ -38,11 +39,8 @@ const ShelfDisc = forwardRef<
       <Disc
         className="pointer-events-none absolute left-[52px] top-[240px] size-[383.61px] group-hover:top-0 group-hover:-rotate-45"
         disc={study.shelfDisc}
-        ref={discRef}
         style={{ transition: `top ${ease}, rotate ${ease}` }}
       />
     </button>
   );
-});
-
-export default ShelfDisc;
+}
