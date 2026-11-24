@@ -189,6 +189,17 @@ function useStateTween(target: number) {
   return shown;
 }
 
+// On a phone shorter than the design (874), the gaps above the title and
+// between the tagline and the case close up so the whole case is on the first
+// screen: the title gap gives up to 94, the case gap up to 34. Worked out
+// once from the first screen, so it doesn't jump as Safari's bars hide.
+const FIRST_SCREEN_NEEDS = 383.67 + 340.5 + 24;
+function landingLift() {
+  const short = Math.max(0, FIRST_SCREEN_NEEDS - window.innerHeight / currentZoom());
+  const title = Math.min(short, 94);
+  return { title, cases: title + Math.min(short - title, 34) };
+}
+
 // The window's height in page units (402 wide).
 function useViewHeight() {
   const read = () => window.innerHeight / currentZoom();
@@ -223,7 +234,7 @@ function useSpin(running: boolean) {
 // states, so the browser keeps it still while the page scrolls under it.
 const STAGE_HEIGHT = 1200;
 
-function CaseStack({ state, onGo }: { state: number; onGo: (state: number) => void }) {
+function CaseStack({ state, onGo, lift }: { state: number; onGo: (state: number) => void; lift: number }) {
   const navigate = useNavigate();
   const { open, turn } = useStateTween(state);
   const spin = useSpin(open < 1);
@@ -234,7 +245,7 @@ function CaseStack({ state, onGo }: { state: number; onGo: (state: number) => vo
   // Closed, the case sits under the title; opening, it glides to the middle
   // of the window so the raised disc, description and button all fit.
   const view = useViewHeight();
-  const center = { x: END.x, y: mix(START.y, view / 2 - GROUP_MIDDLE, open) };
+  const center = { x: END.x, y: mix(START.y - lift, view / 2 - GROUP_MIDDLE, open) };
   const ready = fan > 0.98;
 
   const active = ORDER[((Math.round(turn) % 4) + 4) % 4];
@@ -747,6 +758,7 @@ function useCaseStates(zoom: number) {
 export default function MobileHome() {
   const zoom = useZoom();
   const { state, go } = useCaseStates(zoom);
+  const [lift] = useState(landingLift);
   // "Work" opens the cases.
   const toWork = () => go(1);
 
@@ -760,7 +772,7 @@ export default function MobileHome() {
             <img alt="" className="block size-full max-w-none" src="/assets/shared/logo.svg" />
           </div>
         </button>
-        <nav className="nm absolute top-[32px] left-[238px] flex h-[16px] items-center gap-[10px] text-[12px] leading-[1.32] tracking-[-0.24px] whitespace-nowrap text-black">
+        <nav className="nm absolute top-[32px] right-[24px] flex h-[16px] items-center gap-[10px] text-[12px] leading-[1.32] tracking-[-0.24px] whitespace-nowrap text-black">
           <button onClick={toWork} type="button">
             Work /
           </button>
@@ -775,18 +787,18 @@ export default function MobileHome() {
 
         {/* title */}
         <FadeUp delay={100} onLoad>
-        <div className="absolute top-[190px] left-[63.04px] h-[60.56px] w-[275.93px]">
+        <div className="absolute left-[63.04px] h-[60.56px] w-[275.93px]" style={{ top: 190 - lift.title }}>
           <div className="absolute inset-[-84.27%_-19.8%_-8.37%_-1.79%]">
             <img alt="i'm neha!" className="block size-full max-w-none" src="/assets/home/title-big.svg" />
           </div>
         </div>
-        <p className="nm absolute top-[275.56px] left-[38px] w-[326px] text-center text-[16px] leading-[1.32] tracking-[-0.32px] text-black">
+        <p style={{ top: 275.56 - lift.title }} className="nm absolute left-[38px] w-[326px] text-center text-[16px] leading-[1.32] tracking-[-0.32px] text-black">
           a truly curious product designer who always delivers, one detail at a time.
         </p>
         </FadeUp>
 
         <FadeUp delay={250} onLoad>
-          <CaseStack onGo={go} state={state} />
+          <CaseStack lift={lift.cases} onGo={go} state={state} />
         </FadeUp>
 
         {/* Everything below waits while the fan turns, then follows on. */}
