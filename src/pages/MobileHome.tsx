@@ -10,7 +10,10 @@ import { EMAIL, LINKEDIN_URL, RESUME_URL } from "../site/navigation";
 
 // "mobile" (2174:9422): the home page at 402 wide, scaled to the phone's width.
 const WIDTH = 402;
-const HEIGHT = 6977;
+// Work comes 80 below the magazine's shelf (the gap between Work and
+// Education), so everything from Work down moves up by this much.
+const TIGHTEN = 3546 - (2558 + 56 + 223 + 80);
+const HEIGHT = 6977 - TIGHTEN;
 
 // --- The CD cases ("swips", 1942:140384) ------------------------------------
 // A case is 383 x 340.5 with its disc (315.5) in the tray near the top. The nest
@@ -46,6 +49,9 @@ const SHUFFLE = STEP * TURNS;
 
 // The button sits this far below the middle case's centre.
 const BUTTON_BELOW = 1514 - END.y;
+// From the middle case's centre to the middle of everything shown when it's
+// open (the raised disc's top down to the button's bottom).
+const GROUP_MIDDLE = (BUTTON_BELOW + 40 - (CASE.height / 2 - DISC.top + 114)) / 2;
 // The middle disc rises this far out of its case.
 const RISE = 114;
 // Around the fan, by place from the middle case: x, y (from the middle case's
@@ -166,8 +172,10 @@ function useStateTween(target: number) {
   const [shown, setShown] = useState({ open: target > 0 ? 1 : 0, turn: target > 1 ? 1 - target : 0 });
   const shownRef = useRef(shown);
   useEffect(() => {
-    const goal = { open: target > 0 ? 1 : 0, turn: target > 1 ? 1 - target : 0 };
     const from = shownRef.current;
+    const goal = { open: target > 0 ? 1 : 0, turn: target > 1 ? 1 - target : 0 };
+    // Turn the short way round (Ribbon back to nest is one step).
+    goal.turn += 4 * Math.round((from.turn - goal.turn) / 4);
     if (from.open === goal.open && from.turn === goal.turn) return;
     const started = performance.now();
     let frame = 0;
@@ -183,6 +191,18 @@ function useStateTween(target: number) {
     return () => cancelAnimationFrame(frame);
   }, [target]);
   return shown;
+}
+
+// The window's height in page units (402 wide).
+function useViewHeight() {
+  const read = () => window.innerHeight / currentZoom();
+  const [height, setHeight] = useState(read);
+  useEffect(() => {
+    const update = () => setHeight(read());
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return height;
 }
 
 // Degrees turned since the page opened, ticking while `running`.
@@ -215,7 +235,10 @@ function CaseStack({ state, onGo }: { state: number; onGo: (state: number) => vo
   const spinAngle = ((((spin % 360) + 540) % 360) - 180) * (1 - clamp01(open / STACK_PART));
   const stack = clamp01(open / STACK_PART);
   const fan = clamp01((open - STACK_PART) / (1 - STACK_PART));
-  const center = { x: END.x, y: START.y };
+  // Closed, the case sits under the title; opening, it glides to the middle
+  // of the window so the raised disc, description and button all fit.
+  const view = useViewHeight();
+  const center = { x: END.x, y: mix(START.y, view / 2 - GROUP_MIDDLE, open) };
   const ready = fan > 0.98;
 
   const active = ORDER[((Math.round(turn) % 4) + 4) % 4];
@@ -633,8 +656,18 @@ function useCaseStates(zoom: number) {
     };
     // Coming back up into the CD area, or a jump elsewhere: settle on a state.
     let settle = 0;
+    let lastY = window.scrollY;
     const onScroll = () => {
+      const y = window.scrollY;
+      const up = y < lastY;
+      lastY = y;
       if (busy.current) return;
+      // Scrolling up from below stops on Ribbon; from there each gesture
+      // steps back one case, then the disc goes home at the top.
+      if (up && stateRef.current === LAST && y / zoomNow() < STATE_SCROLL[LAST]) {
+        window.scrollTo(0, STATE_SCROLL[LAST] * zoomNow());
+        return;
+      }
       window.clearTimeout(settle);
       settle = window.setTimeout(() => {
         if (busy.current) return;
@@ -645,9 +678,7 @@ function useCaseStates(zoom: number) {
             setState(LAST);
           }
         } else if (Math.abs(y - STATE_SCROLL[stateRef.current]) > 2) {
-          const target = nearestState(y);
-          if (target === stateRef.current) window.scrollTo({ top: STATE_SCROLL[target] * zoomNow(), behavior: "smooth" });
-          else goRef.current(target);
+          window.scrollTo({ top: STATE_SCROLL[stateRef.current] * zoomNow(), behavior: "smooth" });
         }
       }, 140);
     };
@@ -734,6 +765,7 @@ export default function MobileHome() {
           </Reveal>
 
           {/* Each part fades in and up as it comes into view, like desktop. */}
+          <div className="absolute inset-x-0 top-0" style={{ transform: `translateY(${-TIGHTEN}px)` }}>
           <Reveal>
             <Work />
           </Reveal>
@@ -750,6 +782,7 @@ export default function MobileHome() {
           <Reveal>
             <Footer onHome={() => go(0)} onWork={toWork} />
           </Reveal>
+          </div>
         </div>
       </div>
     </div>
