@@ -81,7 +81,8 @@ function Marquee({ className, text }: { className: string; text: string }) {
 
 // "currently playing" block in About me: skip and back step through the
 // queue (it starts on a random song), and pause stops the disc turning.
-export default function CurrentlyPlaying() {
+// Placed where About me puts it unless a className says otherwise.
+export default function CurrentlyPlaying({ className = "absolute top-[614px] left-[851px]" }: { className?: string }) {
   const [index, setIndex] = useState(() => Math.floor(Math.random() * QUEUE.length));
   const [playing, setPlaying] = useState(true);
   // Only the current song's failed load: try again whenever a song comes back up.
@@ -93,7 +94,7 @@ export default function CurrentlyPlaying() {
   };
 
   return (
-    <div className="pointer-events-auto absolute top-[614px] left-[851px] flex items-center gap-[15px]">
+    <div className={`pointer-events-auto flex items-center gap-[15px] ${className}`}>
       <div
         className="relative size-[123px] shrink-0 animate-[spin_12s_linear_infinite]"
         style={{ animationPlayState: playing ? "running" : "paused" }}

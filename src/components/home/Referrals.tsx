@@ -1,4 +1,4 @@
-const REFERRALS = [
+export const REFERRALS = [
   {
     quote:
       "Neha brought a highly analytical mindset to a broad and complex project. She demonstrated a strong ability to uncover meaningful insights, translate them into actionable recommendations, and proactively develop new solutions. Throughout the internship, she managed her time effectively, continuously applied feedback, and showed deep curiosity and understanding of the problem space.",
@@ -43,7 +43,7 @@ const LOOP_WIDTH = REFERRALS.length * (CARD_WIDTH + CARD_GAP);
 // Slow crawl: one full set of cards every 70 seconds.
 const LOOP_SECONDS = 70;
 
-function Card({ quote, name, role }: (typeof REFERRALS)[number]) {
+export function Card({ quote, name, role }: (typeof REFERRALS)[number]) {
   return (
     <div className="relative flex h-[368px] w-[307px] shrink-0 flex-col items-start justify-between border border-solid border-black bg-white p-[20px]">
       <p className="nm w-[267px] text-[16px] leading-[1.32] tracking-[-0.32px] text-black">{quote}</p>

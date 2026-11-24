@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-type Brand = "adobe" | "kohler" | "finra" | "reforma";
+export type Brand = "adobe" | "kohler" | "finra" | "reforma";
 
 // Where each brand icon goes. Reforma's case study isn't ready yet, so it
 // shows the "Case study in progress!" cursor instead.
-const BRAND_LINKS: Record<Brand, string | null> = {
+export const BRAND_LINKS: Record<Brand, string | null> = {
   adobe: "/work/adobe",
   kohler: "/work/kohler",
   finra: "/work/finra",
@@ -22,7 +22,7 @@ const RECORD_POSITIONS: Record<Brand, { left: number; top: number }> = {
 const KOHLER_GRADIENT =
   "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 145.56 82.162' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect x='0' y='0' height='100%' width='100%' fill='url(%23grad)' opacity='1'/><defs><radialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(-5.686 8.2162 -14.556 -10.143 129.64 -0.0000068442)'><stop stop-color='rgba(39,68,96,1)' offset='0'/><stop stop-color='rgba(33,47,61,0.615)' offset='0.39233'/><stop stop-color='rgba(26,26,26,0.23)' offset='0.78467'/></radialGradient></defs></svg>\")";
 
-function BrandRecord({ brand }: { brand: Brand }) {
+export function BrandRecord({ brand }: { brand: Brand }) {
   if (brand === "adobe") {
     return <img alt="Adobe" className="absolute inset-0 block size-full max-w-none" src="/assets/home/adobe-record.svg" />;
   }

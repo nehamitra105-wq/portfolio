@@ -1,6 +1,7 @@
 import { useLayoutEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { isMediaDownloading, isMediaPending, type Media } from "../site/media";
+import { useIsMobile } from "../site/useIsMobile";
 
 const L = "/assets/loader";
 const FADE_MS = 500;
@@ -42,6 +43,8 @@ const fontsLoading = () => document.fonts.status === "loading";
 // picture and video on it is ready, then fades out once the arc closes.
 export default function PageLoader() {
   const { pathname } = useLocation();
+  // On phones the frame scale makes the graphic tiny, so it's shown at twice that.
+  const graphicZoom = useIsMobile() ? "calc(var(--frame-zoom, 1) * 2)" : "var(--frame-zoom, 1)";
   const [visible, setVisible] = useState(false);
   const [showGraphic, setShowGraphic] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -136,7 +139,7 @@ export default function PageLoader() {
     >
       <div
         className="relative size-[230px] transition-opacity duration-300"
-        style={{ zoom: "var(--frame-zoom, 1)", opacity: showGraphic && cdReady ? 1 : 0 }}
+        style={{ zoom: graphicZoom, opacity: showGraphic && cdReady ? 1 : 0 }}
       >
         <img
           alt=""
