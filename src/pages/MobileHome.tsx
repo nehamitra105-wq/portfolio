@@ -45,6 +45,8 @@ const SHUFFLE = STEP * TURNS;
 
 // The button sits this far below the middle case's centre.
 const BUTTON_BELOW = 1514 - END.y;
+// The button's middle across (the design's "view" button at 113, 184.75 wide).
+const BUTTON_MIDDLE = 113 + 184.75 / 2;
 // From the middle case's centre to the middle of everything shown when it's
 // open (the raised disc's top down to the button's bottom).
 const GROUP_MIDDLE = (BUTTON_BELOW + 40 - (CASE.height / 2 - DISC.top + 114)) / 2;
@@ -200,17 +202,12 @@ function landingLift() {
   return { title, cases: title + Math.min(short - title, 34) };
 }
 
-// The window's height in page units (402 wide).
-function useViewHeight() {
-  const read = () => window.innerHeight / currentZoom();
-  const [height, setHeight] = useState(read);
-  useEffect(() => {
-    const update = () => setHeight(read());
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
-  return height;
-}
+// Where the open fan's middle case sits on screen: centred in the first
+// screen's height (fixed, so it doesn't jump as Safari's bars hide).
+const openCenter = () => window.innerHeight / currentZoom() / 2 - GROUP_MIDDLE;
+// The record starts 40 below the button once the fan has let go, so
+// everything below moves down by this much from the design.
+const belowOffset = (center: number) => TRAVEL + SHUFFLE + center + BUTTON_BELOW + 40 + 40 - 1849;
 
 // Degrees turned since the page opened, ticking while `running`.
 function useSpin(running: boolean) {
@@ -234,7 +231,7 @@ function useSpin(running: boolean) {
 // states, so the browser keeps it still while the page scrolls under it.
 const STAGE_HEIGHT = 1200;
 
-function CaseStack({ state, onGo, lift }: { state: number; onGo: (state: number) => void; lift: number }) {
+function CaseStack({ state, onGo, lift, openAt }: { state: number; onGo: (state: number) => void; lift: number; openAt: number }) {
   const navigate = useNavigate();
   const { open, turn } = useStateTween(state);
   const spin = useSpin(open < 1);
@@ -244,8 +241,7 @@ function CaseStack({ state, onGo, lift }: { state: number; onGo: (state: number)
   const fan = clamp01((open - STACK_PART) / (1 - STACK_PART));
   // Closed, the case sits under the title; opening, it glides to the middle
   // of the window so the raised disc, description and button all fit.
-  const view = useViewHeight();
-  const center = { x: END.x, y: mix(START.y - lift, view / 2 - GROUP_MIDDLE, open) };
+  const center = { x: END.x, y: mix(START.y - lift, openAt, open) };
   const ready = fan > 0.98;
 
   const active = ORDER[((Math.round(turn) % 4) + 4) % 4];
@@ -298,21 +294,30 @@ function CaseStack({ state, onGo, lift }: { state: number; onGo: (state: number)
             );
           })}
 
-      {/* "view case study button": open or locked, for whichever case is in
-          the middle. */}
-      <button
-        className="nm absolute left-[113px] flex h-[40px] w-[184.75px] items-center justify-center gap-[13px] rounded-[40px] bg-black text-[16px] leading-[1.32] tracking-[-0.32px] text-white antialiased"
-        onClick={() => active.caseStudyPath && navigate(active.caseStudyPath)}
-        style={{ top: center.y + BUTTON_BELOW, opacity: fan, pointerEvents: fan > 0.9 ? "auto" : "none", zIndex: 101 }}
-        type="button"
-      >
-        View Case Study
-        {active.caseStudyPath ? (
+      {/* "view case study button" (2180:27351), for whichever case is in the
+          middle: "view" (black, View Case Study and an arrow) when its case
+          study is open, "locked" (white, In progress! and a lock) when not.
+          Both are centred on the same line. */}
+      {active.caseStudyPath ? (
+        <button
+          className="nm absolute flex h-[40px] w-[184.75px] items-center justify-center gap-[13px] rounded-[40px] bg-black text-[16px] leading-[1.32] tracking-[-0.32px] text-white antialiased"
+          onClick={() => active.caseStudyPath && navigate(active.caseStudyPath)}
+          style={{ left: BUTTON_MIDDLE - 184.75 / 2, top: center.y + BUTTON_BELOW, opacity: fan, pointerEvents: fan > 0.9 ? "auto" : "none", zIndex: 101 }}
+          type="button"
+        >
+          View Case Study
           <svg fill="none" height={12} viewBox="0 0 14 12" width={14}>
             <path d="M0.75 6H13M8 1L13 6L8 11" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} />
           </svg>
-        ) : (
-          <svg fill="none" height={14} viewBox="-1 -0.5 12.25 12.25" width={14}>
+        </button>
+      ) : (
+        <div
+          aria-label={`${active.brief.title}: case study in progress`}
+          className="nm absolute flex h-[40px] w-[150.15px] items-center gap-[10px] rounded-[40px] border-[0.4px] border-solid border-black bg-white pl-[24.375px] text-[16px] leading-[1.32] tracking-[-0.32px] whitespace-nowrap text-black antialiased"
+          style={{ left: BUTTON_MIDDLE - 150.15 / 2, top: center.y + BUTTON_BELOW, opacity: fan, zIndex: 101 }}
+        >
+          In progress!
+          <svg className="shrink-0" fill="none" height={14.4} viewBox="-1 -0.5 12.25 12.25" width={14.4}>
             <path
               d="M1.625 5.125H8.625C9.17729 5.125 9.625 5.57272 9.625 6.125V9.625C9.625 10.1773 9.17729 10.625 8.625 10.625H1.625C1.07272 10.625 0.625 10.1773 0.625 9.625V6.125C0.625 5.57272 1.07272 5.125 1.625 5.125Z"
               stroke="currentColor"
@@ -328,51 +333,71 @@ function CaseStack({ state, onGo, lift }: { state: number; onGo: (state: number)
               strokeWidth={1.1}
             />
           </svg>
-        )}
-      </button>
+        </div>
+      )}
       </div>
     </div>
   );
 }
 
-// Fades its content in from nothing and up 40px (the desktop "fade-up"), on
-// load or once it comes into the window. It checks where it is on every
-// scroll, so it starts as soon as it's on screen.
+// Fades its content in from nothing and up 40px over 1.25s on the desktop
+// "fade-up" curve, on load or once it comes into the window. The fade is
+// stepped frame by frame here rather than left to a CSS animation, which
+// iPhone Safari can skip inside the page's zoom (the content then just pops
+// in when the animation ends). It checks where it is on every scroll, so it
+// starts as soon as it's on screen.
+const FADE_MS = 1250;
+const FADE_RISE = 40;
+// Close to cubic-bezier(0.22, 1, 0.36, 1): quick to start, long settle.
+const fadeCurve = (t: number) => 1 - (1 - t) ** 4;
+
 function FadeUp({ children, delay = 0, onLoad = false }: { children: ReactNode; delay?: number; onLoad?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(onLoad);
 
   useEffect(() => {
-    if (visible) return;
+    const element = ref.current;
+    if (!element) return;
     let frame = 0;
-    const check = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const element = ref.current?.firstElementChild ?? ref.current;
-        if (!element) return;
-        const { top, bottom } = element.getBoundingClientRect();
-        if (top < window.innerHeight * 0.92 && bottom > 0) setVisible(true);
-      });
+    let started = false;
+    const set = (t: number) => {
+      element.style.opacity = String(t);
+      element.style.transform = t >= 1 ? "" : `translateY(${(1 - t) * FADE_RISE}px)`;
     };
-    check();
-    window.addEventListener("scroll", check, { passive: true });
-    window.addEventListener("resize", check);
+    set(0);
+    const play = () => {
+      started = true;
+      const begin = performance.now() + delay;
+      const step = () => {
+        const t = clamp01((performance.now() - begin) / FADE_MS);
+        set(fadeCurve(t));
+        if (t < 1) frame = requestAnimationFrame(step);
+      };
+      frame = requestAnimationFrame(step);
+    };
+    const check = () => {
+      if (started) return;
+      const target = element.firstElementChild ?? element;
+      const { top, bottom } = target.getBoundingClientRect();
+      if (top < window.innerHeight * 0.92 && bottom > 0) {
+        window.removeEventListener("scroll", check);
+        window.removeEventListener("resize", check);
+        play();
+      }
+    };
+    if (onLoad) play();
+    else {
+      check();
+      window.addEventListener("scroll", check, { passive: true });
+      window.addEventListener("resize", check);
+    }
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", check);
       window.removeEventListener("resize", check);
     };
-  }, [visible]);
+  }, [delay, onLoad]);
 
-  return (
-    <div
-      className={visible ? "fade-up" : "opacity-0"}
-      ref={ref}
-      style={{ ["--fade-delay" as string]: `${delay}ms`, ["--fade-duration" as string]: "1250ms" }}
-    >
-      {children}
-    </div>
-  );
+  return <div ref={ref}>{children}</div>;
 }
 
 // --- Sections ---------------------------------------------------------------
@@ -759,12 +784,14 @@ export default function MobileHome() {
   const zoom = useZoom();
   const { state, go } = useCaseStates(zoom);
   const [lift] = useState(landingLift);
+  const [openAt] = useState(openCenter);
+  const below = belowOffset(openAt);
   // "Work" opens the cases.
   const toWork = () => go(1);
 
   return (
     <div className="relative w-full overflow-x-clip bg-white">
-      <div className="relative" style={{ width: WIDTH, height: HEIGHT + SHUFFLE, zoom }}>
+      <div className="relative" style={{ width: WIDTH, height: HEIGHT + below, zoom }}>
         {/* header */}
         <FadeUp onLoad>
         <button aria-label="Home" className="absolute top-[24px] left-[24px] h-[32px] w-[32.35px]" onClick={() => go(0)} type="button">
@@ -798,11 +825,11 @@ export default function MobileHome() {
         </FadeUp>
 
         <FadeUp delay={250} onLoad>
-          <CaseStack lift={lift.cases} onGo={go} state={state} />
+          <CaseStack lift={lift.cases} onGo={go} openAt={openAt} state={state} />
         </FadeUp>
 
         {/* Everything below waits while the fan turns, then follows on. */}
-        <div className="absolute inset-x-0 top-0" style={{ transform: `translateY(${SHUFFLE}px)` }}>
+        <div className="absolute inset-x-0 top-0" style={{ transform: `translateY(${below}px)` }}>
           {/* the record and the magazine, each sitting on a shelf */}
           {[2089, 2523].map((ledge) => (
             <Shelf key={ledge} ledge={ledge} />
