@@ -1,19 +1,15 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import Disc from "../components/Disc";
-import Reveal from "../components/Reveal";
 import CurrentlyPlaying from "../components/home/CurrentlyPlaying";
 import { Card, REFERRALS } from "../components/home/Referrals";
 import { BRAND_LINKS, BrandRecord, type Brand } from "../components/home/WorkSections";
 import { CASE_STUDIES, type CaseStudy } from "../site/caseStudies";
-import { EMAIL, LINKEDIN_URL, RESUME_URL } from "../site/navigation";
+import { EMAIL, LINKEDIN_URL, RESUME_URL, scrollToElement } from "../site/navigation";
 
 // "mobile" (2174:9422): the home page at 402 wide, scaled to the phone's width.
 const WIDTH = 402;
-// Work comes 80 below the magazine's shelf (the gap between Work and
-// Education), so everything from Work down moves up by this much.
-const TIGHTEN = 3546 - (2558 + 56 + 223 + 80);
-const HEIGHT = 6977 - TIGHTEN;
+const HEIGHT = 6142;
 
 // --- The CD cases ("swips", 1942:140384) ------------------------------------
 // A case is 383 x 340.5 with its disc (315.5) in the tray near the top. The nest
@@ -328,6 +324,46 @@ function CaseStack({ state, onGo }: { state: number; onGo: (state: number) => vo
   );
 }
 
+// Fades its content in from nothing and up 40px (the desktop "fade-up"), on
+// load or once it comes into the window. It checks where it is on every
+// scroll, so it starts as soon as it's on screen.
+function FadeUp({ children, delay = 0, onLoad = false }: { children: ReactNode; delay?: number; onLoad?: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(onLoad);
+
+  useEffect(() => {
+    if (visible) return;
+    let frame = 0;
+    const check = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const element = ref.current?.firstElementChild ?? ref.current;
+        if (!element) return;
+        const { top, bottom } = element.getBoundingClientRect();
+        if (top < window.innerHeight * 0.92 && bottom > 0) setVisible(true);
+      });
+    };
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, [visible]);
+
+  return (
+    <div
+      className={visible ? "fade-up" : "opacity-0"}
+      ref={ref}
+      style={{ ["--fade-delay" as string]: `${delay}ms`, ["--fade-duration" as string]: "1250ms" }}
+    >
+      {children}
+    </div>
+  );
+}
+
 // --- Sections ---------------------------------------------------------------
 
 const sectionTitle = "nm absolute top-0 left-0 text-[32px] leading-[1.32] tracking-[-0.64px] text-black";
@@ -355,7 +391,7 @@ function Work() {
     ["reforma", 283.96],
   ];
   return (
-    <section className="absolute top-[3546px] left-[24px] h-[519px] w-[354px]">
+    <section className="absolute top-[2702px] left-[24px] h-[519px] w-[354px]">
       <p className={sectionTitle}>WORK</p>
       {records.map(([brand, left]) => (
         <button
@@ -385,7 +421,7 @@ function Work() {
 
 function Education() {
   return (
-    <section className="absolute top-[4145px] left-[24px] h-[264px] w-[354px]">
+    <section className="absolute top-[3301px] left-[24px] h-[264px] w-[354px]">
       <p className={sectionTitle}>EDUCATION</p>
       <Row
         dates="June 2027"
@@ -403,7 +439,7 @@ function Education() {
 
 function Involvement() {
   return (
-    <section className="absolute top-[4489px] left-[24px] h-[229px] w-[354px]">
+    <section className="absolute top-[3645px] left-[24px] h-[229px] w-[354px]">
       <p className={sectionTitle}>INVOLVEMENT</p>
       <Row dates="Aug 2025 - Present" lines={[[33, "Figma Campus Leader"]]} org="Figma" top={78} />
       <Row dates="March 2025 - Present" lines={[[35, "Podcast Officer"]]} org="Future Leaders of UX" top={173} />
@@ -416,37 +452,37 @@ function Involvement() {
 function AboutMe() {
   const M = "/assets/mobile";
   const objects: [string, number, number, number, number][] = [
-    ["keychain", 0, 4733.9, 286.5, 300.5],
-    ["adobe-badge", 137.5, 4939.7, 62.5, 62.5],
-    ["flux-badge", 325, 5234.5, 77, 107],
-    ["airpods", 279.5, 5417.6, 122.5, 263],
-    ["rings", 277, 4934.5, 125, 232.5],
-    ["glasses", 0, 5318.2, 265, 389],
+    ["keychain", 0, 3889.9, 286.5, 300.5],
+    ["adobe-badge", 137.5, 4095.7, 62.5, 62.5],
+    ["flux-badge", 319, 4431.4, 83, 115.3],
+    ["airpods", 279.5, 4573.6, 122.5, 263],
+    ["rings", 277, 4090.5, 125, 232.5],
+    ["glasses", 0, 4496.2, 265, 389],
   ];
   return (
     <>
-      <div aria-hidden className="absolute" id="about" style={{ top: 4880, left: 0 }} />
+      <div aria-hidden className="absolute" id="about" style={{ top: 4036, left: 0 }} />
       {objects.map(([name, left, top, width, height]) => (
-        <Reveal key={name}>
+        <FadeUp key={name}>
           <img alt="" className="pointer-events-none absolute block max-w-none" src={`${M}/${name}.webp`} style={{ left, top, width, height }} />
-        </Reveal>
+        </FadeUp>
       ))}
-      <Reveal>
-      <p className="nm absolute top-[5105px] left-[24px] w-[354px] text-[32px] leading-[1.32] tracking-[-0.64px] text-black">A little bit about me</p>
-      <p className="nm absolute top-[5165px] left-[24px] w-[354px] text-[16px] leading-[1.32] tracking-[-0.32px] whitespace-pre-wrap text-black">
+      <FadeUp>
+      <p className="nm absolute top-[4266px] left-[36px] w-[354px] text-[28px] leading-[1.32] tracking-[-0.56px] text-black">A little bit about me</p>
+      <p className="nm absolute top-[4325px] left-[36px] w-[330px] text-[16px] leading-[1.32] tracking-[-0.32px] whitespace-pre-wrap text-black">
         {`I’m an intentional, curious, and playful product designer with a background in graphic design. I’m a sucker for trying new ways to express the numerous ideas I have in my head, I ask a lot of questions and I love using motion graphics to bring things to life. I like to write books on the side, so there’s a huge storytelling element to a lot of my work. `}
         <br aria-hidden />
         <br aria-hidden />
         When I’m not hunched over my computer, I’m probably getting my butt kicked in a pilates class, making new jewelry stacks, doodling in my Figma files, and hearing colors in music (audio-visual synesthesia :D)!
       </p>
-      </Reveal>
+      </FadeUp>
       {/* photo card */}
-      <Reveal>
-        <img alt="Neha" className="pointer-events-none absolute block max-w-none" src={`${M}/photo-card.webp`} style={{ left: 0, top: 4890, width: 142, height: 196.04 }} />
-      </Reveal>
-      <Reveal>
-        <CurrentlyPlaying className="absolute top-[5707.42px] left-[24px]" />
-      </Reveal>
+      <FadeUp>
+        <img alt="Neha" className="pointer-events-none absolute block max-w-none" src={`${M}/photo-card.webp`} style={{ left: 0, top: 4051, width: 142, height: 196.04 }} />
+      </FadeUp>
+      <FadeUp>
+        <CurrentlyPlaying className="absolute top-[4863.42px] left-[24px]" />
+      </FadeUp>
     </>
   );
 }
@@ -456,7 +492,7 @@ const CARD_STEP = 307 + 32;
 const LOOP_WIDTH = REFERRALS.length * CARD_STEP;
 function Referrals() {
   return (
-    <section className="absolute top-[5912px] left-0 h-[467px] w-[402px]">
+    <section className="absolute top-[5068px] left-0 h-[467px] w-[402px]">
       <p className="nm absolute top-0 left-[24px] text-[32px] leading-[1.32] tracking-[-0.64px] whitespace-nowrap text-black">Don’t take my word for it!</p>
       <p className="nm absolute top-[42px] left-[24px] text-[16px] leading-[1.32] tracking-[-0.32px] whitespace-nowrap text-black">(See what others have to say)</p>
       <div className="absolute top-[99px] left-0 h-[368px] w-[402px] overflow-clip">
@@ -483,7 +519,7 @@ function Pill({ href, top, children }: { href: string; top: number; children: Re
   const external = href.startsWith("http");
   return (
     <a
-      className="nm absolute left-[134px] flex h-[44px] w-[134px] items-center justify-center gap-[10px] rounded-[40px] border border-solid border-black text-[20px] leading-[1.32] tracking-[-0.4px] text-black"
+      className="nm absolute left-[134px] flex h-[44px] w-[134px] items-center justify-center gap-[10px] rounded-[40px] border border-solid border-black text-[16px] leading-[1.32] tracking-[-0.32px] text-black"
       href={href}
       rel={external ? "noreferrer" : undefined}
       style={{ top }}
@@ -496,16 +532,16 @@ function Pill({ href, top, children }: { href: string; top: number; children: Re
 }
 
 function Footer({ onHome, onWork }: { onHome: () => void; onWork: () => void }) {
-  const link = "nm absolute left-[134px] h-[44px] w-[134px] text-center text-[20px] leading-[44px] tracking-[-0.4px] text-black";
+  const link = "nm absolute left-[134px] h-[44px] w-[134px] text-center text-[16px] leading-[44px] tracking-[-0.32px] text-black";
   return (
-    <footer className="absolute top-[6459px] left-0 h-[518px] w-[402px]" id="contact">
+    <footer className="absolute top-[5615px] left-0 h-[518px] w-[402px]" id="contact">
       <button className={link} onClick={onHome} style={{ top: 0 }} type="button">
         Home
       </button>
       <button className={link} onClick={onWork} style={{ top: 76 }} type="button">
         Work
       </button>
-      <button className={link} onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })} style={{ top: 152 }} type="button">
+      <button className={link} onClick={() => toSection("about")} style={{ top: 152 }} type="button">
         About Me
       </button>
       <Pill href={`mailto:${EMAIL}`} top={228}>
@@ -525,20 +561,20 @@ function Footer({ onHome, onWork }: { onHome: () => void; onWork: () => void }) 
           </div>
         </div>
         {[
-          { name: "mehl", top: 22.18, size: 6.02, opacity: 0.2 },
-          { name: "nagha", top: 31.63, size: 7.22, opacity: 0.4 },
-          { name: "naeha", top: 43.02, size: 8.43, opacity: 0.7 },
+          { name: "mehl", top: 26, size: 6.02, opacity: 0.2 },
+          { name: "nagha", top: 35.45, size: 7.22, opacity: 0.4 },
+          { name: "naeha", top: 46.84, size: 8.43, opacity: 0.7 },
         ].map(({ name, top, size, opacity }) => (
-          <p className="nm absolute left-[2.31px] leading-[1.32] text-black" key={name} style={{ top, fontSize: size, letterSpacing: -size * 0.02, opacity }}>
+          <p className="nm absolute left-[5.31px] leading-[1.32] text-black" key={name} style={{ top, fontSize: size, letterSpacing: -size * 0.02, opacity }}>
             {name}
           </p>
         ))}
         {[
-          { top: 26.94, width: 18.46, src: "footer-line-1" },
-          { top: 36.47, width: 24.12, src: "footer-line-2" },
-          { top: 49.46, width: 28.28, src: "footer-line-3" },
+          { top: 30.76, width: 18.46, src: "footer-line-1" },
+          { top: 40.29, width: 24.12, src: "footer-line-2" },
+          { top: 53.28, width: 28.28, src: "footer-line-3" },
         ].map(({ top, width, src }) => (
-          <div className="absolute left-0 h-0" key={src} style={{ top, width }}>
+          <div className="absolute left-[3px] h-0" key={src} style={{ top, width }}>
             <div className="absolute inset-[-0.45px_0_0_0]">
               <img alt="" className="block size-full max-w-none" src={`/assets/shared/${src}.svg`} />
             </div>
@@ -549,16 +585,22 @@ function Footer({ onHome, onWork }: { onHome: () => void; onWork: () => void }) 
   );
 }
 
-// A shelf ("shelf 2 top shadow", the white ledge and "shelf 2 bottom
-// shadow") whose ledge starts where the graphic on it ends.
-function Shelf({ bottom }: { bottom: number }) {
+// A shelf: "shelf 2 top shadow" (88) down to the white ledge (36), then
+// "shelf 2 bottom shadow" (144) fading out below it. `ledge` is the ledge's top.
+function Shelf({ ledge }: { ledge: number }) {
   return (
     <>
-      <div className="absolute left-[-2px] h-[136px] w-[404px]" style={{ top: bottom - 136, background: "linear-gradient(to bottom, #fff, rgb(236, 236, 236))" }} />
-      <div className="absolute left-[-2px] h-[56px] w-[404px] bg-white" style={{ top: bottom }} />
-      <div className="absolute left-[-2px] h-[223px] w-[404px]" style={{ top: bottom + 53, background: "linear-gradient(to top, #fff, rgb(236, 236, 236))" }} />
+      <div className="absolute left-[-2px] h-[88px] w-[404px]" style={{ top: ledge - 88, background: "linear-gradient(to bottom, #fff, rgb(236, 236, 236))" }} />
+      <div className="absolute left-[-2px] h-[36px] w-[404px] bg-white" style={{ top: ledge }} />
+      <div className="absolute left-[-2px] h-[144px] w-[404px]" style={{ top: ledge + 34, background: "linear-gradient(to top, #fff, rgb(236, 236, 236))" }} />
     </>
   );
+}
+
+// Glides to a section, slowly and easing in and out.
+function toSection(id: string) {
+  const element = document.getElementById(id);
+  if (element) scrollToElement(element);
 }
 
 // Holds the CD states and plays one per gesture (see LAST above).
@@ -712,7 +754,7 @@ export default function MobileHome() {
     <div className="relative w-full overflow-x-clip bg-white">
       <div className="relative" style={{ width: WIDTH, height: HEIGHT + SHUFFLE, zoom }}>
         {/* header */}
-        <Reveal onLoad>
+        <FadeUp onLoad>
         <button aria-label="Home" className="absolute top-[24px] left-[24px] h-[32px] w-[32.35px]" onClick={() => go(0)} type="button">
           <div className="absolute inset-[-5.37%_-10.12%_-9.53%_-7.45%]">
             <img alt="" className="block size-full max-w-none" src="/assets/shared/logo.svg" />
@@ -722,17 +764,17 @@ export default function MobileHome() {
           <button onClick={toWork} type="button">
             Work /
           </button>
-          <button onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })} type="button">
+          <button onClick={() => toSection("about")} type="button">
             About /
           </button>
-          <button onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })} type="button">
+          <button onClick={() => toSection("contact")} type="button">
             Contact
           </button>
         </nav>
-        </Reveal>
+        </FadeUp>
 
         {/* title */}
-        <Reveal delay={100} onLoad>
+        <FadeUp delay={100} onLoad>
         <div className="absolute top-[190px] left-[63.04px] h-[60.56px] w-[275.93px]">
           <div className="absolute inset-[-84.27%_-19.8%_-8.37%_-1.79%]">
             <img alt="i'm neha!" className="block size-full max-w-none" src="/assets/home/title-big.svg" />
@@ -741,48 +783,46 @@ export default function MobileHome() {
         <p className="nm absolute top-[275.56px] left-[38px] w-[326px] text-center text-[16px] leading-[1.32] tracking-[-0.32px] text-black">
           a truly curious product designer who always delivers, one detail at a time.
         </p>
-        </Reveal>
+        </FadeUp>
 
-        <Reveal delay={250} onLoad>
+        <FadeUp delay={250} onLoad>
           <CaseStack onGo={go} state={state} />
-        </Reveal>
+        </FadeUp>
 
         {/* Everything below waits while the fan turns, then follows on. */}
         <div className="absolute inset-x-0 top-0" style={{ transform: `translateY(${SHUFFLE}px)` }}>
           {/* the record and the magazine, each sitting on a shelf */}
-          {[2074, 2558].map((bottom) => (
-            <Shelf bottom={bottom} key={bottom} />
+          {[2089, 2523].map((ledge) => (
+            <Shelf key={ledge} ledge={ledge} />
           ))}
-          <Reveal>
-            <div className="absolute top-[1833px] left-[24px] h-[241px] w-[354px] overflow-hidden">
+          <FadeUp>
+            <div className="absolute top-[1849px] left-[24px] h-[241px] w-[354px] overflow-hidden">
               <img alt="" className="absolute top-[-31.95%] left-[-46.36%] h-[154.06%] w-[186.23%] max-w-none" src="/assets/home/record-cover.png" />
             </div>
-          </Reveal>
-          <Reveal>
-            <div className="absolute top-[2257px] left-[83px] h-[301px] w-[236px] overflow-hidden">
+          </FadeUp>
+          <FadeUp>
+            <div className="absolute top-[2222px] left-[83px] h-[301px] w-[236px] overflow-hidden">
               <img alt="" className="absolute top-[-79.35%] left-[-53.13%] h-[240.1%] w-[203.36%] max-w-none" src="/assets/home/magazine-cover.png" />
             </div>
-          </Reveal>
+          </FadeUp>
 
           {/* Each part fades in and up as it comes into view, like desktop. */}
-          <div className="absolute inset-x-0 top-0" style={{ transform: `translateY(${-TIGHTEN}px)` }}>
-          <Reveal>
+          <FadeUp>
             <Work />
-          </Reveal>
-          <Reveal>
+          </FadeUp>
+          <FadeUp>
             <Education />
-          </Reveal>
-          <Reveal>
+          </FadeUp>
+          <FadeUp>
             <Involvement />
-          </Reveal>
+          </FadeUp>
           <AboutMe />
-          <Reveal>
+          <FadeUp>
             <Referrals />
-          </Reveal>
-          <Reveal>
+          </FadeUp>
+          <FadeUp>
             <Footer onHome={() => go(0)} onWork={toWork} />
-          </Reveal>
-          </div>
+          </FadeUp>
         </div>
       </div>
     </div>
