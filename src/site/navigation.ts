@@ -4,7 +4,7 @@ export type Section = "top" | "shelves" | "about" | "contact";
 
 export const EMAIL = "nehamitra105@gmail.com";
 export const RESUME_URL =
-  "https://drive.google.com/file/d/1mOX-6OiUNK18UrbNiHCJGHMFwFrg0lwi/view?usp=drive_link";
+  "https://drive.google.com/file/d/1jO1IdQ_lIBYK4-6MhphW_NBsJw66-ApW/view?usp=sharing";
 export const LINKEDIN_URL = "https://www.linkedin.com/in/neha-mitra/";
 
 // Links that jump to a section glide there slowly, easing in and out;
