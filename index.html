@@ -31,11 +31,55 @@
     <link rel="preload" as="image" href="/assets/loader/cd-glare.png" fetchpriority="high" />
     <link rel="preload" as="image" href="/assets/loader/star.svg" />
     <link rel="preload" as="image" href="/assets/loader/star-glow.svg" />
-    
-    
+
+    <!-- For agents and readers that don't run JavaScript. -->
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Neha Mitra",
+        "url": "https://www.nehamitra.com",
+        "sameAs": ["https://www.linkedin.com/in/neha-mitra/"]
+      }
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- The page's words in plain HTML, for agents that don't run
+           JavaScript. Visually hidden so the page looks the same before the
+           app loads; the app replaces it when it starts. -->
+      <main style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">
+        <h1>Neha Mitra</h1>
+        <p>a truly curious product designer who always delivers, one detail at a time.</p>
+        <h2>Case studies</h2>
+        <ul>
+          <li><a href="/nest">Nest Thermostat Redesign</a>: Redesigning interfaces to be more friendly and cheerful</li>
+          <li>Ribbon: A memento-maker for those who struggle with gift giving (case study in progress)</li>
+          <li>Milune: An audio-olfactory device that brings home to you (case study in progress)</li>
+          <li>Reforma AI: Designing a mobile app for AI form tracking technology (case study in progress)</li>
+        </ul>
+        <h2>Work</h2>
+        <ul>
+          <li><a href="/work/adobe">Adobe</a> / Experience Design Intern, June - Sept 2026</li>
+          <li><a href="/work/kohler">Kohler x SCAD Pro</a> / UX Designer, March - May 2026</li>
+          <li><a href="/work/finra">FINRA x SCAD Pro</a> / UX Design Lead, Jan - March 2026</li>
+          <li>Reforma AI / UX Design Intern, June - Dec 2026</li>
+        </ul>
+        <h2>Education</h2>
+        <ul>
+          <li>Savannah College of Art and Design / BFA User Experience Design, Sept 2024 - June 2027</li>
+          <li>University of South Florida / BFA Graphic Arts, Aug 2023 - May 2024</li>
+        </ul>
+        <p><a href="/gallery">Gallery</a></p>
+        <h2>Contact</h2>
+        <ul>
+          <li><a href="mailto:nehamitra105@gmail.com">Email</a></li>
+          <li><a href="https://www.linkedin.com/in/neha-mitra/">Linkedin</a></li>
+          <li><a href="https://drive.google.com/file/d/1jO1IdQ_lIBYK4-6MhphW_NBsJw66-ApW/view?usp=sharing">Resume</a></li>
+        </ul>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
