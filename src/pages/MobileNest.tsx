@@ -118,8 +118,7 @@ export default function MobileNest() {
   return (
     <div className="relative w-full overflow-x-clip bg-white">
       <div className="relative" style={{ width: WIDTH, height: MOBILE_NEST_HEIGHT - lift, zoom }}>
-        {/* the hero, shrunk on short screens and held to the right edge, so
-            the pills still run off the screen */}
+        {/* the hero, shrunk on short screens, kept at the top and centred */}
         <FadeUp onLoad>
           <img
             alt=""
@@ -127,7 +126,7 @@ export default function MobileNest() {
             src={MOBILE_NEST_HERO.src}
             style={{
               top: MOBILE_NEST_HERO.top,
-              right: 0,
+              left: (WIDTH - MOBILE_NEST_HERO.width * heroScale) / 2,
               width: MOBILE_NEST_HERO.width * heroScale,
               height: MOBILE_NEST_HERO.height * heroScale,
             }}

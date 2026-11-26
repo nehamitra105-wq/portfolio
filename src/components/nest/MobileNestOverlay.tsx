@@ -19,8 +19,6 @@ const LABEL_STEP = 85;
 // "skip to the end" pill widths: "Skip to final product" and "Scroll back up".
 const SKIP_WIDTH = 199.8;
 const BACK_WIDTH = 162.8;
-// The home button shows its label this long before closing up to the star.
-const HOME_LABEL_MS = 2000;
 
 const label = "nm text-[16px] leading-normal tracking-[-0.32px] whitespace-nowrap";
 
@@ -73,32 +71,22 @@ export default function MobileNestOverlay({ zoom, lift = 0 }: { zoom: number; li
   const [homeLabel, setHomeLabel] = useState(true);
   const atFinal = section === FINAL;
 
-  // The label's moment starts once the loading screen has gone.
+  // "Home" shows until the page is scrolled down to Overview (its top three
+  // quarters of the way up the screen); there it closes up to the star, and
+  // it comes back above Overview.
   useEffect(() => {
-    // While the loader covers the page the label waits, shown; it starts
-    // counting once the loader goes (and again if the loader comes back).
-    let timer = 0;
-    let frame = 0;
-    const loader = document.querySelector("[data-page-loader]");
-    const sync = () => {
-      if (loader?.getAttribute("aria-hidden") === "false") {
-        window.clearTimeout(timer);
-        timer = 0;
-        setHomeLabel(true);
-      } else if (!timer) {
-        timer = window.setTimeout(() => setHomeLabel(false), HOME_LABEL_MS);
-      }
+    const update = () => {
+      const overview = (MOBILE_NEST_SECTIONS[0].top - lift) * zoom;
+      setHomeLabel(overview > window.scrollY + window.innerHeight * 0.75);
     };
-    const observer = new MutationObserver(sync);
-    if (loader) observer.observe(loader, { attributes: true, attributeFilter: ["aria-hidden"] });
-    // First look once the loader has had a chance to cover the new page.
-    frame = requestAnimationFrame(() => (frame = requestAnimationFrame(sync)));
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
     return () => {
-      observer.disconnect();
-      cancelAnimationFrame(frame);
-      window.clearTimeout(timer);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
     };
-  }, []);
+  }, [zoom, lift]);
 
   useEffect(() => {
     const update = () => setSection(currentSection(zoom, lift));

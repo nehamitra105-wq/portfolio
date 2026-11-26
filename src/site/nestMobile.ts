@@ -48,15 +48,15 @@ export const MOBILE_FINAL_VIDEOS: FinalVideo[] = [
   { src: video("locked-therm"), box: [222.5, 9316.74, 153, 153], crop: [0.13384, 0.14054, 0.70031, 0.6838], clip: [222.5, 9316.74, 153, 153, 76.5] },
   { src: video("conference-therm"), box: [22.5, 9534.74, 153.55, 153], crop: [0.14684, 0.1414, 0.70127, 0.68257], clip: [22.5, 9534.74, 153.55, 153, 76.5] },
   { src: video("conference-pref-phone"), box: [242, 9747.24, 124.5, 252.5], crop: [0.23447, 0.05342, 0.499, 0.89315], clip: [243, 9746.74, 123.5, 252.5, PHONE_RADIUS] },
-  { src: video("eco-friendly-therm"), box: [223, 10068.74, 153.5, 153], crop: [0.1038, 0.07224, 0.76962, 0.80755], clip: [223, 10068.74, 153.5, 153, 76.75] },
+  { src: video("eco-friendly-therm"), box: [25, 10068.74, 153.5, 153], crop: [0.1038, 0.07224, 0.76962, 0.80755], clip: [25, 10068.74, 153.5, 153, 76.75] },
   { src: video("pref-leaderboard"), box: [228, 10312.93, 123.32, 252.5], crop: [0.24161, 0.03915, 0.5042, 0.91111], clip: [228, 10312.93, 123, 252.5, PHONE_RADIUS] },
 ];
 // Layers that sit above those videos in Figma: [file, x, y, w, h].
 export const MOBILE_ABOVE_VIDEO = [
   ["over-request.png", 133.5, 9139.7, 102, 82.5],
   ["over-meeting.png", 137.5, 9658.4, 52.5, 28.5],
-  ["over-dial.svg", 228, 10023.4, 176, 179],
-  ["over-leaf.png", 224.7, 10182.2, 31, 22.5],
+  ["over-dial.svg", 30, 10023.4, 176, 179],
+  ["over-leaf.png", 26.7, 10182.2, 31, 22.5],
 ] as const;
 
 // "moodboard" (352 x 326 at 24, 2666.5): [desktop image index, x, y, w, h].
