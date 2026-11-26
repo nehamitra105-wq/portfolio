@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import MicroInteractions from "../components/nest/MicroInteractions";
 import MobileNestOverlay from "../components/nest/MobileNestOverlay";
@@ -17,7 +17,7 @@ import {
 } from "../site/nestMobile";
 import Disc from "../components/Disc";
 import { CASE_STUDIES } from "../site/caseStudies";
-import { FadeUp, Footer, currentZoom, useZoom } from "./MobileHome";
+import { FadeUp, Footer, useZoom } from "./MobileHome";
 
 // "mobile - home" (2187:22119): the nest case study at 402 wide, scaled to the
 // phone's width. The page is drawn from its Figma render, block by block, each
@@ -101,40 +101,23 @@ const USE_CASES = ["Shared office space", "Conference room", "Eco-friendly offic
 export default function MobileNest() {
   const navigate = useNavigate();
   const zoom = useZoom();
-  // How much the hero shrinks: enough for its logo to show on the first
-  // screen, measured once on arrival so it doesn't jump as Safari's bars
-  // come and go.
-  const [heroScale] = useState(() => {
-    const screen = window.innerHeight / currentZoom();
-    const room = screen - MOBILE_NEST_HERO.top - MOBILE_NEST_HERO.below;
-    return Math.min(1, Math.max(0.6, room / MOBILE_NEST_HERO.height));
-  });
-  const lift = MOBILE_NEST_HERO.height * (1 - heroScale);
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   return (
     <div className="relative w-full overflow-x-clip bg-white">
-      <div className="relative" style={{ width: WIDTH, height: MOBILE_NEST_HEIGHT - lift, zoom }}>
-        {/* the hero, shrunk on short screens, kept at the top and centred */}
+      <div className="relative" style={{ width: WIDTH, height: MOBILE_NEST_HEIGHT, zoom }}>
+        {/* the hero, edge to edge */}
         <FadeUp onLoad>
           <img
             alt=""
-            className="absolute block max-w-none"
+            className="absolute left-0 block max-w-none"
             src={MOBILE_NEST_HERO.src}
-            style={{
-              top: MOBILE_NEST_HERO.top,
-              left: (WIDTH - MOBILE_NEST_HERO.width * heroScale) / 2,
-              width: MOBILE_NEST_HERO.width * heroScale,
-              height: MOBILE_NEST_HERO.height * heroScale,
-            }}
+            style={{ top: MOBILE_NEST_HERO.top, width: MOBILE_NEST_HERO.width, height: MOBILE_NEST_HERO.height }}
           />
         </FadeUp>
 
-        {/* Everything below closes up by however much the hero shrank. */}
-        <div className="absolute inset-x-0 top-0" style={{ transform: lift ? `translateY(${-lift}px)` : undefined }}>
         {MOBILE_NEST_BLOCKS.map((block, i) => (
           <FadeUp key={block.src}>
             <img
@@ -205,14 +188,14 @@ export default function MobileNest() {
 
         {/* micro-interactions */}
         <FadeUp>
-          <MicroInteractions scale={354 / 896} style={{ left: 24, top: 8171 }} />
+          <MicroInteractions scale={354 / 896} style={{ left: 24, top: 8307 }} />
         </FadeUp>
 
         {/* "design system preview" */}
         <FadeUp>
           <SwipeCarousel
             count={2}
-            dots={{ left: 180.18 - 25, top: 8808.09 - 8562.56, width: 18.86, height: 3.14, step: 22.78, colors: ["#0278ff", "#ff5c6c"] }}
+            dots={{ left: 180.18 - 25, top: 8944.09 - 8698.56, width: 18.86, height: 3.14, step: 22.78, colors: ["#0278ff", "#ff5c6c"] }}
             gap={17.68}
             height={237.68}
             labels={["Components", "Type and colour"]}
@@ -221,7 +204,7 @@ export default function MobileNest() {
                 <img alt="" className="absolute inset-0 block size-full max-w-none" draggable={false} src={`/assets/nest/system-${i + 1}.jpg`} />
               </div>
             )}
-            style={{ left: 25, top: 8562.56 }}
+            style={{ left: 25, top: 8698.56 }}
             width={352}
           />
         </FadeUp>
@@ -244,7 +227,7 @@ export default function MobileNest() {
 
         {/* next project */}
         <FadeUp>
-          <RibbonCd left={229} top={11602.4} />
+          <RibbonCd left={229} top={11738.4} />
         </FadeUp>
 
         <FadeUp>
@@ -255,9 +238,8 @@ export default function MobileNest() {
             top={MOBILE_NEST_FOOTER_TOP}
           />
         </FadeUp>
-        </div>
       </div>
-      <MobileNestOverlay lift={lift} zoom={zoom} />
+      <MobileNestOverlay zoom={zoom} />
     </div>
   );
 }

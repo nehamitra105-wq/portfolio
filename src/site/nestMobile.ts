@@ -1,9 +1,9 @@
 import type { FinalVideo, TraitRow } from "../components/nest/NestComponents";
 
-// "mobile - home" (2187:22119, 402 x 12291): the nest case study on phones.
+// "mobile - home" (2187:22119, 402 x 12427): the nest case study on phones.
 // Positions are page coordinates in the 402-wide design.
-export const MOBILE_NEST_HEIGHT = 12291;
-export const MOBILE_NEST_FOOTER_TOP = 11764;
+export const MOBILE_NEST_HEIGHT = 12427;
+export const MOBILE_NEST_FOOTER_TOP = 11900;
 
 // Where the menu's sections start. Concept is the visual direction block, as
 // on desktop.
@@ -12,8 +12,8 @@ export const MOBILE_NEST_SECTIONS = [
   { label: "Challenge", top: 1744 },
   { label: "Concept", top: 2531 },
   { label: "Design", top: 4114 },
-  { label: "System", top: 8456 },
-  { label: "Final Product", top: 8851 },
+  { label: "System", top: 8592 },
+  { label: "Final Product", top: 8987 },
 ];
 
 // The page, rendered from Figma at 2x and cut between its blocks; each block
@@ -21,7 +21,7 @@ export const MOBILE_NEST_SECTIONS = [
 // design system areas are blank in these pictures and drawn live on top.
 const CUTS = [
   0, 890, 1172, 1313, 1724, 1851, 2511, 2651, 3009, 3078, 3310, 3379, 3586, 3693, 4095, 4212, 4889, 4987, 5803, 5914,
-  6686, 7453, 8080, 8151, 8436, 8543, 8832, 8966, 10583, 11057, MOBILE_NEST_FOOTER_TOP - 20,
+  6686, 7453, 8216, 8287, 8572, 8679, 8968, 9102, 10719, 11193, MOBILE_NEST_FOOTER_TOP - 20,
 ];
 // The first block is the hero, drawn on its own (see MOBILE_NEST_HERO).
 export const MOBILE_NEST_BLOCKS = CUTS.slice(0, -1)
@@ -32,31 +32,28 @@ export const MOBILE_NEST_BLOCKS = CUTS.slice(0, -1)
   }))
   .slice(1);
 
-// "Frame 1597881005" (2217:44579, 400 x 754 at 1, 97): the hero art with the
-// nest logo at its foot. On screens shorter than the design it shrinks so the
-// logo still shows on the first screen, keeping the design's 23 below it (the
-// skip and menu buttons sit over the graphic, as in Figma), and the page
-// below closes up.
-export const MOBILE_NEST_HERO = { src: "/assets/nest/mobile/hero.webp", top: 97, width: 402, height: 754, below: 23 };
+// "Frame 1597881005" (2217:44579, 402 x 754 at 0, 97): the hero art with the
+// nest logo at its foot, edge to edge.
+export const MOBILE_NEST_HERO = { src: "/assets/nest/mobile/hero.webp", top: 97, width: 402, height: 754 };
 
 // The final-product videos, cropped as in Figma (phones in their screen mask,
 // thermostats in their round screen). Same recordings as desktop.
 const video = (name: string) => `/assets/nest/videos/${name}.mp4`;
 const PHONE_RADIUS = 19;
 export const MOBILE_FINAL_VIDEOS: FinalVideo[] = [
-  { src: video("request-temp-phone"), box: [220, 9000.24, 139.5, 253], crop: [0.31025, 0.10881, 0.38247, 0.7677], clip: [227, 9000.74, 123, 252.5, PHONE_RADIUS] },
-  { src: video("locked-therm"), box: [222.5, 9316.74, 153, 153], crop: [0.13384, 0.14054, 0.70031, 0.6838], clip: [222.5, 9316.74, 153, 153, 76.5] },
-  { src: video("conference-therm"), box: [22.5, 9534.74, 153.55, 153], crop: [0.14684, 0.1414, 0.70127, 0.68257], clip: [22.5, 9534.74, 153.55, 153, 76.5] },
-  { src: video("conference-pref-phone"), box: [242, 9747.24, 124.5, 252.5], crop: [0.23447, 0.05342, 0.499, 0.89315], clip: [243, 9746.74, 123.5, 252.5, PHONE_RADIUS] },
-  { src: video("eco-friendly-therm"), box: [25, 10068.74, 153.5, 153], crop: [0.1038, 0.07224, 0.76962, 0.80755], clip: [25, 10068.74, 153.5, 153, 76.75] },
-  { src: video("pref-leaderboard"), box: [228, 10312.93, 123.32, 252.5], crop: [0.24161, 0.03915, 0.5042, 0.91111], clip: [228, 10312.93, 123, 252.5, PHONE_RADIUS] },
+  { src: video("request-temp-phone"), box: [220, 9136.24, 139.5, 253], crop: [0.31025, 0.10881, 0.38247, 0.7677], clip: [227, 9136.74, 123, 252.5, PHONE_RADIUS] },
+  { src: video("locked-therm"), box: [222.5, 9452.74, 153, 153], crop: [0.13384, 0.14054, 0.70031, 0.6838], clip: [222.5, 9452.74, 153, 153, 76.5] },
+  { src: video("conference-therm"), box: [22.5, 9670.74, 153.55, 153], crop: [0.14684, 0.1414, 0.70127, 0.68257], clip: [22.5, 9670.74, 153.55, 153, 76.5] },
+  { src: video("conference-pref-phone"), box: [242, 9883.24, 124.5, 252.5], crop: [0.23447, 0.05342, 0.499, 0.89315], clip: [243, 9882.74, 123.5, 252.5, PHONE_RADIUS] },
+  { src: video("eco-friendly-therm"), box: [25, 10204.74, 153.5, 153], crop: [0.1038, 0.07224, 0.76962, 0.80755], clip: [25, 10204.74, 153.5, 153, 76.75] },
+  { src: video("pref-leaderboard"), box: [228, 10448.93, 123.32, 252.5], crop: [0.24161, 0.03915, 0.5042, 0.91111], clip: [228, 10448.93, 123, 252.5, PHONE_RADIUS] },
 ];
 // Layers that sit above those videos in Figma: [file, x, y, w, h].
 export const MOBILE_ABOVE_VIDEO = [
-  ["over-request.png", 133.5, 9139.7, 102, 82.5],
-  ["over-meeting.png", 137.5, 9658.4, 52.5, 28.5],
-  ["over-dial.svg", 30, 10023.4, 176, 179],
-  ["over-leaf.png", 26.7, 10182.2, 31, 22.5],
+  ["over-request.png", 133.5, 9275.7, 102, 82.5],
+  ["over-meeting.png", 137.5, 9794.4, 52.5, 28.5],
+  ["over-dial.svg", 30, 10159.4, 176, 179],
+  ["over-leaf.png", 26.7, 10318.2, 31, 22.5],
 ] as const;
 
 // "moodboard" (352 x 326 at 24, 2666.5): [desktop image index, x, y, w, h].

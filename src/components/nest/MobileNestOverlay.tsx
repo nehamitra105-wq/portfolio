@@ -13,12 +13,18 @@ import { MOBILE_NEST_SECTIONS } from "../../site/nestMobile";
 const SLOW = "cubic-bezier(0.22, 1, 0.36, 1)";
 const DISSOLVE = `opacity 0.6s ${SLOW}, visibility 0.6s`;
 const FINAL = MOBILE_NEST_SECTIONS.length - 1;
-// Sections' label centres in the open menu, 85 apart.
+// Sections' label centres in the open menu, 85 apart. The labels are kept
+// centred on the screen (their box is as tall as twice their middle).
 const LABEL_TOP = 214;
 const LABEL_STEP = 85;
-// "skip to the end" pill widths: "Skip to final product" and "Scroll back up".
-const SKIP_WIDTH = 199.8;
-const BACK_WIDTH = 162.8;
+const LABELS_HEIGHT = 2 * (LABEL_TOP + (LABEL_STEP * (MOBILE_NEST_SECTIONS.length - 1)) / 2);
+// "skip to the end" pill: 16 either side; "Skip to final product" (129),
+// a 10 gap and the arrow (12), or, at the final product, just the arrow.
+const PAD = 16;
+const SKIP_WIDTH = PAD + 129 + 10 + 12 + PAD;
+const BACK_WIDTH = PAD + 12 + PAD;
+// Scrolls smaller than this don't count as a direction.
+const SCROLL_NOISE = 4;
 
 const label = "nm text-[16px] leading-normal tracking-[-0.32px] whitespace-nowrap";
 
@@ -69,15 +75,24 @@ export default function MobileNestOverlay({ zoom, lift = 0 }: { zoom: number; li
   const [open, setOpen] = useState(false);
   const [section, setSection] = useState(() => currentSection(zoom, lift));
   const [homeLabel, setHomeLabel] = useState(true);
+  const [homeShown, setHomeShown] = useState(true);
   const atFinal = section === FINAL;
 
-  // "Home" shows until the page is scrolled down to Overview (its top three
-  // quarters of the way up the screen); there it closes up to the star, and
-  // it comes back above Overview.
+  // Above Overview the home button shows, labelled "Home". Once the page is
+  // scrolled down to Overview (its top three quarters of the way up the
+  // screen) the label closes up and the whole button goes; from there it
+  // comes back, as just the star, whenever the page is scrolled up, and goes
+  // again on the way down.
   useEffect(() => {
+    let lastY = window.scrollY;
     const update = () => {
+      const y = window.scrollY;
       const overview = (MOBILE_NEST_SECTIONS[0].top - lift) * zoom;
-      setHomeLabel(overview > window.scrollY + window.innerHeight * 0.75);
+      const above = overview > y + window.innerHeight * 0.75;
+      setHomeLabel(above);
+      if (above) setHomeShown(true);
+      else if (Math.abs(y - lastY) >= SCROLL_NOISE) setHomeShown(y < lastY);
+      if (above || Math.abs(y - lastY) >= SCROLL_NOISE) lastY = y;
     };
     update();
     window.addEventListener("scroll", update, { passive: true });
@@ -119,7 +134,7 @@ export default function MobileNestOverlay({ zoom, lift = 0 }: { zoom: number; li
           transition: DISSOLVE,
         }}
       >
-        <nav className="absolute top-0 left-1/2 h-[874px] w-[402px] origin-top" style={{ translate: "-50% 0", scale: zoom }}>
+        <nav className="absolute top-1/2 left-1/2 w-[402px]" style={{ height: LABELS_HEIGHT, translate: "-50% -50%", scale: zoom }}>
           {MOBILE_NEST_SECTIONS.map((item, i) => (
             <button
               className={`${label} absolute left-1/2 h-[44px] -translate-x-1/2 -translate-y-1/2 px-[16px] text-black`}
@@ -141,13 +156,19 @@ export default function MobileNestOverlay({ zoom, lift = 0 }: { zoom: number; li
         </nav>
       </div>
 
-      {/* "home button": the star, labelled at first, then just the star */}
+      {/* "home button": the star (on no background), labelled at first */}
       <div className="absolute top-0 left-0 origin-top-left" style={{ scale: zoom }}>
         <button
           aria-label="Home"
-          className="pointer-events-auto absolute top-[8px] left-[8px] h-[64px] overflow-hidden rounded-[75px] bg-white"
+          className="absolute top-[8px] left-[8px] h-[64px] overflow-hidden rounded-[75px]"
           onClick={() => navigate("/")}
-          style={{ width: homeLabel ? 122.3 : 64.3, transition: `width 1.25s ${SLOW}` }}
+          style={{
+            width: homeLabel ? 122.3 : 64.3,
+            opacity: homeShown || open ? 1 : 0,
+            pointerEvents: homeShown || open ? "auto" : "none",
+            transition: `width 1.25s ${SLOW}, opacity 0.6s ${SLOW}`,
+          }}
+          tabIndex={homeShown || open ? 0 : -1}
           type="button"
         >
           <span className="absolute top-[16px] left-[16px] h-[32px] w-[32.3px]">
@@ -167,6 +188,7 @@ export default function MobileNestOverlay({ zoom, lift = 0 }: { zoom: number; li
       {/* "menu row": skip / back up, and the menu button */}
       <div className="absolute right-0 bottom-0 h-[88px] w-[300px] origin-bottom-right" style={{ scale: zoom }}>
         <button
+          aria-label={atFinal ? "Scroll back up" : undefined}
           className={`${label} pointer-events-auto absolute right-[74px] bottom-[24px] flex h-[40px] items-center justify-center gap-[10px] overflow-hidden rounded-[40px] bg-black text-white`}
           onClick={() => (atFinal ? scrollToY(0) : toSection(FINAL))}
           style={{
@@ -179,7 +201,7 @@ export default function MobileNestOverlay({ zoom, lift = 0 }: { zoom: number; li
           tabIndex={open ? -1 : 0}
           type="button"
         >
-          {atFinal ? "Scroll back up" : "Skip to final product"}
+          {!atFinal && "Skip to final product"}
           <Arrow up={atFinal} />
         </button>
         <button
@@ -189,15 +211,28 @@ export default function MobileNestOverlay({ zoom, lift = 0 }: { zoom: number; li
           onClick={() => setOpen((o) => !o)}
           type="button"
         >
-          {/* list icon, crossfading to the close X */}
-          <svg className="absolute top-[10px] left-[10px]" fill="none" height="20" viewBox="0 0 20 20" width="20">
-            <g stroke="white" strokeLinecap="round" strokeWidth="1.5" style={{ opacity: open ? 0 : 1, transition: `opacity 0.6s ${SLOW}` }}>
-              <path d="M2.5 4.5H17.5M2.5 10H17.5M2.5 15.5H17.5" />
-            </g>
-            <g stroke="white" strokeLinecap="round" strokeWidth="1.5" style={{ opacity: open ? 1 : 0, transition: `opacity 0.6s ${SLOW}` }}>
-              <path d="M4.5 4.5L15.5 15.5M15.5 4.5L4.5 15.5" />
-            </g>
-          </svg>
+          {/* The list icon turns into the close X (smart animate): the top
+              and bottom lines (15 long) swing to the middle and cross, as
+              the X's 11 x 11 diagonals; the middle line fades. */}
+          <span className="absolute top-[10px] left-[10px] size-[20px]">
+            {[
+              { top: 4.5, turn: 45 },
+              { top: 10, turn: 0 },
+              { top: 15.5, turn: -45 },
+            ].map(({ top, turn }) => (
+              <span
+                className="absolute left-[2.5px] h-[1.5px] w-[15px] rounded-full bg-white"
+                key={top}
+                style={{
+                  top: top - 0.75,
+                  translate: open ? `0 ${10 - top}px` : "0 0",
+                  rotate: open ? `${turn}deg` : "0deg",
+                  opacity: open && !turn ? 0 : 1,
+                  transition: `translate 0.6s ${SLOW}, rotate 0.6s ${SLOW}, opacity 0.3s ${SLOW}`,
+                }}
+              />
+            ))}
+          </span>
         </button>
       </div>
     </div>
