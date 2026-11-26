@@ -34,9 +34,10 @@ export const MOBILE_NEST_BLOCKS = CUTS.slice(0, -1)
 
 // "Frame 1597881005" (2217:44579, 400 x 754 at 1, 97): the hero art with the
 // nest logo at its foot. On screens shorter than the design it shrinks so the
-// logo still shows on the first screen, clear of the skip and menu buttons
-// (24 up from the bottom, 40 tall, plus a 10 gap), and the page below closes up.
-export const MOBILE_NEST_HERO = { src: "/assets/nest/mobile/hero.webp", top: 97, width: 402, height: 754, below: 74 };
+// logo still shows on the first screen, keeping the design's 23 below it (the
+// skip and menu buttons sit over the graphic, as in Figma), and the page
+// below closes up.
+export const MOBILE_NEST_HERO = { src: "/assets/nest/mobile/hero.webp", top: 97, width: 402, height: 754, below: 23 };
 
 // The final-product videos, cropped as in Figma (phones in their screen mask,
 // thermostats in their round screen). Same recordings as desktop.
