@@ -108,7 +108,10 @@ export default function MobileNest() {
   // it; on screens taller than the design the page below moves down to match.
   const [screen] = useState(() => window.innerHeight / currentZoom());
   const logoTop = screen - MOBILE_NEST_LOGO.below - MOBILE_NEST_LOGO.height;
-  const extra = Math.max(0, screen - MOBILE_NEST_SCREEN);
+  // Everything above the logo's foot (the space over the art and the art)
+  // shrinks to fit when the screen is shorter than the design.
+  const heroScale = Math.min(1, (screen - MOBILE_NEST_LOGO.below) / (MOBILE_NEST_SCREEN - MOBILE_NEST_LOGO.below));
+  const extra = screen - MOBILE_NEST_SCREEN;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -122,9 +125,15 @@ export default function MobileNest() {
         <FadeUp onLoad>
           <img
             alt=""
-            className="absolute left-0 block max-w-none"
+            className="absolute block max-w-none"
             src={MOBILE_NEST_HERO.src}
-            style={{ top: MOBILE_NEST_HERO.top, width: MOBILE_NEST_HERO.width, height: MOBILE_NEST_HERO.height }}
+            style={{
+              // held to the right edge as it shrinks
+              left: WIDTH - (WIDTH - MOBILE_NEST_HERO.left) * heroScale,
+              top: MOBILE_NEST_HERO.top * heroScale,
+              width: MOBILE_NEST_HERO.width * heroScale,
+              height: MOBILE_NEST_HERO.height * heroScale,
+            }}
           />
           <img
             alt="nest"
@@ -134,7 +143,8 @@ export default function MobileNest() {
           />
         </FadeUp>
 
-        {/* On a taller screen than the design, everything below moves down. */}
+        {/* Everything below follows the logo: down on a taller screen than the
+            design, up on a shorter one. */}
         <div className="absolute inset-x-0 top-0" style={{ transform: extra ? `translateY(${extra}px)` : undefined }}>
         {MOBILE_NEST_BLOCKS.map((block, i) => (
           <FadeUp key={block.src}>

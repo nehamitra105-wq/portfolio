@@ -32,12 +32,14 @@ export const MOBILE_NEST_BLOCKS = CUTS.slice(0, -1)
   }))
   .slice(1);
 
-// "Frame 1597881005" (2217:44579, 400 x 754 at 1, 97): the hero art, fitted
-// to the full width. Its nest logo (31, 787; 149 x 63.77) is drawn on its own
-// and keeps its Figma spacing from the bottom of the first screen (23.23 under
-// it on the 874-tall design) whatever the phone's height, over the art on
-// shorter phones. On taller ones the page below moves down with it.
-export const MOBILE_NEST_HERO = { src: "/assets/nest/mobile/hero.webp", top: 97, width: 402, height: (754 * 402) / 400 };
+// "Frame 1597881005" (2217:44579, 400 x 754 at 1, 97): the hero art. The
+// picture runs 14 further left than the frame, so the avatar there ("John")
+// is whole; on the right the pills run off the screen as in Figma. Its nest
+// logo (31, 787; 149 x 63.77) is drawn on its own and always sits at the
+// bottom of the first screen, 23.23 above it as on the 874-tall design. On a
+// shorter phone the art shrinks (held to the right edge) so all of it shows
+// above the logo; the page below follows the logo up or down.
+export const MOBILE_NEST_HERO = { src: "/assets/nest/mobile/hero.webp", left: -14, top: 97, width: 416, height: 754 };
 export const MOBILE_NEST_LOGO = { src: "/assets/nest/mobile/hero-logo.png", left: 31, width: 149, height: 63.77, below: 23.23 };
 export const MOBILE_NEST_SCREEN = 874;
 
