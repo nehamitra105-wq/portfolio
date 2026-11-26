@@ -52,7 +52,11 @@ export default function PageLoader() {
   const [run, setRun] = useState(0);
   // The loader's own CD (preloaded from index.html): the graphic waits for it
   // so it never shows half drawn either.
-  const [cdReady, setCdReady] = useState(false);
+  // The nest case study's loader turns the nest disc instead.
+  const nest = pathname === "/nest";
+  const cdSrc = nest ? `${L}/disc-nest.webp` : `${L}/cd-glare.png`;
+  const [readyCd, setReadyCd] = useState("");
+  const cdReady = readyCd === cdSrc;
   const [slow, setSlow] = useState(false);
 
   // Runs before the new page is painted, so a half-loaded page never shows.
@@ -141,14 +145,18 @@ export default function PageLoader() {
         className="relative size-[230px] transition-opacity duration-300"
         style={{ zoom: graphicZoom, opacity: showGraphic && cdReady ? 1 : 0 }}
       >
+        {/* Opening the nest case study, its own disc (from the brief) turns. */}
         <img
           alt=""
-          className="absolute top-[10px] left-[9px] h-[209px] w-[212px] max-w-none animate-[spin_12s_linear_infinite] object-cover"
-          onLoad={(event) => event.currentTarget.decode().then(() => setCdReady(true), () => setCdReady(true))}
+          className={`absolute max-w-none animate-[spin_12s_linear_infinite] object-cover ${
+            nest ? "top-[10.5px] left-[10.5px] size-[209px]" : "top-[10px] left-[9px] h-[209px] w-[212px]"
+          }`}
+          key={nest ? "nest" : "cd"}
+          onLoad={(event) => event.currentTarget.decode().then(() => setReadyCd(cdSrc), () => setReadyCd(cdSrc))}
           ref={(img) => {
-            if (img?.complete && img.naturalWidth) setCdReady(true);
+            if (img?.complete && img.naturalWidth) setReadyCd(cdSrc);
           }}
-          src={`${L}/cd-glare.png`}
+          src={cdSrc}
         />
         <svg className="absolute inset-0 -rotate-90 overflow-visible" fill="none" key={`arc-${run}`} viewBox="0 0 230 230">
           <circle

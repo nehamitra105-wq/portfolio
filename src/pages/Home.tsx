@@ -359,7 +359,7 @@ export default function Home() {
               </div>
             </div>
             <p className="nm w-full text-center text-[28px] leading-[1.32] tracking-[-0.56px] text-black">
-              a truly curious product designer who always delivers, one detail at a time.
+              a truly curious creative who brings products to life, one detail at a time.
             </p>
           </div>
           </div>

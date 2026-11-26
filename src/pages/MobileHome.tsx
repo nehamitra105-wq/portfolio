@@ -688,7 +688,29 @@ function useCaseStates(zoom: number) {
     // Leaving downwards from Ribbon is ordinary scrolling.
     const leaving = (down: boolean) => stateRef.current === LAST && down;
     // A touch moves one state as soon as it's gone far enough, once.
-    let touch: { x: number; y: number; stage: boolean; used: boolean } | null = null;
+    let touch: { x: number; y: number; stage: boolean; used: boolean; caught?: boolean } | null = null;
+    // Scrolling up from below stops dead on Ribbon: the page's own scrolling
+    // (a finger, or the glide after it) is switched off for a moment, rather
+    // than being pulled back against on every frame, which judders.
+    let locked = false;
+    let unlockTimer = 0;
+    const root = document.documentElement;
+    const lock = () => {
+      window.clearTimeout(unlockTimer);
+      if (locked) return;
+      locked = true;
+      // Keeps the scrollbar's room, so the page's width (and scale) holds.
+      root.style.scrollbarGutter = "stable";
+      root.style.overflow = "hidden";
+    };
+    const unlock = (after = 0) => {
+      window.clearTimeout(unlockTimer);
+      unlockTimer = window.setTimeout(() => {
+        locked = false;
+        root.style.overflow = "";
+        root.style.scrollbarGutter = "";
+      }, after);
+    };
     // A wheel gesture moves one state; the rest of its glide is ignored, but
     // a fresh push (a gap, or the wheel speeding up again) is a new gesture.
     let wheelUsed = false;
@@ -701,6 +723,13 @@ function useCaseStates(zoom: number) {
     const onTouchMove = (event: TouchEvent) => {
       if (!touch) return;
       const t = event.touches[0];
+      // Caught arriving on Ribbon from below: the rest of this swipe counts
+      // from here, so pulling on steps back through the cases.
+      if (touch.caught) {
+        touch = { x: t.clientX, y: t.clientY, stage: true, used: false };
+        event.preventDefault();
+        return;
+      }
       const dx = t.clientX - touch.x;
       const dy = touch.y - t.clientY;
       if (!touch.stage || (leaving(dy > 0) && Math.abs(dy) >= Math.abs(dx))) {
@@ -725,6 +754,8 @@ function useCaseStates(zoom: number) {
     };
     const onTouchEnd = () => {
       touch = null;
+      // Long enough for any glide to have died away.
+      if (locked) unlock(300);
     };
     const onWheel = (event: WheelEvent) => {
       const down = event.deltaY > 0;
@@ -755,7 +786,10 @@ function useCaseStates(zoom: number) {
       // Scrolling up from below stops on Ribbon; from there each gesture
       // steps back one case, then the disc goes home at the top.
       if (up && stateRef.current === LAST && y / zoomNow() < STATE_SCROLL[LAST]) {
+        lock();
         window.scrollTo(0, STATE_SCROLL[LAST] * zoomNow());
+        if (touch) touch.caught = true;
+        else unlock(300);
         return;
       }
       window.clearTimeout(settle);
@@ -781,6 +815,9 @@ function useCaseStates(zoom: number) {
     return () => {
       cancelAnimationFrame(frame.current);
       window.clearTimeout(settle);
+      window.clearTimeout(unlockTimer);
+      root.style.overflow = "";
+      root.style.scrollbarGutter = "";
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onTouchEnd);
@@ -842,7 +879,7 @@ export default function MobileHome() {
           </div>
         </div>
         <p style={{ top: 275.56 - lift.title }} className="nm absolute left-[38px] w-[326px] text-center text-[16px] leading-[1.32] tracking-[-0.32px] text-black">
-          a truly curious product designer who always delivers, one detail at a time.
+          a truly curious creative who brings products to life, one detail at a time.
         </p>
         </FadeUp>
 
