@@ -91,7 +91,7 @@ function fanAt(k: number): [number, number, number] {
 const wrap = (k: number) => ((((k + 2) % 4) + 4) % 4) - 2;
 
 // The page's scale; a hidden window can report no width, so never zero.
-const currentZoom = () => (document.documentElement.clientWidth || WIDTH) / WIDTH;
+export const currentZoom = () => (document.documentElement.clientWidth || WIDTH) / WIDTH;
 
 export function useZoom() {
   const [zoom, setZoom] = useState(currentZoom);

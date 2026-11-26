@@ -26,11 +26,11 @@ const label = "nm text-[16px] leading-normal tracking-[-0.32px] whitespace-nowra
 
 // The section on screen: the last one whose top has passed a third of the
 // way down the window.
-function currentSection(zoom: number) {
+function currentSection(zoom: number, lift: number) {
   const line = window.scrollY + window.innerHeight / 3;
   let current = 0;
   MOBILE_NEST_SECTIONS.forEach((section, i) => {
-    if (section.top * zoom <= line) current = i;
+    if ((section.top - lift) * zoom <= line) current = i;
   });
   return current;
 }
@@ -65,32 +65,43 @@ function Arrow({ up }: { up: boolean }) {
   );
 }
 
-export default function MobileNestOverlay({ zoom }: { zoom: number }) {
+// `lift`: how far the page closed up above the sections (a shrunk hero).
+export default function MobileNestOverlay({ zoom, lift = 0 }: { zoom: number; lift?: number }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [section, setSection] = useState(() => currentSection(zoom));
+  const [section, setSection] = useState(() => currentSection(zoom, lift));
   const [homeLabel, setHomeLabel] = useState(true);
   const atFinal = section === FINAL;
 
   // The label's moment starts once the loading screen has gone.
   useEffect(() => {
+    // While the loader covers the page the label waits, shown; it starts
+    // counting once the loader goes (and again if the loader comes back).
     let timer = 0;
+    let frame = 0;
     const loader = document.querySelector("[data-page-loader]");
-    const start = () => {
-      if (timer || loader?.getAttribute("aria-hidden") === "false") return;
-      timer = window.setTimeout(() => setHomeLabel(false), HOME_LABEL_MS);
+    const sync = () => {
+      if (loader?.getAttribute("aria-hidden") === "false") {
+        window.clearTimeout(timer);
+        timer = 0;
+        setHomeLabel(true);
+      } else if (!timer) {
+        timer = window.setTimeout(() => setHomeLabel(false), HOME_LABEL_MS);
+      }
     };
-    const observer = new MutationObserver(start);
+    const observer = new MutationObserver(sync);
     if (loader) observer.observe(loader, { attributes: true, attributeFilter: ["aria-hidden"] });
-    start();
+    // First look once the loader has had a chance to cover the new page.
+    frame = requestAnimationFrame(() => (frame = requestAnimationFrame(sync)));
     return () => {
       observer.disconnect();
+      cancelAnimationFrame(frame);
       window.clearTimeout(timer);
     };
   }, []);
 
   useEffect(() => {
-    const update = () => setSection(currentSection(zoom));
+    const update = () => setSection(currentSection(zoom, lift));
     update();
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update);
@@ -98,9 +109,9 @@ export default function MobileNestOverlay({ zoom }: { zoom: number }) {
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
     };
-  }, [zoom]);
+  }, [zoom, lift]);
 
-  const toSection = (i: number) => scrollToY(MOBILE_NEST_SECTIONS[i].top * zoom);
+  const toSection = (i: number) => scrollToY((MOBILE_NEST_SECTIONS[i].top - lift) * zoom);
   const skipWidth = atFinal ? BACK_WIDTH : SKIP_WIDTH;
 
   return (

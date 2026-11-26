@@ -23,11 +23,20 @@ const CUTS = [
   0, 890, 1172, 1313, 1724, 1851, 2511, 2651, 3009, 3078, 3310, 3379, 3586, 3693, 4095, 4212, 4889, 4987, 5803, 5914,
   6686, 7453, 8080, 8151, 8436, 8543, 8832, 8966, 10583, 11057, MOBILE_NEST_FOOTER_TOP - 20,
 ];
-export const MOBILE_NEST_BLOCKS = CUTS.slice(0, -1).map((top, i) => ({
-  src: `/assets/nest/mobile/block-${String(i).padStart(2, "0")}.webp`,
-  top,
-  height: CUTS[i + 1] - top,
-}));
+// The first block is the hero, drawn on its own (see MOBILE_NEST_HERO).
+export const MOBILE_NEST_BLOCKS = CUTS.slice(0, -1)
+  .map((top, i) => ({
+    src: `/assets/nest/mobile/block-${String(i).padStart(2, "0")}.webp`,
+    top,
+    height: CUTS[i + 1] - top,
+  }))
+  .slice(1);
+
+// "Frame 1597881005" (2217:44579, 400 x 754 at 1, 97): the hero art with the
+// nest logo at its foot. On screens shorter than the design it shrinks so the
+// logo still shows on the first screen, clear of the skip and menu buttons
+// (24 up from the bottom, 40 tall, plus a 10 gap), and the page below closes up.
+export const MOBILE_NEST_HERO = { src: "/assets/nest/mobile/hero.webp", top: 97, width: 402, height: 754, below: 74 };
 
 // The final-product videos, cropped as in Figma (phones in their screen mask,
 // thermostats in their round screen). Same recordings as desktop.
