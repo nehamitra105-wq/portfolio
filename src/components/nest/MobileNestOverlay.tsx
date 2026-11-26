@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { scrollToY } from "../../site/navigation";
 import { MOBILE_NEST_SECTIONS } from "../../site/nestMobile";
@@ -35,9 +35,24 @@ function currentSection(zoom: number) {
   return current;
 }
 
+// "down" (2217:11305): the arrow keeps nudging along its direction, 5px each
+// way (after delay, smart animate 0.4s ease out).
 function Arrow({ up }: { up: boolean }) {
+  const ref = useRef<SVGSVGElement>(null);
+  useEffect(() => {
+    const animation = ref.current?.animate(
+      [
+        { translate: "0 -3px", easing: "ease-out" },
+        { translate: "0 2px", easing: "ease-out" },
+        { translate: "0 -3px" },
+      ],
+      { duration: 800, iterations: Infinity },
+    );
+    return () => animation?.cancel();
+  }, []);
   return (
     <svg
+      ref={ref}
       className="block shrink-0"
       fill="none"
       height="18"
@@ -57,9 +72,21 @@ export default function MobileNestOverlay({ zoom }: { zoom: number }) {
   const [homeLabel, setHomeLabel] = useState(true);
   const atFinal = section === FINAL;
 
+  // The label's moment starts once the loading screen has gone.
   useEffect(() => {
-    const timer = window.setTimeout(() => setHomeLabel(false), HOME_LABEL_MS);
-    return () => window.clearTimeout(timer);
+    let timer = 0;
+    const loader = document.querySelector("[data-page-loader]");
+    const start = () => {
+      if (timer || loader?.getAttribute("aria-hidden") === "false") return;
+      timer = window.setTimeout(() => setHomeLabel(false), HOME_LABEL_MS);
+    };
+    const observer = new MutationObserver(start);
+    if (loader) observer.observe(loader, { attributes: true, attributeFilter: ["aria-hidden"] });
+    start();
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timer);
+    };
   }, []);
 
   useEffect(() => {
@@ -77,7 +104,8 @@ export default function MobileNestOverlay({ zoom }: { zoom: number }) {
   const skipWidth = atFinal ? BACK_WIDTH : SKIP_WIDTH;
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-50">
+    // Under the loading screen (z 45).
+    <div className="pointer-events-none fixed inset-0 z-40">
       {/* the open menu */}
       <div
         aria-hidden={!open}

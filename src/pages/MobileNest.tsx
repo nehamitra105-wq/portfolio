@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import MicroInteractions from "../components/nest/MicroInteractions";
 import MobileNestOverlay from "../components/nest/MobileNestOverlay";
@@ -14,6 +14,8 @@ import {
   MOBILE_NEST_HEIGHT,
   MOBILE_TRAIT_ROWS,
 } from "../site/nestMobile";
+import Disc from "../components/Disc";
+import { CASE_STUDIES } from "../site/caseStudies";
 import { FadeUp, Footer, useZoom } from "./MobileHome";
 
 // "mobile - home" (2187:22119): the nest case study at 402 wide, scaled to the
@@ -29,6 +31,66 @@ function Scaled({ left, top, size: [w, h], scale, children }: { left: number; to
       <div className="absolute top-0 left-0 origin-top-left" style={{ width: w, height: h, scale }}>
         {children}
       </div>
+    </div>
+  );
+}
+
+// A video that loops while it's on screen.
+function ScreenVideo({ src, style }: { src: string; style: React.CSSProperties }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) void el.play().catch(() => {});
+      else el.pause();
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return <video className="absolute block max-w-none bg-white object-cover" loop muted playsInline preload="metadata" ref={ref} src={src} style={style} />;
+}
+
+// "ribbon cd cas" (149 x 132.5): the next project's CD sits down in its case,
+// then rises out of it (after delay, smart animate 1.25s slow) once it's on
+// screen. Stepped frame by frame, like the fade-ups, for iPhone Safari.
+const RIBBON = CASE_STUDIES.find((study) => study.slug === "ribbon")!;
+const CD_DOWN = 4.8;
+const CD_UP = -31;
+const slowCurve = (t: number) => 1 - (1 - t) ** 4;
+
+function RibbonCd({ left, top }: { left: number; top: number }) {
+  const box = useRef<HTMLDivElement>(null);
+  const disc = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    let frame = 0;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        const begin = performance.now();
+        const step = () => {
+          const t = Math.min(1, (performance.now() - begin) / 1250);
+          if (disc.current) disc.current.style.top = `${CD_DOWN + (CD_UP - CD_DOWN) * slowCurve(t)}px`;
+          if (t < 1) frame = requestAnimationFrame(step);
+        };
+        frame = requestAnimationFrame(step);
+      },
+      { threshold: 0.6 },
+    );
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  return (
+    <div className="absolute h-[132.5px] w-[149px]" ref={box} style={{ left, top }}>
+      <img alt="" className="absolute inset-0 block size-full max-w-none" draggable={false} src="/assets/home/shelf-case.png" />
+      <Disc className="absolute left-[16.5px] size-[123.5px]" disc={RIBBON.shelfDisc} ref={disc} style={{ top: CD_DOWN }} />
     </div>
   );
 }
@@ -109,6 +171,11 @@ export default function MobileNest() {
           />
         </FadeUp>
 
+        {/* "A/B testing graphic — Mobile", exported from Figma as a video */}
+        <FadeUp>
+          <ScreenVideo src="/assets/nest/videos/ab-test-mobile.mp4" style={{ left: 7, top: 4995, width: 388, height: 788 }} />
+        </FadeUp>
+
         {/* micro-interactions */}
         <FadeUp>
           <MicroInteractions scale={354 / 896} style={{ left: 24, top: 8171 }} />
@@ -146,6 +213,11 @@ export default function MobileNest() {
               style={{ left, top, width, height }}
             />
           ))}
+        </FadeUp>
+
+        {/* next project */}
+        <FadeUp>
+          <RibbonCd left={229} top={11602.4} />
         </FadeUp>
 
         <FadeUp>

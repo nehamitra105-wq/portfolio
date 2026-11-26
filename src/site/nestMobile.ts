@@ -45,7 +45,7 @@ export const MOBILE_FINAL_VIDEOS: FinalVideo[] = [
 export const MOBILE_ABOVE_VIDEO = [
   ["over-request.png", 133.5, 9139.7, 102, 82.5],
   ["over-meeting.png", 137.5, 9658.4, 52.5, 28.5],
-  ["over-dial.png", 228, 10023.4, 176, 179],
+  ["over-dial.svg", 228, 10023.4, 176, 179],
   ["over-leaf.png", 224.7, 10182.2, 31, 22.5],
 ] as const;
 
