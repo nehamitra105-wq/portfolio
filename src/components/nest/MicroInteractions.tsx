@@ -44,10 +44,11 @@ function LoopingVideo({ name, bleed, style }: { name: string; bleed: number; sty
   );
 }
 
-export default function MicroInteractions({ style }: { style?: CSSProperties }) {
+// `scale` sizes the grid (the mobile page draws it 354 wide).
+export default function MicroInteractions({ style, scale = MICRO_SCALE }: { style?: CSSProperties; scale?: number }) {
   return (
-    <div className="absolute" style={{ ...style, width: 896 * MICRO_SCALE, height: 619 * MICRO_SCALE }}>
-      <div className="absolute top-0 left-0 h-[619px] w-[896px] origin-top-left" style={{ scale: MICRO_SCALE }}>
+    <div className="absolute" style={{ ...style, width: 896 * scale, height: 619 * scale }}>
+      <div className="absolute top-0 left-0 h-[619px] w-[896px] origin-top-left" style={{ scale }}>
         {VIDEOS.map(({ name, left, top, width, height, radius, bleed }) => (
           <LoopingVideo bleed={bleed} key={name} name={name} style={{ left, top, width, height, borderRadius: radius }} />
         ))}

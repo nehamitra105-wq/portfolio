@@ -19,23 +19,33 @@ const TILES = MOODBOARD_TILES.map(([x, y, w, h], i) => ({
 }));
 
 type Offset = { x: number; y: number };
+export type MoodTile = { x: number; y: number; w: number; h: number };
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
-function layoutAround(activeIndex: number): Offset[] {
-  const active = TILES[activeIndex];
-  const enlargedWidth = active.w * HOVER_SCALE;
-  const enlargedHeight = active.h * HOVER_SCALE;
+// Where every tile moves when one is enlarged: the enlarged tile stays inside
+// the cluster and the tiles near it are pushed out of its way. Shared with the
+// mobile moodboard.
+export function moodboardLayout(
+  tiles: MoodTile[],
+  width: number,
+  height: number,
+  activeIndex: number,
+  { scale = HOVER_SCALE, gap = GAP, margin = INFLUENCE_MARGIN, push: maxPush = MAX_RADIAL_PUSH } = {},
+): Offset[] {
+  const active = tiles[activeIndex];
+  const enlargedWidth = active.w * scale;
+  const enlargedHeight = active.h * scale;
   const intendedLeft = active.x - (enlargedWidth - active.w) / 2;
   const intendedTop = active.y - (enlargedHeight - active.h) / 2;
   const activeOffset = {
-    x: clamp(intendedLeft, 0, Math.max(MOODBOARD_WIDTH - enlargedWidth, 0)) - intendedLeft,
-    y: clamp(intendedTop, 0, Math.max(MOODBOARD_HEIGHT - enlargedHeight, 0)) - intendedTop,
+    x: clamp(intendedLeft, 0, Math.max(width - enlargedWidth, 0)) - intendedLeft,
+    y: clamp(intendedTop, 0, Math.max(height - enlargedHeight, 0)) - intendedTop,
   };
   const activeCenterX = active.x + active.w / 2 + activeOffset.x;
   const activeCenterY = active.y + active.h / 2 + activeOffset.y;
-  const influence = Math.max(enlargedWidth, enlargedHeight) + INFLUENCE_MARGIN;
+  const influence = Math.max(enlargedWidth, enlargedHeight) + margin;
 
-  return TILES.map((tile, i) => {
+  return tiles.map((tile, i) => {
     if (i === activeIndex) return activeOffset;
 
     const deltaX = tile.x + tile.w / 2 - activeCenterX;
@@ -45,24 +55,26 @@ function layoutAround(activeIndex: number): Offset[] {
 
     // A gentle push away from the enlarged image, stronger up close...
     const falloff = 1 - distance / influence;
-    const push = MAX_RADIAL_PUSH * falloff * falloff;
+    const push = maxPush * falloff * falloff;
     let x = distance === 0 ? push : (deltaX / distance) * push;
     let y = distance === 0 ? 0 : (deltaY / distance) * push;
 
     // ...plus whatever it takes to clear it along the shorter axis.
-    const overlapX = enlargedWidth / 2 + tile.w / 2 + GAP - Math.abs(deltaX);
-    const overlapY = enlargedHeight / 2 + tile.h / 2 + GAP - Math.abs(deltaY);
+    const overlapX = enlargedWidth / 2 + tile.w / 2 + gap - Math.abs(deltaX);
+    const overlapY = enlargedHeight / 2 + tile.h / 2 + gap - Math.abs(deltaY);
     if (overlapX > 0 && overlapY > 0) {
       if (overlapX < overlapY) x += Math.sign(deltaX || 1) * overlapX;
       else y += Math.sign(deltaY || 1) * overlapY;
     }
 
     return {
-      x: clamp(x, -tile.x, MOODBOARD_WIDTH - tile.x - tile.w),
-      y: clamp(y, -tile.y, MOODBOARD_HEIGHT - tile.y - tile.h),
+      x: clamp(x, -tile.x, width - tile.x - tile.w),
+      y: clamp(y, -tile.y, height - tile.y - tile.h),
     };
   });
 }
+
+const layoutAround = (activeIndex: number) => moodboardLayout(TILES, MOODBOARD_WIDTH, MOODBOARD_HEIGHT, activeIndex);
 
 export default function Moodboard({ style }: { style: CSSProperties }) {
   const [active, setActive] = useState<number | null>(null);

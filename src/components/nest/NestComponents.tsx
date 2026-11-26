@@ -155,9 +155,10 @@ export function SpecBullets({ style }: { style: CSSProperties }) {
 // "visual traits anim" (1024 x 174): the 30 traits fade away, slide back in
 // row by row, then the 10 chosen ones turn black.
 
-type Pill = [label: string, x: number, width: number, chosen?: true];
+export type Pill = [label: string, x: number, width: number, chosen?: true];
+export type TraitRow = { y: number; from: number; pills: Pill[] };
 
-const TRAIT_ROWS: { y: number; from: number; pills: Pill[] }[] = [
+const TRAIT_ROWS: TraitRow[] = [
   {
     y: 0,
     from: 1024,
@@ -205,7 +206,24 @@ const TRAIT_TIMELINE: [TraitPhase, number][] = [
   ["all", 2083 + 100],
 ];
 
-export function VisualTraits({ style }: { style: CSSProperties }) {
+// The desktop rows by default; the mobile page passes its own smaller ones.
+export function VisualTraits({
+  style,
+  rows = TRAIT_ROWS,
+  width = 1024,
+  height = 174,
+  pillHeight = 36,
+  fontSize = 12,
+  border = 1,
+}: {
+  style: CSSProperties;
+  rows?: TraitRow[];
+  width?: number;
+  height?: number;
+  pillHeight?: number;
+  fontSize?: number;
+  border?: number;
+}) {
   const [phase, setPhase] = useState<TraitPhase>("chosen");
   const [ref, inView] = useInView<HTMLDivElement>();
 
@@ -221,28 +239,34 @@ export function VisualTraits({ style }: { style: CSSProperties }) {
     phase === "fading" ? `opacity 1.25s ${SLOW}` : phase === "all" ? `opacity 2.083s ${SLOW}, translate 2.083s ${SLOW}` : "none";
 
   return (
-    <div className="absolute h-[174px] w-[1024px]" ref={ref} style={style}>
-      {TRAIT_ROWS.map((row) => (
+    <div className="absolute" ref={ref} style={{ ...style, width, height }}>
+      {rows.map((row) => (
         <div
-          className="absolute left-0 h-[36px] w-[1024px]"
+          className="absolute left-0"
           key={row.y}
           style={{
+            width,
+            height: pillHeight,
             top: row.y,
             opacity: phase === "fading" || phase === "away" ? 0 : 1,
             translate: phase === "away" ? `${row.from}px 0` : "0 0",
             transition: rowTransition,
           }}
         >
-          {row.pills.map(([label, x, width, chosen]) => {
+          {row.pills.map(([label, x, pillWidth, chosen]) => {
             const black = chosen && (phase === "chosen" || phase === "fading");
             const faded = !chosen && (phase === "chosen" || phase === "fading");
             return (
               <div
-                className="nm absolute top-0 flex h-[36px] items-center justify-center rounded-[56px] border border-solid border-black text-[12px] leading-normal tracking-[0.24px] whitespace-nowrap"
+                className="nm absolute top-0 flex items-center justify-center rounded-[56px] border-solid border-black leading-normal whitespace-nowrap"
                 key={label}
                 style={{
                   left: x,
-                  width,
+                  width: pillWidth,
+                  height: pillHeight,
+                  borderWidth: border,
+                  fontSize,
+                  letterSpacing: fontSize * 0.02,
                   background: black ? "#000" : chosen ? "#fff" : "transparent",
                   color: black ? "#fff" : "#000",
                   opacity: faded ? 0.2 : 1,

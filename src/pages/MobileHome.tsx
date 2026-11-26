@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Disc from "../components/Disc";
 import CurrentlyPlaying from "../components/home/CurrentlyPlaying";
 import { Card, REFERRALS } from "../components/home/Referrals";
@@ -93,7 +93,7 @@ const wrap = (k: number) => ((((k + 2) % 4) + 4) % 4) - 2;
 // The page's scale; a hidden window can report no width, so never zero.
 const currentZoom = () => (document.documentElement.clientWidth || WIDTH) / WIDTH;
 
-function useZoom() {
+export function useZoom() {
   const [zoom, setZoom] = useState(currentZoom);
   useEffect(() => {
     const update = () => setZoom(currentZoom());
@@ -351,7 +351,7 @@ const FADE_RISE = 40;
 // Close to cubic-bezier(0.22, 1, 0.36, 1): quick to start, long settle.
 const fadeCurve = (t: number) => 1 - (1 - t) ** 4;
 
-function FadeUp({ children, delay = 0, onLoad = false }: { children: ReactNode; delay?: number; onLoad?: boolean }) {
+export function FadeUp({ children, delay = 0, onLoad = false }: { children: ReactNode; delay?: number; onLoad?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -567,17 +567,29 @@ function Pill({ href, top, children }: { href: string; top: number; children: Re
   );
 }
 
-function Footer({ onHome, onWork }: { onHome: () => void; onWork: () => void }) {
+// The mobile footer, also used under the nest case study (`top` is where it
+// starts on that page; About Me there goes to home's About Me).
+export function Footer({
+  onHome,
+  onWork,
+  onAbout = () => toSection("about"),
+  top = 5615,
+}: {
+  onHome: () => void;
+  onWork: () => void;
+  onAbout?: () => void;
+  top?: number;
+}) {
   const link = "nm absolute left-[134px] h-[44px] w-[134px] text-center text-[16px] leading-[44px] tracking-[-0.32px] text-black";
   return (
-    <footer className="absolute top-[5615px] left-0 h-[518px] w-[402px]" id="contact">
+    <footer className="absolute left-0 h-[518px] w-[402px]" id="contact" style={{ top }}>
       <button className={link} onClick={onHome} style={{ top: 0 }} type="button">
         Home
       </button>
       <button className={link} onClick={onWork} style={{ top: 76 }} type="button">
         Work
       </button>
-      <button className={link} onClick={() => toSection("about")} style={{ top: 152 }} type="button">
+      <button className={link} onClick={onAbout} style={{ top: 152 }} type="button">
         About Me
       </button>
       <Pill href={`mailto:${EMAIL}`} top={228}>
@@ -781,8 +793,18 @@ function useCaseStates(zoom: number) {
 }
 
 export default function MobileHome() {
+  const location = useLocation();
   const zoom = useZoom();
   const { state, go } = useCaseStates(zoom);
+
+  // Coming from another page's footer: open the cases or go to About Me.
+  useEffect(() => {
+    const target = (location.state as { scrollTo?: string } | null)?.scrollTo;
+    if (!target) return;
+    const timer = window.setTimeout(() => (target === "shelves" ? go(1) : toSection(target)), 400);
+    return () => window.clearTimeout(timer);
+    // Only on arrival.
+  }, []);
   const [lift] = useState(landingLift);
   const [openAt] = useState(openCenter);
   const below = belowOffset(openAt);

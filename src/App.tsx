@@ -6,6 +6,7 @@ import Gallery from "./pages/Gallery";
 import Home from "./pages/Home";
 import Job from "./pages/Job";
 import MobileHome from "./pages/MobileHome";
+import MobileNest from "./pages/MobileNest";
 import Nest from "./pages/Nest";
 import { caseStudyBySlug } from "./site/caseStudies";
 import { FrameZoom } from "./site/frameZoom";
@@ -23,6 +24,11 @@ function HomeRoute() {
   return useIsMobile() ? <MobileHome /> : <Home />;
 }
 
+// ...and the mobile nest case study.
+function NestRoute() {
+  return useIsMobile() ? <MobileNest /> : <Nest />;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -33,7 +39,7 @@ export default function App() {
         <Route element={<Gallery />} path="/gallery" />
         <Route element={<BriefRedirect />} path="/brief/:slug" />
         <Route element={<Job />} path="/work/:brand" />
-        <Route element={<Nest />} path="/nest" />
+        <Route element={<NestRoute />} path="/nest" />
         <Route element={<Navigate replace to="/" />} path="*" />
       </Routes>
       <PageLoader />
