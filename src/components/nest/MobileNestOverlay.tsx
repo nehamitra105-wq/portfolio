@@ -69,13 +69,16 @@ function Arrow({ up }: { up: boolean }) {
   );
 }
 
-// `lift`: how far the page closed up above the sections (a shrunk hero).
+// `lift`: how far the sections sit above their design places (negative when
+// the page below the hero moved down for a tall screen).
 export default function MobileNestOverlay({ zoom, lift = 0 }: { zoom: number; lift?: number }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [section, setSection] = useState(() => currentSection(zoom, lift));
   const [homeLabel, setHomeLabel] = useState(true);
   const [homeShown, setHomeShown] = useState(true);
+  // The skip and menu buttons wait until Overview has come on screen.
+  const [rowShown, setRowShown] = useState(false);
   const atFinal = section === FINAL;
 
   // Above Overview the home button shows, labelled "Home". Once the page is
@@ -89,6 +92,7 @@ export default function MobileNestOverlay({ zoom, lift = 0 }: { zoom: number; li
       const y = window.scrollY;
       const overview = (MOBILE_NEST_SECTIONS[0].top - lift) * zoom;
       const above = overview > y + window.innerHeight * 0.75;
+      setRowShown(overview < y + window.innerHeight);
       setHomeLabel(above);
       if (above) setHomeShown(true);
       else if (Math.abs(y - lastY) >= SCROLL_NOISE) setHomeShown(y < lastY);
@@ -186,7 +190,15 @@ export default function MobileNestOverlay({ zoom, lift = 0 }: { zoom: number; li
       </div>
 
       {/* "menu row": skip / back up, and the menu button */}
-      <div className="absolute right-0 bottom-0 h-[88px] w-[300px] origin-bottom-right" style={{ scale: zoom }}>
+      <div
+        className="absolute right-0 bottom-0 h-[88px] w-[300px] origin-bottom-right"
+        style={{
+          scale: zoom,
+          opacity: rowShown || open ? 1 : 0,
+          visibility: rowShown || open ? "visible" : "hidden",
+          transition: DISSOLVE,
+        }}
+      >
         <button
           aria-label={atFinal ? "Scroll back up" : undefined}
           className={`${label} pointer-events-auto absolute right-[74px] bottom-[24px] flex h-[40px] items-center justify-center gap-[10px] overflow-hidden rounded-[40px] bg-black text-white`}

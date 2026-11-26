@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MicroInteractions from "../components/nest/MicroInteractions";
 import MobileNestOverlay from "../components/nest/MobileNestOverlay";
@@ -13,11 +13,13 @@ import {
   MOBILE_NEST_FOOTER_TOP,
   MOBILE_NEST_HEIGHT,
   MOBILE_NEST_HERO,
+  MOBILE_NEST_LOGO,
+  MOBILE_NEST_SCREEN,
   MOBILE_TRAIT_ROWS,
 } from "../site/nestMobile";
 import Disc from "../components/Disc";
 import { CASE_STUDIES } from "../site/caseStudies";
-import { FadeUp, Footer, useZoom } from "./MobileHome";
+import { FadeUp, Footer, currentZoom, useZoom } from "./MobileHome";
 
 // "mobile - home" (2187:22119): the nest case study at 402 wide, scaled to the
 // phone's width. The page is drawn from its Figma render, block by block, each
@@ -101,14 +103,22 @@ const USE_CASES = ["Shared office space", "Conference room", "Eco-friendly offic
 export default function MobileNest() {
   const navigate = useNavigate();
   const zoom = useZoom();
+  // The first screen's height in design units, measured once on arrival (so
+  // it holds as Safari's bars come and go). The logo sits at the bottom of
+  // it; on screens taller than the design the page below moves down to match.
+  const [screen] = useState(() => window.innerHeight / currentZoom());
+  const logoTop = screen - MOBILE_NEST_LOGO.below - MOBILE_NEST_LOGO.height;
+  const extra = Math.max(0, screen - MOBILE_NEST_SCREEN);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   return (
     <div className="relative w-full overflow-x-clip bg-white">
-      <div className="relative" style={{ width: WIDTH, height: MOBILE_NEST_HEIGHT, zoom }}>
-        {/* the hero, edge to edge */}
+      <div className="relative" style={{ width: WIDTH, height: MOBILE_NEST_HEIGHT + extra, zoom }}>
+        {/* the hero art, fitted to the width, and its logo at the foot of
+            the first screen */}
         <FadeUp onLoad>
           <img
             alt=""
@@ -116,8 +126,16 @@ export default function MobileNest() {
             src={MOBILE_NEST_HERO.src}
             style={{ top: MOBILE_NEST_HERO.top, width: MOBILE_NEST_HERO.width, height: MOBILE_NEST_HERO.height }}
           />
+          <img
+            alt="nest"
+            className="absolute block max-w-none"
+            src={MOBILE_NEST_LOGO.src}
+            style={{ left: MOBILE_NEST_LOGO.left, top: logoTop, width: MOBILE_NEST_LOGO.width, height: MOBILE_NEST_LOGO.height }}
+          />
         </FadeUp>
 
+        {/* On a taller screen than the design, everything below moves down. */}
+        <div className="absolute inset-x-0 top-0" style={{ transform: extra ? `translateY(${extra}px)` : undefined }}>
         {MOBILE_NEST_BLOCKS.map((block, i) => (
           <FadeUp key={block.src}>
             <img
@@ -238,8 +256,9 @@ export default function MobileNest() {
             top={MOBILE_NEST_FOOTER_TOP}
           />
         </FadeUp>
+        </div>
       </div>
-      <MobileNestOverlay zoom={zoom} />
+      <MobileNestOverlay lift={-extra} zoom={zoom} />
     </div>
   );
 }

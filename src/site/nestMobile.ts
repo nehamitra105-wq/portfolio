@@ -32,9 +32,14 @@ export const MOBILE_NEST_BLOCKS = CUTS.slice(0, -1)
   }))
   .slice(1);
 
-// "Frame 1597881005" (2217:44579, 402 x 754 at 0, 97): the hero art with the
-// nest logo at its foot, edge to edge.
-export const MOBILE_NEST_HERO = { src: "/assets/nest/mobile/hero.webp", top: 97, width: 402, height: 754 };
+// "Frame 1597881005" (2217:44579, 400 x 754 at 1, 97): the hero art, fitted
+// to the full width. Its nest logo (31, 787; 149 x 63.77) is drawn on its own
+// and keeps its Figma spacing from the bottom of the first screen (23.23 under
+// it on the 874-tall design) whatever the phone's height, over the art on
+// shorter phones. On taller ones the page below moves down with it.
+export const MOBILE_NEST_HERO = { src: "/assets/nest/mobile/hero.webp", top: 97, width: 402, height: (754 * 402) / 400 };
+export const MOBILE_NEST_LOGO = { src: "/assets/nest/mobile/hero-logo.png", left: 31, width: 149, height: 63.77, below: 23.23 };
+export const MOBILE_NEST_SCREEN = 874;
 
 // The final-product videos, cropped as in Figma (phones in their screen mask,
 // thermostats in their round screen). Same recordings as desktop.
