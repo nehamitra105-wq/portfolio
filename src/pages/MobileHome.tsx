@@ -30,9 +30,9 @@ const END = { x: 201, y: 1274.25 }; // its centre in the swipe area
 const TRAVEL = END.y - START.y;
 // Opening plays the stack, then the fan.
 const STACK_PART = 0.45;
-// Every state change plays like the desktop hero landing: 1.4s, easing in
-// and out.
-const MOVE_MS = 1400;
+// Every state change eases in and out over 0.9s (quicker than the desktop
+// hero's 1.4s, so swiping through the cases keeps up).
+const MOVE_MS = 900;
 // The nest disc turns like the desktop hero CD (12s a turn) until the first
 // scroll, then winds back to upright as the cases come out.
 const SPIN_DEGREES_PER_MS = 360 / 12000;
